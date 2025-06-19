@@ -77,7 +77,6 @@ $data = $result->fetch_assoc();
 <body>
 
 <?php include 'partials/navbar.php'; ?>
-<?php include 'partials/navbar.php'; ?>
 
 <div class="container">
     <div class="detail-box">
