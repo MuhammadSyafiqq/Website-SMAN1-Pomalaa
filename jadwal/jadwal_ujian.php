@@ -339,10 +339,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <li class="dropdown">
                     <a href="#">Profil</a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Tentang</a></li>
+                        <li><a href="tentang.php">Tentang</a></li>
                         <li><a href="../visi_misi.php">Visi Dan Misi</a></li>
                         <li><a href="../akreditasi.php">Akreditasi</a></li>
-                        <li><a href="#">Tentang</a></li>
                     </ul>
                 </li>
                 <li><a href="../prestasi.php">Prestasi</a></li>
