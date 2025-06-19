@@ -1,86 +1,47 @@
 <?php
 session_start();
-
 require_once '../config/database.php';
-require_once '../models/Kelas.php';
+require_once '../models/KelasModel.php';
 
-// Instantiate Kelas model
-$kelasModel = new Kelas($connection);
-
-$message = '';
-// Handle form submission for edit kelas
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_kelas'])) {
-    $edit_id = $_POST['edit_id'] ?? '';
-    $edit_nama = strtoupper(trim($_POST['edit_nama'] ?? ''));
-
-    if ($edit_id && $edit_nama) {
-        $success = $kelasModel->update($edit_id, $edit_nama);
-        if ($success) {
-            $_SESSION['message'] = "Kelas berhasil diupdate.";
-        } else {
-            $_SESSION['message'] = "Gagal mengupdate kelas.";
-        }
-    } else {
-        $_SESSION['message'] = "Data tidak lengkap.";
-    }
-    header("Location: index.php");
-    exit;
-}
-
-// Display form for editing kelas
-$kelasToEdit = null;
-if (isset($_GET['id'])) {
-    $kelasList = $kelasModel->getAll();
-    foreach ($kelasList as $kelas) {
-        if ($kelas['id'] === $_GET['id']) {
-            $kelasToEdit = $kelas;
-            break;
-        }
-    }
-}
-
-if (!$kelasToEdit) {
-    $_SESSION['message'] = "Kelas tidak ditemukan.";
-    header("Location: index.php");
-    exit;
-}
+$kelasModel = new KelasModel($connection);
+$kelasList = $kelasModel->getAll();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Edit Kelas</title>
-    <link rel="stylesheet" href="../assets/css/styles.css" />
+    <title>Manajemen Kelas</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Edit Kelas</h1>
-        <?php if (isset($_SESSION['message'])): ?>
-            <p class="message <?php echo (strpos($_SESSION['message'], 'Gagal') !== false) ? 'error' : ''; ?>">
-                <?php 
-                    echo htmlspecialchars($_SESSION['message']); 
-                    unset($_SESSION['message']);
-                ?>
-            </p>
-        <?php endif; ?>
+    <h2>Manajemen Kelas</h2>
 
-        <form method="POST" action="">
-            <input type="hidden" name="edit_id" value="<?php echo htmlspecialchars($kelasToEdit['id']); ?>">
-            
-            <label for="edit_kelas_nama">Nama Kelas:</label>
-            <input 
-                type="text" 
-                id="edit_kelas_nama" 
-                name="edit_nama" 
-                required 
-                maxlength="10" 
-                value="<?php echo htmlspecialchars($kelasToEdit['nama']); ?>" 
-            />
-            <button type="submit" name="edit_kelas">Update Kelas</button>
-            <a href="index.php" style="margin-left: 1rem;">Batal</a>
-        </form>
+    <?php if (isset($_SESSION['message'])): ?>
+    <div style="background:#d4edda; color:#155724; padding:10px; margin-bottom:10px; border-radius:5px;">
+        <?= $_SESSION['message']; unset($_SESSION['message']); ?>
     </div>
+<?php endif; ?>
+
+    <form method="POST" action="../controllers/KelasController.php">
+        <input type="text" name="kelas_nama" placeholder="Nama Kelas" required>
+        <button type="submit" name="add_kelas">Tambah Kelas</button>
+    </form>
+
+    <h3>Daftar Kelas</h3>
+    <table border="1">
+        <thead>
+            <tr><th>ID</th><th>Nama</th><th>Aksi</th></tr>
+        </thead>
+        <tbody>
+            <?php while($row = $kelasList->fetch_assoc()): ?>
+                <tr>
+                    <td><?= $row['id'] ?></td>
+                    <td><?= $row['nama'] ?></td>
+                    <td>
+                        <a href="../controllers/kelasController.php?delete_id=<?= $row['id'] ?>" onclick="return confirm('Hapus kelas ini?')">Hapus</a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
 </body>
 </html>

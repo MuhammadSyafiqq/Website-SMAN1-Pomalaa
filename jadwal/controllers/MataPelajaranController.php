@@ -1,74 +1,37 @@
 <?php
-require_once '../config/database.php';
-require_once '../models/MataPelajaran.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../models/MataPelajaranModel.php';
+require_once __DIR__ . '/../helpers/functions.php';
 
-$message = "";
+$model = new MataPelajaranModel($connection);
 
-// Handle mata_pelajaran insertion
-if (isset($_POST['add_mata_pelajaran'])) {
-    $mp_nama = trim($_POST['mata_pelajaran_nama']);
+if (isset($_POST['add_mapel'])) {
+    $nama = strtoupper(trim($_POST['nama']));
     $kategori = $_POST['kategori'];
-    
-    if ($mp_nama && $kategori) {
-        // Generate ID otomatis
-        $new_id = generateNextId($connection, 'mata_pelajaran', 'MP-');
-        
-        $stmt = $connection->prepare("INSERT INTO mata_pelajaran (id, nama, kategori) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $new_id, $mp_nama, $kategori);
-        
-        if ($stmt->execute()) {
-            $message = "Mata Pelajaran berhasil ditambahkan dengan ID: $new_id";
-        } else {
-            $message = "Gagal menambahkan Mata Pelajaran: " . $connection->error;
-        }
-        $stmt->close();
+    if ($nama && $kategori) {
+        $id = generateNextId($connection, 'mata_pelajaran', 'MP-');
+        $model->create($id, $nama, $kategori);
+        redirectWithMessage("Mata pelajaran berhasil ditambahkan.");
     } else {
-        $message = "Nama mata pelajaran dan kategori harus diisi.";
+        redirectWithMessage("Semua field harus diisi.");
     }
-    // Redirect to prevent form resubmission
-    redirectWithMessage($message);
 }
 
-// Handle mata_pelajaran editing
-if (isset($_POST['edit_mata_pelajaran'])) {
+if (isset($_POST['edit_mapel'])) {
     $id = $_POST['edit_id'];
-    $nama = trim($_POST['edit_nama']);
+    $nama = strtoupper(trim($_POST['edit_nama']));
     $kategori = $_POST['edit_kategori'];
-    
-    $stmt = $connection->prepare("UPDATE mata_pelajaran SET nama = ?, kategori = ? WHERE id = ?");
-    $stmt->bind_param("sss", $nama, $kategori, $id);
-    
-    if ($stmt->execute()) {
-        $message = "Mata Pelajaran berhasil diupdate.";
-    } else {
-        $message = "Gagal mengupdate mata pelajaran: " . $connection->error;
-    }
-    $stmt->close();
+    $model->update($id, $nama, $kategori);
+    redirectWithMessage("Mata pelajaran berhasil diperbarui.");
 }
 
-// Handle mata_pelajaran deletion
 if (isset($_GET['delete'])) {
-    $table = $_GET['table'];
-    $id = $_GET['id'];
-    
-    if (in_array($table, ['kelas', 'jurusan', 'mata_pelajaran', 'jadwal_ujian'])) {
-        $stmt = $connection->prepare("DELETE FROM $table WHERE id = ?");
-        $stmt->bind_param("s", $id);
-        if ($stmt->execute()) {
-            $message = ucfirst($table) . " berhasil dihapus.";
-        } else {
-            $message = "Gagal menghapus " . $table . ": " . $connection->error;
-        }
-        $stmt->close();
-    }
-     redirectWithMessage($message);
+    $model->delete($_GET['delete']);
+    redirectWithMessage("Mata pelajaran berhasil dihapus.");
 }
-
-// Redirect with message function
-function redirectWithMessage($message) {
-    session_start();
-    $_SESSION['message'] = $message;
-    header("Location: ../views/index.php");
-    exit();
+if (isset($_GET['kategori'])) {
+    $kategori = $_GET['kategori'];
+    $data = $model->getByKategori($kategori);
+} else {
+    $data = $model->getAll();
 }
-?>

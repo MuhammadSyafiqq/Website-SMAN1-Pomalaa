@@ -1,71 +1,42 @@
 <?php
-require_once '../config/database.php';
-require_once '../models/Jurusan.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../models/JurusanModel.php';
+require_once __DIR__ . '/../helpers/functions.php';
 
-$message = "";
+$jurusanModel = new JurusanModel($connection);
 
-// Handle jurusan insertion
+// Tambah
 if (isset($_POST['add_jurusan'])) {
-    $jurusan_nama = strtoupper(trim($_POST['jurusan_nama']));
-    if ($jurusan_nama) {
-        // Generate ID otomatis untuk jurusan
-        $new_id = generateNextId($connection, 'jurusan', 'JR-');
-        
-        $stmt = $connection->prepare("INSERT INTO jurusan (id, nama) VALUES (?, ?)");
-        $stmt->bind_param("ss", $new_id, $jurusan_nama);
-        if ($stmt->execute()) {
-            $message = "Jurusan berhasil ditambahkan dengan ID: $new_id";
+    $nama = strtoupper(trim($_POST['jurusan_nama']));
+    if ($nama) {
+        $id = generateNextId($connection, 'jurusan', 'JR-');
+        if ($jurusanModel->add($id, $nama)) {
+            redirectWithMessage("Jurusan berhasil ditambahkan.", "../views/jurusan/index.php");
         } else {
-            $message = "Gagal menambahkan jurusan: " . $connection->error;
+            redirectWithMessage("Gagal menambahkan jurusan.", "../views/jurusan/index.php");
         }
-        $stmt->close();
     } else {
-        $message = "Nama jurusan harus diisi.";
+        redirectWithMessage("Nama jurusan harus diisi.", "../views/jurusan/index.php");
     }
-    // Redirect to prevent form resubmission
-    redirectWithMessage($message);
 }
 
-// Handle jurusan editing
+// Edit
 if (isset($_POST['edit_jurusan'])) {
     $id = $_POST['edit_id'];
     $nama = strtoupper(trim($_POST['edit_nama']));
-    
-    $stmt = $connection->prepare("UPDATE jurusan SET nama = ? WHERE id = ?");
-    $stmt->bind_param("ss", $nama, $id); // Change to "ss" for VARCHAR
-    
-    if ($stmt->execute()) {
-        $message = "Jurusan berhasil diupdate.";
+    if ($jurusanModel->update($id, $nama)) {
+        redirectWithMessage("Jurusan berhasil diupdate.", "../views/jurusan/index.php");
     } else {
-        $message = "Gagal mengupdate jurusan: " . $connection->error;
+        redirectWithMessage("Gagal update jurusan.", "../views/jurusan/index.php");
     }
-    $stmt->close();
-    redirectWithMessage($message);
 }
 
-// Handle jurusan deletion
-if (isset($_GET['delete'])) {
-    $table = $_GET['table'];
-    $id = $_GET['id'];
-    
-    if (in_array($table, ['kelas', 'jurusan', 'mata_pelajaran', 'jadwal_ujian'])) {
-        $stmt = $connection->prepare("DELETE FROM $table WHERE id = ?");
-        $stmt->bind_param("s", $id);
-        if ($stmt->execute()) {
-            $message = ucfirst($table) . " berhasil dihapus.";
-        } else {
-            $message = "Gagal menghapus " . $table . ": " . $connection->error;
-        }
-        $stmt->close();
+// Hapus
+if (isset($_GET['delete_id'])) {
+    $id = $_GET['delete_id'];
+    if ($jurusanModel->delete($id)) {
+        redirectWithMessage("Jurusan berhasil dihapus.", "../views/jurusan/index.php");
+    } else {
+        redirectWithMessage("Gagal menghapus jurusan.", "../views/jurusan/index.php");
     }
-     redirectWithMessage($message);
 }
-
-// Redirect with message function
-function redirectWithMessage($message) {
-    session_start();
-    $_SESSION['message'] = $message;
-    header("Location: ../views/index.php");
-    exit();
-}
-?>
