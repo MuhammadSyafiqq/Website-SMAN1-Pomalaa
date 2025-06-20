@@ -25,28 +25,29 @@
             <div class="footer-section">
                 <h3>INFO SEKOLAH</h3>
                 <ul>
-                    <li><a href="#">Profil Sekolah</a></li>
-                    <li><a href="#">Visi & Misi</a></li>
-                    <li><a href="#">Struktur Organisasi</a></li>
-                    <li><a href="#">Fasilitas</a></li>
-                    <li><a href="#">Prestasi</a></li>
+                    <li><a href="tentang.php">Profil Sekolah</a></li>
+                    <li><a href="visi_misi.php">Visi & Misi</a></li>
+                    <li><a href="struktural.php">Struktural</a></li>
+                    <li><a href="prestasi.php">Prestasi</a></li>
                 </ul>
             </div>
 
-            <div class="footer-section">
-                <h3>AGENDA SEKOLAH</h3>
-                <ul>
-                    <li><a href="#">Kalender Akademik</a></li>
-                    <li><a href="#">Kegiatan Sekolah</a></li>
-                    <li><a href="#">Pengumuman</a></li>
-                    <li><a href="#">Event Terbaru</a></li>
-                </ul>
-            </div>
 
             <div class="footer-section">
-                <h3>DENAH LOKAL</h3>
-                <p>Temukan lokasi ruang kelas, laboratorium, dan fasilitas sekolah lainnya dengan mudah melalui denah interaktif kami.</p>
+                <h3>LOKASI SEKOLAH</h3>
+                <div class="map-container">
+                    <iframe
+                        src="https://www.google.com/maps?q=-4.195127844991689,121.60381329283022&hl=id&z=17&output=embed"
+                        width="100%" 
+                        height="200" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
             </div>
+
         </div>
 
         <div class="footer-bottom">

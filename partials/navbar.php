@@ -18,6 +18,7 @@
             </li>
             <li><a href="prestasi.php">Prestasi</a></li>
             <li><a href="struktural.php">Struktural</a></li>
+            <li><a href="berita.php">Berita</a></li>
             <li class="dropdown">
                 <a href="#">Layanan</a>
                 <ul class="dropdown-menu">

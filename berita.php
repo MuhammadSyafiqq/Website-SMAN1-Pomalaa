@@ -15,14 +15,13 @@ $result = $connection->query($sql);
 <head>
     <meta charset="UTF-8">
     <title>Berita Sekolah</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/style/style.css?v=3">
+    <link rel="stylesheet" href="assets/style/style.css?v=4">
     <style>
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(to bottom, #003366, #00589D);
-            color: white;
+            color: #333;
         }
 
         .container {
@@ -37,81 +36,93 @@ $result = $connection->query($sql);
         }
 
         .header h1 {
-            font-size: 36px;
+            font-size: 38px;
             font-weight: bold;
-            border-bottom: 3px solid #FFD700;
+            color: white;
+            border-bottom: 4px solid #FFD700;
             display: inline-block;
-            padding-bottom: 10px;
-            color: #fff;
+            padding-bottom: 12px;
         }
 
-        .poster-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
         }
 
-        .poster-link {
-            text-decoration: none;
-        }
-
-        .poster {
-            background-color: #fff;
-            border-radius: 15px;
+        .news-card {
+            background-color: white;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
-            width: 260px;
+            transition: transform 0.3s ease;
         }
 
-        .poster:hover {
-            transform: scale(1.03);
+        .news-card:hover {
+            transform: translateY(-5px);
         }
 
-        .poster img {
+        .news-card img {
             width: 100%;
-            height: 160px;
+            height: 180px;
             object-fit: cover;
         }
 
-        .poster h3 {
-            margin: 15px 20px 5px;
-            font-size: 18px;
-            color: #003366;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .news-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .poster p {
-            font-size: 14px;
-            color: #333;
-            margin: 0 20px 15px;
+        .news-content h3 {
+            font-size: 20px;
+            color: #003366;
+            margin-bottom: 10px;
             overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .news-content .date {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .news-content p {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 15px;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .read-more {
+            align-self: flex-start;
+            font-size: 14px;
+            color:rgb(255, 255, 255);
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: auto;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+            color:rgb(255, 255, 255);
         }
 
         .no-data {
+            color: white;
             text-align: center;
-            font-size: 18px;
             padding: 50px 0;
-        }
-
-        @media (max-width: 1024px) {
-            .poster {
-                width: 45%;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .poster {
-                width: 100%;
-            }
+            font-size: 18px;
         }
     </style>
 </head>
@@ -124,20 +135,23 @@ $result = $connection->query($sql);
         <h1>Berita Sekolah</h1>
     </div>
 
-    <div class="poster-grid">
+    <div class="news-grid">
         <?php if ($result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <?php
-                    $isi_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['deskripsi'])), 0, 10)) . '...';
-                    $judul_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['title'])), 0, 6)) . '...';
+                    $isi_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['deskripsi'])), 0, 25)) . '...';
+                    $judul_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['title'])), 0, 10)) . '...';
+                    $tanggal = date('d M Y', strtotime($row['date']));
                 ?>
-                <a href="detail_berita.php?id=<?= $row['id_berita'] ?>" class="poster-link">
-                    <div class="poster">
-                        <img src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar Berita <?= htmlspecialchars($row['title']) ?>">
+                <div class="news-card">
+                    <img src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar Berita <?= htmlspecialchars($row['title']) ?>">
+                    <div class="news-content">
+                        <span class="date"><?= $tanggal ?></span>
                         <h3><?= htmlspecialchars($judul_pendek) ?></h3>
                         <p><?= htmlspecialchars($isi_pendek) ?></p>
+                        <a href="detail_berita.php?id=<?= $row['id_berita'] ?>" class="read-more">Baca Selengkapnya</a>
                     </div>
-                </a>
+                </div>
             <?php endwhile; ?>
         <?php else: ?>
             <div class="no-data">Tidak ada berita ditemukan.</div>
