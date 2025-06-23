@@ -1,6 +1,8 @@
 <?php
 // theme.php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Function to get current theme
 function getCurrentTheme() {
