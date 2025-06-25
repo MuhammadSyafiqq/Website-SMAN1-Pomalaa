@@ -214,13 +214,13 @@ if (!isset($_SESSION['username'])) {
 <!-- Tombol Dashboard -->
 <section class="admin-section">
     <div class="admin-buttons">
-        <a href="tambah_berita.php" class="admin-button">
+        <a href="admin_berita.php" class="admin-button">
             TAMBAH BERITA <i class="fas fa-plus"></i>
         </a>
         <a href="tambah_prestasi.php" class="admin-button">
             TAMBAH PRESTASI <i class="fas fa-plus"></i>
         </a>
-        <a href="tambah_ekskul.php" class="admin-button">
+        <a href="admin_ekskul.php" class="admin-button">
             TAMBAH EKSKUL <i class="fas fa-plus"></i>
         </a>
         <a href="tambah_struktur.php" class="admin-button">

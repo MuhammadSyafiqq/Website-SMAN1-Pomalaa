@@ -13,7 +13,7 @@
                 <ul class="dropdown-menu">
                     <li><a href="tentang.php">Tentang</a></li>
                     <li><a href="visi_misi.php">Visi Dan Misi</a></li>
-                    <li><a href="#">Akreditasi</a></li>
+                    <li><a href="akreditasi.php">Akreditasi</a></li>
                 </ul>
             </li>
             <li><a href="prestasi.php">Prestasi</a></li>
