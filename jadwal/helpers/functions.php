@@ -6,11 +6,10 @@
  * @param string $message Pesan yang akan ditampilkan.
  * @param string $location Halaman tujuan (default: index.php)
  */
-function redirectWithMessage($message, $location = 'index.php')
-{
-    $location .= '?message=' . urlencode($message);
-    header("Location: $location");
-    exit();
+function redirectWithMessage($message) {
+    $_SESSION['flash_message'] = $message;
+    header("Location: " . $_SERVER['HTTP_REFERER']);
+    exit;
 }
 
 /**
@@ -143,4 +142,9 @@ function getHariIndonesia($tanggal)
     ];
     return $map[$hariInggris] ?? '';
 }
-
+/**
+ * Mengonversi tanggal ke format Indonesia.
+ *
+ * @param string $tanggal Tanggal dalam format 'Y-m-d'
+ * @return string Tanggal dalam format 'd F Y'
+ */

@@ -30,11 +30,12 @@ class MataPelajaranModel
     }
 
     public function update($id, $nama, $kategori)
-    {
-        $stmt = $this->conn->prepare("UPDATE mata_pelajaran SET nama = ?, kategori = ? WHERE id = ?");
-        $stmt->bind_param("sss", $nama, $kategori, $id);
-        return $stmt->execute();
-    }
+{
+    $stmt = $this->conn->prepare("UPDATE mata_pelajaran SET nama = ?, kategori = ? WHERE id = ?");
+    $stmt->bind_param("sss", $nama, $kategori, $id);
+    return $stmt->execute();
+}
+
 
     public function delete($id)
     {

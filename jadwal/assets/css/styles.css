@@ -66,14 +66,15 @@ button {
   cursor: pointer;
   transition: background-color 0.3s ease;
   user-select: none;
+  align-items: end;
 }
 button:hover {
   background-color: #2563eb;
 }
 button.edit {
   background-color: #059669;
-  padding: 6px 12px;
-  font-size: 0.875rem;
+  display: flex;
+  align-items: flex-end;
 }
 button.edit:hover {
   background-color: #047857;

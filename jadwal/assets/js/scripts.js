@@ -308,6 +308,11 @@ function confirmDelete(table, id, nama) {
   }
 }
 
+setTimeout(() => {
+  const flash = document.getElementById("flash-message");
+  if (flash) flash.remove();
+}, 3000);
+
 // Close modal when clicking outside modal content
 window.onclick = function (event) {
   const modals = [

@@ -24,12 +24,18 @@ if (isset($_POST['add_jurusan'])) {
 if (isset($_POST['edit_jurusan'])) {
     $id = $_POST['edit_id'];
     $nama = strtoupper(trim($_POST['edit_nama']));
+
+    if (!$nama) {
+        redirectWithMessage("Nama jurusan tidak boleh kosong.", "../views/jurusan/index.php");
+    }
+
     if ($jurusanModel->update($id, $nama)) {
         redirectWithMessage("Jurusan berhasil diupdate.", "../views/jurusan/index.php");
     } else {
         redirectWithMessage("Gagal update jurusan.", "../views/jurusan/index.php");
     }
 }
+
 
 // Hapus
 if (isset($_GET['delete_id'])) {

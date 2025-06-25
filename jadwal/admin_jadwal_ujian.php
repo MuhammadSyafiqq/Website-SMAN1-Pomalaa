@@ -539,6 +539,7 @@ $grouped_jadwal_json = json_encode($grouped_jadwal);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin Panel - Input Data Jadwal Ujian</title>
     <style>
+        
     </style>
 </head>
 <body>
@@ -584,11 +585,11 @@ $grouped_jadwal_json = json_encode($grouped_jadwal);
                 <button type="submit" name="add_jurusan">Tambahkan Jurusan</button>
             </form>
             <table aria-label="Daftar Jurusan">
-    <thead>
+        <thead>
         <tr><th>ID</th><th>Nama Jurusan</th><th>Aksi</th></tr>
-    </thead>
-    <tbody>
-    <?php foreach ($jurusan_list as $row): ?>
+        </thead>
+        <tbody>
+        <?php foreach ($jurusan_list as $row): ?>
         <tr>
             <td><?php echo $row['id'] ?></td>
             <td><?php echo htmlspecialchars($row['nama']) ?></td>
@@ -597,8 +598,8 @@ $grouped_jadwal_json = json_encode($grouped_jadwal);
                 <button class="delete" onclick="confirmDelete('jurusan', '<?php echo $row['id']; ?>', '<?php echo htmlspecialchars($row['nama']); ?>')">Hapus</button>
             </td>
         </tr>
-    <?php endforeach; ?>
-    </tbody>
+        <?php endforeach; ?>
+        </tbody>
 </table>
         </section>
 
