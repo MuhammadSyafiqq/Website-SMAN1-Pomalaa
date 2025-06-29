@@ -2,7 +2,7 @@
 session_start();
 
 require_once '../config/database.php';
-require_once '../models/Jurusan.php';
+require_once '../models/JurusanModel.php';
 
 // Instantiate Jurusan model
 $jurusanModel = new Jurusan($connection);

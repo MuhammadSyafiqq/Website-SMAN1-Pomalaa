@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/JurusanModel.php';
-require_once __DIR__ . '/../helpers/functions.php';
 
-$jurusanModel = new JurusanModel($connection);
+class JurusanController {
+    private $model;
 
+<<<<<<< Updated upstream
 // Tambah
 if (isset($_POST['add_jurusan'])) {
     $nama = strtoupper(trim($_POST['jurusan_nama']));
@@ -44,5 +44,29 @@ if (isset($_GET['delete_id'])) {
         redirectWithMessage("Jurusan berhasil dihapus.", "../views/jurusan/index.php");
     } else {
         redirectWithMessage("Gagal menghapus jurusan.", "../views/jurusan/index.php");
+=======
+    public function __construct($connection) {
+        $this->model = new JurusanModel($connection);
+    }
+
+    public function index() {
+        return $this->model->getAll();
+    }
+
+    public function store($nama) {
+        return $this->model->tambahJurusan($nama);
+    }
+
+    public function update($id, $nama) {
+        return $this->model->updateJurusan($id, $nama);
+    }
+
+    public function delete($id) {
+        return $this->model->hapusJurusan($id);
+    }
+
+    public function show($id) {
+        return $this->model->getById($id);
+>>>>>>> Stashed changes
     }
 }

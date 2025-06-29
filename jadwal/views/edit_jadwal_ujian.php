@@ -2,10 +2,10 @@
 session_start();
 
 require_once '../config/database.php';
-require_once '../models/JadwalUjian.php';
-require_once '../models/Kelas.php';
-require_once '../models/Jurusan.php';
-require_once '../models/MataPelajaran.php';
+require_once '../models/JadwalUjianModel.php';
+require_once '../models/KelasModel.php';
+require_once '../models/JurusanModel.php';
+require_once '../models/MataPelajaranModel.php';
 
 // Instantiate models
 $jadwalUjianModel = new JadwalUjian($connection);

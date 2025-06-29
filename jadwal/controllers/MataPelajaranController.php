@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/MataPelajaranModel.php';
-require_once __DIR__ . '/../helpers/functions.php';
 
+<<<<<<< Updated upstream
 $mataPelajaranModel = new MataPelajaranModel($connection);
 
 if (isset($_POST['add_mata_pelajaran'])) {
@@ -62,3 +61,36 @@ if (isset($_GET['kategori'])) {
 } else {
     $data = $mataPelajaranModel->getAll();
 }
+=======
+class MataPelajaranController {
+    private $model;
+
+    public function __construct($connection) {
+        $this->model = new MataPelajaranModel($connection);
+    }
+
+    public function index() {
+        return $this->model->getAll();
+    }
+
+    public function store($nama, $kategori) {
+        return $this->model->tambahMataPelajaran($nama, $kategori);
+    }
+
+    public function update($id, $nama, $kategori) {
+        return $this->model->updateMataPelajaran($id, $nama, $kategori);
+    }
+
+    public function delete($id) {
+        return $this->model->hapusMataPelajaran($id);
+    }
+
+    public function show($id) {
+        return $this->model->getById($id);
+    }
+
+    public function getByKategori($kategori) {
+        return $this->model->getByKategori($kategori);
+    }
+}
+>>>>>>> Stashed changes

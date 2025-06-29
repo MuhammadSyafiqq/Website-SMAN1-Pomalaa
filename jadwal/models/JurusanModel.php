@@ -1,45 +1,50 @@
 <?php
-class JurusanModel
-{
+class JurusanModel {
     private $conn;
+    private $table = 'jurusan';
 
-    public function __construct($connection)
-    {
+    public function __construct($connection) {
         $this->conn = $connection;
     }
 
-    public function getAll()
-    {
-        $sql = "SELECT * FROM jurusan ORDER BY nama ASC";
-        return $this->conn->query($sql);
+    private function generateId() {
+        $query = "SELECT MAX(RIGHT(id, 3)) AS max_id FROM {$this->table}";
+        $result = $this->conn->query($query);
+        $row = $result->fetch_assoc();
+        $max = $row['max_id'] ?? '000';
+        $next = (int)$max + 1;
+        return 'JR-' . str_pad($next, 3, '0', STR_PAD_LEFT);
     }
 
-    public function getById($id)
-    {
-        $stmt = $this->conn->prepare("SELECT * FROM jurusan WHERE id = ?");
-        $stmt->bind_param("s", $id);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
-    }
-
-    public function add($id, $nama)
-    {
-        $stmt = $this->conn->prepare("INSERT INTO jurusan (id, nama) VALUES (?, ?)");
+    public function tambahJurusan($nama) {
+        $id = $this->generateId();
+        $stmt = $this->conn->prepare("INSERT INTO {$this->table} (id, nama) VALUES (?, ?)");
         $stmt->bind_param("ss", $id, $nama);
         return $stmt->execute();
     }
 
-    public function update($id, $nama)
-    {
-        $stmt = $this->conn->prepare("UPDATE jurusan SET nama = ? WHERE id = ?");
+    public function updateJurusan($id, $nama) {
+        $stmt = $this->conn->prepare("UPDATE {$this->table} SET nama = ? WHERE id = ?");
         $stmt->bind_param("ss", $nama, $id);
         return $stmt->execute();
     }
 
-    public function delete($id)
-    {
-        $stmt = $this->conn->prepare("DELETE FROM jurusan WHERE id = ?");
+    public function hapusJurusan($id) {
+        $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE id = ?");
         $stmt->bind_param("s", $id);
         return $stmt->execute();
+    }
+
+    public function getAll() {
+        $result = $this->conn->query("SELECT * FROM {$this->table} ORDER BY nama ASC");
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getById($id) {
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE id = ?");
+        $stmt->bind_param("s", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
     }
 }

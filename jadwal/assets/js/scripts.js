@@ -328,3 +328,21 @@ window.onclick = function (event) {
     }
   });
 };
+
+document.getElementById("form-kelas").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const formData = new FormData(this);
+  formData.append("action", "add_kelas");
+
+  fetch("handlers/handle_request.php", {
+    method: "POST",
+    body: formData,
+  }).then((res) => {
+    if (res.ok) {
+      alert("Data berhasil ditambahkan");
+      location.reload(); // Atau perbarui tabel via JS
+    }
+  });
+});
+

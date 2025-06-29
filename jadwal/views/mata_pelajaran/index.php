@@ -7,6 +7,31 @@ $model = new MataPelajaranModel($connection);
 $data = $model->getAll();
 ?>
 
+<<<<<<< Updated upstream
+=======
+$kelasModel = new KelasModel($connection);
+$jurusanModel = new JurusanModel($connection);
+$mataPelajaranModel = new MataPelajaranModel($connection);
+$jadwalUjianModel = new JadwalUjianModel($connection);
+
+$kelas_list = $kelasModel->getAll()->fetch_all(MYSQLI_ASSOC);
+$jurusan_list = $jurusanModel->getAll()->fetch_all(MYSQLI_ASSOC);
+$mata_pelajaran_all = $mataPelajaranModel->getAll()->fetch_all(MYSQLI_ASSOC);
+$mata_pelajaran_by_category = $mataPelajaranModel->getByKategori();
+$jadwal_ujian_grouped = $jadwalUjianModel->getGroupedByJurusan();
+
+$message = $_SESSION['message'] ?? '';
+unset($_SESSION['message']);
+
+// Tangani semua aksi CRUD di satu controller (atau gunakan file controller terpisah per tindakan jika perlu)
+require_once __DIR__ . '/controllers/KelasController.php';
+require_once __DIR__ . '/controllers/JurusanController.php';
+require_once __DIR__ . '/controllers/MataPelajaranController.php';
+require_once __DIR__ . '/controllers/JadwalUjianController.php';
+
+// Tampilkan view utama (semua form dan tabel dalam satu halaman)
+include __DIR__ . '/views/admin_panel_index.php';
+>>>>>>> Stashed changes
 <h2>Daftar Mata Pelajaran</h2>
 
 <?php if (isset($_SESSION['message'])): ?>

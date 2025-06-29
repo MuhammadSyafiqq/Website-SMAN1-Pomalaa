@@ -1,7 +1,7 @@
 <?php
-session_start();
-require_once '../../config/database.php';
-require_once '../../models/JurusanModel.php';
+
+require_once '../config/database.php';
+require_once '../models/JurusanModel.php';
 
 $jurusanModel = new JurusanModel($connection);
 $data = $jurusanModel->getAll();

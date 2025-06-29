@@ -1,3 +1,21 @@
+<?php
+session_start();
+
+require_once '../config/database.php';
+require_once '../models/JadwalUjianModel.php';
+require_once '../models/KelasModel.php';
+require_once '../models/JurusanModel.php';
+require_once '../models/MataPelajaranModel.php';
+
+// Instantiate models
+$jadwalUjianModel = new JadwalUjianModel($connection);
+$kelasModel = new KelasModel($connection);
+$jurusanModel = new JurusanModel($connection);
+$mataPelajaranModel = new MataPelajaranModel($connection);
+
+$message = '';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
