@@ -143,15 +143,24 @@ $result = $connection->query($sql);
             <?php
             $result = $connection->query("SELECT * FROM feedback ORDER BY created_at DESC LIMIT 3");
             while ($row = $result->fetch_assoc()) {
-                echo '<div class="feedback-card">';
-                echo '<img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="avatar" alt="User">';
-                echo '<div class="feedback-content">';
-                echo '<h4>' . htmlspecialchars($row['nama']) . '</h4>';
-                echo '<span class="waktu">' . date("d M Y, H:i", strtotime($row['created_at'])) . '</span>';
-                echo '<p>"' . htmlspecialchars($row['komentar']) . '"</p>';
-                echo '</div>';
-                echo '</div>';
-            }
+    echo '<div class="feedback-card">';
+    echo '<img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="avatar" alt="User">';
+    echo '<div class="feedback-content">';
+    echo '<h4>' . htmlspecialchars($row['nama']) . '</h4>';
+    echo '<span class="waktu">' . date("d M Y, H:i", strtotime($row['created_at'])) . '</span>';
+    echo '<p>"' . htmlspecialchars($row['komentar']) . '"</p>';
+
+    // Tambahkan balasan jika ada
+    if (!empty($row['balasan'])) {
+        echo '<div style="margin-top:10px; padding:10px; background-color:#f1f1f1; border-radius:8px;">';
+        echo '<strong>Balasan Admin:</strong><br>';
+        echo '<p style="margin: 5px 0;">' . nl2br(htmlspecialchars($row['balasan'])) . '</p>';
+        echo '</div>';
+    }
+
+    echo '</div>';
+    echo '</div>';
+}
             ?>
         </div>
 

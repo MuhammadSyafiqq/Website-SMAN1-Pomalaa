@@ -215,22 +215,22 @@ if (!isset($_SESSION['username'])) {
 <section class="admin-section">
     <div class="admin-buttons">
         <a href="admin_berita.php" class="admin-button">
-            TAMBAH BERITA <i class="fas fa-plus"></i>
+            KELOLA BERITA <i class="fas fa-plus"></i>
         </a>
-        <a href="tambah_prestasi.php" class="admin-button">
-            TAMBAH PRESTASI <i class="fas fa-plus"></i>
+        <a href="admin_prestasi.php" class="admin-button">
+            KELOLA PRESTASI <i class="fas fa-plus"></i>
         </a>
         <a href="admin_ekskul.php" class="admin-button">
-            TAMBAH EKSKUL <i class="fas fa-plus"></i>
+            KELOLA EKSKUL <i class="fas fa-plus"></i>
         </a>
-        <a href="tambah_struktur.php" class="admin-button">
-            TAMBAH STRUKTUR <i class="fas fa-plus"></i>
+        <a href="admin_struktur.php" class="admin-button">
+            KELOLA STRUKTUR <i class="fas fa-plus"></i>
         </a>
-        <a href="tambah_feedback.php" class="admin-button">
-            TAMBAH FEEDBACK <i class="fas fa-plus"></i>
+        <a href="admin_feedback.php" class="admin-button">
+            KELOLA FEEDBACK <i class="fas fa-plus"></i>
         </a>
-        <a href="tambah_jadwal.php" class="admin-button">
-            TAMBAH JADWAL UJIAN <i class="fas fa-plus"></i>
+        <a href="jadwal/admin-panel.php" class="admin-button">
+            KELOLA JADWAL UJIAN <i class="fas fa-plus"></i>
         </a>
     </div>
 
@@ -238,7 +238,7 @@ if (!isset($_SESSION['username'])) {
     <?php if ($_SESSION['role'] === 'super-admin'): ?>
     <div class="add-admin-wrapper">
         <a href="hash.php" class="admin-button">
-            TAMBAH ADMIN <i class="fas fa-user-plus"></i>
+            KELOLA ADMIN <i class="fas fa-user-plus"></i>
         </a>
     </div>
     <?php endif; ?>

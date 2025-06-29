@@ -26,37 +26,48 @@ $useSingleColumn = $feedbackCount <= 5;
 
 if (!$useSingleColumn) {
     $leftColumn = array_slice($feedbacks, 0, 5);
-    $rightColumn = array_slice($feedbacks, 5, 5);
+    $rightColumn = array_slice($feedbacks, 5);
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Semua Feedback</title>
     <link rel="stylesheet" href="assets/style/style.css?v=2">
     <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #003366, #00589D);
+            color: #003366;
+        }
+
         .feedback-section {
             padding: 60px 20px;
         }
+
         .feedback-container {
             max-width: 1200px;
             margin: auto;
         }
+
         .feedback-title {
             text-align: center;
             font-size: 32px;
             font-weight: bold;
             margin-bottom: 30px;
-            color: #003366;
+            color: #fff;
         }
+
         .feedback-list-grid {
             display: flex;
             gap: 20px;
             justify-content: center;
             flex-wrap: wrap;
         }
+
         .feedback-card {
             display: flex;
             align-items: flex-start;
@@ -65,24 +76,40 @@ if (!$useSingleColumn) {
             border-radius: 12px;
             box-shadow: 0 0 8px rgba(0,0,0,0.1);
         }
+
         .feedback-card img.avatar {
             width: 50px;
             margin-right: 15px;
         }
+
         .feedback-content h4 {
             margin: 0;
             font-size: 18px;
             font-weight: bold;
             color: #003366;
         }
+
         .feedback-content .waktu {
             font-size: 14px;
             color: #555;
         }
+
         .feedback-content p {
             margin-top: 8px;
             font-style: italic;
+            color: #333;
         }
+
+        .balasan {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-left: 4px solid #00589D;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333;
+        }
+
         .column {
             flex: 1;
             min-width: 300px;
@@ -91,12 +118,14 @@ if (!$useSingleColumn) {
             flex-direction: column;
             gap: 20px;
         }
+
         .pagination {
             display: flex;
             justify-content: center;
             margin-top: 30px;
             gap: 8px;
         }
+
         .pagination a,
         .pagination span {
             display: inline-flex;
@@ -111,6 +140,7 @@ if (!$useSingleColumn) {
             background-color: #fff;
             font-weight: bold;
         }
+
         .pagination .active {
             background-color: #ff7f3f;
             color: #fff;
@@ -136,6 +166,12 @@ if (!$useSingleColumn) {
                                 <h4><?= htmlspecialchars($row['nama']) ?></h4>
                                 <span class="waktu"><?= date("d M Y, H:i", strtotime($row['created_at'])) ?></span>
                                 <p>"<?= htmlspecialchars($row['komentar']) ?>"</p>
+                                <?php if (!empty($row['balasan'])): ?>
+                                    <div class="balasan">
+                                        <strong>Balasan Admin:</strong><br>
+                                        <?= nl2br(htmlspecialchars($row['balasan'])) ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -151,6 +187,12 @@ if (!$useSingleColumn) {
                                 <h4><?= htmlspecialchars($row['nama']) ?></h4>
                                 <span class="waktu"><?= date("d M Y, H:i", strtotime($row['created_at'])) ?></span>
                                 <p>"<?= htmlspecialchars($row['komentar']) ?>"</p>
+                                <?php if (!empty($row['balasan'])): ?>
+                                    <div class="balasan">
+                                        <strong>Balasan Admin:</strong><br>
+                                        <?= nl2br(htmlspecialchars($row['balasan'])) ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -163,6 +205,12 @@ if (!$useSingleColumn) {
                                 <h4><?= htmlspecialchars($row['nama']) ?></h4>
                                 <span class="waktu"><?= date("d M Y, H:i", strtotime($row['created_at'])) ?></span>
                                 <p>"<?= htmlspecialchars($row['komentar']) ?>"</p>
+                                <?php if (!empty($row['balasan'])): ?>
+                                    <div class="balasan">
+                                        <strong>Balasan Admin:</strong><br>
+                                        <?= nl2br(htmlspecialchars($row['balasan'])) ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -190,3 +238,5 @@ if (!$useSingleColumn) {
 <?php include 'partials/footer.php'; ?>
 
 <?php $connection->close(); ?>
+</body>
+</html>
