@@ -1,36 +1,42 @@
 <?php
-require_once 'theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
+require_once('../koneksi.php');
+session_start();
+// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
+$timeout_duration = 900; 
 
-$id = $_GET['id'];
-$query = $connection->prepare("SELECT * FROM struktur WHERE id_struktur = ?");
-$query->bind_param("i", $id);
-$query->execute();
-$result = $query->get_result();
-$data = $result->fetch_assoc();
-
-if (!$data) {
-    die("Data tidak ditemukan.");
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
+    session_unset();     // hapus semua session
+    session_destroy();   // hancurkan session
+    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    exit();
 }
+$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+
+// Cek jika belum login
+if (!isset($_SESSION['username'])) {
+    header("Location: ../login.php");
+    exit();
+}
+require_once '../theme.php';
+$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nama = $_POST['nama'];
     $nip = $_POST['nip'];
     $position = $_POST['position'];
     $status = $_POST['status'];
+    $photo = null;
 
     if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
         $photo = file_get_contents($_FILES['photo']['tmp_name']);
-        $stmt = $connection->prepare("UPDATE struktur SET nama=?, nip=?, position=?, status=?, photo=? WHERE id_struktur=?");
-        $stmt->bind_param("sssssi", $nama, $nip, $position, $status, $photo, $id);
-        $stmt->send_long_data(4, $photo);
-    } else {
-        $stmt = $connection->prepare("UPDATE struktur SET nama=?, nip=?, position=?, status=? WHERE id_struktur=?");
-        $stmt->bind_param("ssssi", $nama, $nip, $position, $status, $id);
     }
 
+    $stmt = $connection->prepare("INSERT INTO struktur (nama, nip, position, status, photo) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $nama, $nip, $position, $status, $photo);
+    $stmt->send_long_data(4, $photo);
     $stmt->execute();
     $stmt->close();
+
     header("Location: admin_struktur.php");
     exit();
 }
@@ -40,8 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Struktur</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=9">
+    <title>Tambah Struktur</title>
+    <link rel="stylesheet" href="assets/style/style.css?v=8">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -124,28 +130,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 
 <div class="form-container">
-    <h2>Edit Struktur</h2>
+    <h2>Tambah Struktur</h2>
     <form action="" method="POST" enctype="multipart/form-data">
         <label for="nama">Nama:</label>
-        <input type="text" name="nama" value="<?= htmlspecialchars($data['nama']) ?>" required>
+        <input type="text" name="nama" required>
 
         <label for="nip">NIP:</label>
-        <input type="text" name="nip" value="<?= htmlspecialchars($data['nip']) ?>">
+        <input type="text" name="nip">
 
         <label for="position">Jabatan/Posisi:</label>
-        <input type="text" name="position" value="<?= htmlspecialchars($data['position']) ?>" required>
+        <input type="text" name="position" required>
 
         <label for="status">Status:</label>
         <select name="status" required>
-            <option value="Guru" <?= $data['status'] == 'Guru' ? 'selected' : '' ?>>Guru</option>
-            <option value="Staf" <?= $data['status'] == 'Staf' ? 'selected' : '' ?>>Staf</option>
-            <option value="" <?= $data['status'] == '' ? 'selected' : '' ?>>Lainnya</option>
+            <option value="Guru">Guru</option>
+            <option value="Staf">Staf</option>
+            <option value="">Lainnya</option>
         </select>
 
-        <label for="photo">Foto (biarkan kosong jika tidak diubah):</label>
+        <label for="photo">Foto:</label>
         <input type="file" name="photo" accept="image/*">
 
-        <button type="submit">Simpan Perubahan</button>
+        <button type="submit">Simpan</button>
     </form>
 
     <a href="admin_struktur.php" class="back-btn">← Kembali ke Daftar Struktur</a>

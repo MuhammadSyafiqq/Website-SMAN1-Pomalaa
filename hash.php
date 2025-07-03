@@ -1,4 +1,24 @@
 <?php
+session_start();
+
+// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
+$timeout_duration = 900; 
+
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
+    session_unset();     // hapus semua session
+    session_destroy();   // hancurkan session
+    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    exit();
+}
+$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+
+
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 if ($connection->connect_error) {
     die("Connection failed: " . $connection->connect_error);

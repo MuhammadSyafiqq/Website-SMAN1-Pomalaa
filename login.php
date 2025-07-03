@@ -1,5 +1,17 @@
 <?php
 session_start();
+
+// Lama waktu tidak aktif sebelum logout otomatis (dalam detik)
+$timeout_duration = 900; // 15 menit
+
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
+    session_unset();
+    session_destroy();
+    header("Location: login_admin.php?timeout=true"); // ganti dengan nama file login kamu jika perlu
+    exit();
+}
+$_SESSION['LAST_ACTIVITY'] = time();
+
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 if ($connection->connect_error) {
@@ -23,8 +35,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['username'] = $user['username'];
             $_SESSION['nama'] = $user['nama'];
             $_SESSION['role'] = $user['role'];
+            $_SESSION['LAST_ACTIVITY'] = time(); // Set ulang waktu aktivitas terakhir
 
-            // Semua ke dashboard_admin.php
             header("Location: dashboard_admin.php");
             exit();
         } else {
@@ -43,23 +55,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Login Admin</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap">
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; }
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
             display: flex;
             height: 100vh;
         }
-
         .left-panel {
             flex: 0.9;
             background: url('assets/image/bg-login.png') no-repeat center center;
             background-size: cover;
         }
-
         .right-panel {
             flex: 1;
             background-color: #fff;
@@ -68,13 +75,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             justify-content: center;
             padding: 50px;
         }
-
         .login-box {
             max-width: 400px;
             width: 100%;
             margin: auto;
         }
-
         h1 {
             font-size: 26px;
             font-weight: bold;
@@ -82,7 +87,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 30px;
             line-height: 1.3;
         }
-
         label {
             display: block;
             font-weight: 500;
@@ -90,7 +94,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #003366;
             font-size: 14px;
         }
-
         input[type="text"],
         input[type="password"] {
             width: 100%;
@@ -101,7 +104,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 25px;
             outline: none;
         }
-
         button {
             background-color: #003366;
             color: white;
@@ -113,57 +115,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             transition: background 0.3s;
         }
-
-        button:hover {
-            background-color: #00589D;
-        }
-
+        button:hover { background-color: #00589D; }
         .footer {
             margin-top: 40px;
             text-align: center;
             font-size: 12px;
             color: #333;
         }
-
         .logo {
             display: flex;
             flex-direction: column;
             align-items: center;
             margin-top: 30px;
         }
-
         .logo img {
             width: 70px;
             margin-bottom: 10px;
         }
-
         .logo h3 {
             font-size: 16px;
             margin-bottom: 10px;
             color: #003366;
         }
-
         .error {
             color: red;
             font-size: 14px;
             margin-bottom: 15px;
         }
-
-        
-
         @media (max-width: 768px) {
-            .left-panel {
-                display: none;
-            }
-
+            .left-panel { display: none; }
             .right-panel {
                 flex: 1;
                 padding: 30px;
             }
-
-            .login-box {
-                max-width: 100%;
-            }
+            .login-box { max-width: 100%; }
         }
     </style>
 </head>
@@ -179,8 +164,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="error"><?= $error ?></div>
             <?php endif; ?>
 
+            <?php if (isset($_GET['timeout']) && $_GET['timeout'] === "true"): ?>
+                <div class="error">Sesi Anda telah berakhir. Silakan login kembali.</div>
+            <?php endif; ?>
+
             <form method="post" action="">
-                <label for="username">username</label>
+                <label for="username">Username</label>
                 <input type="text" name="username" id="username" required>
 
                 <label for="password">Password</label>

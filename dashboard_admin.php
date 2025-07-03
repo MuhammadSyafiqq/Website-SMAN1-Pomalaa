@@ -1,5 +1,16 @@
 <?php
 session_start();
+// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
+$timeout_duration = 900; 
+
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
+    session_unset();     // hapus semua session
+    session_destroy();   // hancurkan session
+    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    exit();
+}
+$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+
 require_once 'theme.php';
 
 // Cek jika belum login
@@ -214,19 +225,19 @@ if (!isset($_SESSION['username'])) {
 <!-- Tombol Dashboard -->
 <section class="admin-section">
     <div class="admin-buttons">
-        <a href="admin_berita.php" class="admin-button">
+        <a href="modul_berita//admin_berita.php" class="admin-button">
             KELOLA BERITA <i class="fas fa-plus"></i>
         </a>
-        <a href="admin_prestasi.php" class="admin-button">
+        <a href="modul_prestasi/admin_prestasi.php" class="admin-button">
             KELOLA PRESTASI <i class="fas fa-plus"></i>
         </a>
-        <a href="admin_ekskul.php" class="admin-button">
+        <a href="modul_ekskul/admin_ekskul.php" class="admin-button">
             KELOLA EKSKUL <i class="fas fa-plus"></i>
         </a>
-        <a href="admin_struktur.php" class="admin-button">
+        <a href="modul_struktur/admin_struktur.php" class="admin-button">
             KELOLA STRUKTUR <i class="fas fa-plus"></i>
         </a>
-        <a href="admin_feedback.php" class="admin-button">
+        <a href="modul_feedback/admin_feedback.php" class="admin-button">
             KELOLA FEEDBACK <i class="fas fa-plus"></i>
         </a>
         <a href="jadwal/admin-panel.php" class="admin-button">

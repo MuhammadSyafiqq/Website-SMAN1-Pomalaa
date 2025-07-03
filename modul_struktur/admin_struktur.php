@@ -1,5 +1,24 @@
 <?php
-require_once 'theme.php';
+require_once('../koneksi.php');
+session_start();
+// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
+$timeout_duration = 900; 
+
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
+    session_unset();     // hapus semua session
+    session_destroy();   // hancurkan session
+    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    exit();
+}
+$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+
+require_once '../theme.php';
+
+// Cek jika belum login
+if (!isset($_SESSION['username'])) {
+    header("Location: ../login.php");
+    exit();
+}
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 $result = $connection->query("SELECT * FROM struktur ORDER BY id_struktur DESC");
 ?>
@@ -92,7 +111,7 @@ $result = $connection->query("SELECT * FROM struktur ORDER BY id_struktur DESC")
 <div class="container">
     <h1>Daftar Struktur Pegawai</h1>
     <div class="top-actions">
-        <a href="dashboard_admin.php" class="btn" style="background: gray;">← Kembali ke Dashboard</a>
+        <a href="../dashboard_admin.php" class="btn" style="background: gray;">← Kembali ke Dashboard</a>
         <a href="tambah_struktur.php" class="btn">+ Tambah Struktur</a>
     </div>
 
