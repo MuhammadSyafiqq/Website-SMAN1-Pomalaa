@@ -1,8 +1,7 @@
 <?php
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
-if ($connection->connect_error) {
-    die("Connection failed: " . $connection->connect_error);
-}
+
+require_once 'koneksi.php';
+
 
 $limit = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

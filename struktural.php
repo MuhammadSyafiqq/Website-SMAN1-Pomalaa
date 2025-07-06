@@ -1,16 +1,5 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = ""; // Kosongkan jika tidak ada password
-$db   = "db_sman1pomalaa";
-
-// Membuat koneksi
-$koneksi = mysqli_connect($host, $user, $pass, $db);
-
-// Cek koneksi
-if (!$koneksi) {
-    die("Koneksi gagal: " . mysqli_connect_error());
-}
+require_once 'koneksi.php'; // ini akan mendefinisikan $connection
 ?>
 
 <!DOCTYPE html>
@@ -84,46 +73,44 @@ if (!$koneksi) {
         }
 
         @media (max-width: 768px) {
-            .content {
-                padding: 20px;
+            .struktur-item {
+                flex-direction: column;
+                text-align: center;
             }
-            .content p {
-                font-size: 0.95em;
-            }
-            .berita-info,
-            .publisher-bottom {
-                text-align: left;
-                max-width: 100%;
+
+            .struktur-item img {
+                margin-right: 0;
+                margin-bottom: 20px;
             }
         }
     </style>
 </head>
 <body>
-    
+
 <?php include 'partials/navbar.php'; ?>
-    
-    <section class="struktur-section">
-        <h2 class="struktur-title">STRUKTUR PEGAWAI</h2>
 
-        <?php
-        $query = mysqli_query($koneksi, "SELECT * FROM struktur");
-        while ($data = mysqli_fetch_assoc($query)) {
-            $photo = base64_encode($data['photo']);
-            $imgSrc = 'data:image/jpeg;base64,' . $photo;
-        ?>
-        <div class="struktur-item">
-            <img src="<?= $imgSrc ?>" alt="Foto <?= $data['nama'] ?>">
-            <div class="struktur-info">
-                <h3><?= strtoupper($data['position']) ?></h3>
-                <h2><?= strtoupper($data['nama']) ?></h2>
-                <p>NIP: <?= $data['nip'] ?></p>
-                <p>Status: <?= $data['status'] ?></p>
-            </div>
+<section class="struktur-section">
+    <h2 class="struktur-title">STRUKTUR PEGAWAI</h2>
+
+    <?php
+    $query = mysqli_query($connection, "SELECT * FROM struktur ORDER BY id_struktur ASC");
+    while ($data = mysqli_fetch_assoc($query)) {
+        $photo = base64_encode($data['photo']);
+        $imgSrc = 'data:image/jpeg;base64,' . $photo;
+    ?>
+    <div class="struktur-item">
+        <img src="<?= $imgSrc ?>" alt="Foto <?= htmlspecialchars($data['nama']) ?>">
+        <div class="struktur-info">
+            <h3><?= strtoupper(htmlspecialchars($data['position'])) ?></h3>
+            <h2><?= strtoupper(htmlspecialchars($data['nama'])) ?></h2>
+            <p>NIP: <?= htmlspecialchars($data['nip']) ?></p>
+            <p>Status: <?= htmlspecialchars($data['status']) ?></p>
         </div>
-        <?php } ?>
-    </section>
+    </div>
+    <?php } ?>
+</section>
 
-    <?php include 'partials/footer.php'; ?>
+<?php include 'partials/footer.php'; ?>
 
 </body>
 </html>

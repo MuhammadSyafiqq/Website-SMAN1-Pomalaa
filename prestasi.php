@@ -1,10 +1,7 @@
 <?php
 require_once 'theme.php';
 
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
-if ($connection->connect_error) {
-    die("Connection failed: " . $connection->connect_error);
-}
+require_once('koneksi.php');
 
 $sql = "SELECT id_prestasi, title, description, image FROM prestasi";
 $result = $connection->query($sql);

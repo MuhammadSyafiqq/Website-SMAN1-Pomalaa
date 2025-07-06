@@ -17,10 +17,7 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
-if ($connection->connect_error) {
-    die("Connection failed: " . $connection->connect_error);
-}
+require_once 'koneksi.php'; // ✅ pakai koneksi terpusat
 
 // Redirect jika tidak ada ID
 if (!isset($_GET['id'])) {

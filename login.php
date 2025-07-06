@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'koneksi.php'; // ✅ gunakan koneksi yang sudah ada
 
 // Lama waktu tidak aktif sebelum logout otomatis (dalam detik)
 $timeout_duration = 900; // 15 menit
@@ -7,16 +8,10 @@ $timeout_duration = 900; // 15 menit
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
     session_unset();
     session_destroy();
-    header("Location: login_admin.php?timeout=true"); // ganti dengan nama file login kamu jika perlu
+    header("Location: login_admin.php?timeout=true"); // ganti jika nama file login berbeda
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time();
-
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
-
-if ($connection->connect_error) {
-    die("Connection failed: " . $connection->connect_error);
-}
+$_SESSION['LAST_ACTIVITY'] = time(); // perbarui aktivitas
 
 $error = '';
 
@@ -35,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['username'] = $user['username'];
             $_SESSION['nama'] = $user['nama'];
             $_SESSION['role'] = $user['role'];
-            $_SESSION['LAST_ACTIVITY'] = time(); // Set ulang waktu aktivitas terakhir
+            $_SESSION['LAST_ACTIVITY'] = time();
 
             header("Location: dashboard_admin.php");
             exit();
@@ -47,6 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="id">

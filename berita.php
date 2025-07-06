@@ -1,10 +1,7 @@
 <?php
 require_once 'theme.php';
 
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
-if ($connection->connect_error) {
-    die("Connection failed: " . $connection->connect_error);
-}
+require_once 'koneksi.php'; // ✅ pakai koneksi terpusat
 
 $sql = "SELECT id_berita, title, deskripsi, image, date FROM berita ORDER BY date DESC";
 $result = $connection->query($sql);

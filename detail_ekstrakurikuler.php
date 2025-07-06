@@ -1,10 +1,7 @@
 <?php
 require_once 'theme.php';
 
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
-if ($connection->connect_error) {
-    die("Connection failed: " . $connection->connect_error);
-}
+require_once 'koneksi.php'; // ✅ pakai koneksi terpusat
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
