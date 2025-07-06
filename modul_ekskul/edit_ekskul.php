@@ -1,22 +1,21 @@
 <?php
 require_once('../koneksi.php');
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
 
+$timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
+
 require_once '../theme.php';
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
@@ -37,7 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $connection->query($sql);
-    header("Location: admin_ekskul.php");
+    header("Location: admin_ekskul.php?success=edit");
+    exit();
 }
 ?>
 
@@ -51,15 +51,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         body {
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(to bottom, #003366, #00589D);
-            padding: 80px 20px;
-            color: white;
+            margin: 0;
+            padding: 60px 20px;
+            color: #fff;
         }
 
         .form-container {
             max-width: 750px;
             margin: auto;
-            background: #003366;
-            color: rgb(255, 255, 255);
+            background: #ffffff;
+            color: #000;
             padding: 35px 40px;
             border-radius: 16px;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
@@ -68,13 +69,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         h2 {
             text-align: center;
             margin-bottom: 30px;
-            color:rgb(255, 255, 255);
+            color: #003366;
         }
 
         label {
             font-weight: bold;
             display: block;
             margin: 15px 0 5px;
+            color: #003366;
         }
 
         input[type="text"],
@@ -82,27 +84,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         input[type="file"] {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ccc;
+            border: 1px solid #00589D;
             border-radius: 8px;
+            color: black;
             margin-bottom: 15px;
             font-size: 16px;
+            outline: none;
         }
 
         textarea {
             resize: vertical;
-            min-height: 150px;
+            min-height: 120px;
+        }
+
+        input[type="file"] {
+            border: 1px dashed #00589D;
         }
 
         button {
-            margin-top: 20px;
             background-color: #00589D;
             color: white;
             padding: 12px;
             border: none;
             border-radius: 8px;
-            cursor: pointer;
             font-size: 16px;
             width: 100%;
+            cursor: pointer;
+            transition: 0.3s;
         }
 
         button:hover {
@@ -110,22 +118,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .preview {
-            margin-top: 10px;
+            margin-top: 15px;
         }
 
-        img.preview-img {
-            margin-top: 10px;
+        .preview-img {
             max-height: 200px;
-            border: 1px solid #ccc;
             border-radius: 6px;
+            border: 1px solid #ccc;
         }
 
         .back-link {
             display: block;
             margin-top: 30px;
             text-align: center;
-            color:rgb(3, 126, 220);
-            font-weight: 600;
+            color: #00589D;
+            font-weight: bold;
             text-decoration: none;
         }
 

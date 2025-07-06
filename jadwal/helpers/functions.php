@@ -6,11 +6,10 @@
  * @param string $message Pesan yang akan ditampilkan.
  * @param string $location Halaman tujuan (default: index.php)
  */
-function redirectWithMessage($message, $location = 'index.php')
-{
-    $location .= '?message=' . urlencode($message);
-    header("Location: $location");
-    exit();
+function redirectWithMessage($message) {
+    $_SESSION['flash_message'] = $message;
+    header("Location: " . $_SERVER['HTTP_REFERER']);
+    exit;
 }
 
 /**
@@ -23,20 +22,25 @@ function redirectWithMessage($message, $location = 'index.php')
  * @param string $prefix Awalan ID (e.g. 'KL-')
  * @return string ID berikutnya
  */
-function generateNextId($conn, $table, $prefix)
-{
-    $sql = "SELECT id FROM $table WHERE id LIKE '$prefix%' ORDER BY id DESC LIMIT 1";
-    $result = $conn->query($sql);
-    $nextNumber = 1;
+function generateNextId($conn, $table, $prefix) {
+    $query = "SELECT id FROM $table WHERE id LIKE ? ORDER BY id DESC LIMIT 1";
+    $likePrefix = $prefix . '%';
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $likePrefix);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $lastId = $result->fetch_assoc();
 
-    if ($result && $row = $result->fetch_assoc()) {
-        $lastId = $row['id'];
-        $lastNumber = (int) substr($lastId, strlen($prefix));
-        $nextNumber = $lastNumber + 1;
+    if ($lastId) {
+        // Ambil angka terakhir dari ID dan tambahkan
+        $num = intval(substr($lastId['id'], strlen($prefix))) + 1;
+        return $prefix . str_pad($num, 4, '0', STR_PAD_LEFT);
+    } else {
+        // Jika belum ada ID
+        return $prefix . '0001';
     }
-
-    return $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 }
+
 
 /**
  * Validasi jadwal ujian agar tidak bentrok.
@@ -143,4 +147,9 @@ function getHariIndonesia($tanggal)
     ];
     return $map[$hariInggris] ?? '';
 }
-
+/**
+ * Mengonversi tanggal ke format Indonesia.
+ *
+ * @param string $tanggal Tanggal dalam format 'Y-m-d'
+ * @return string Tanggal dalam format 'd F Y'
+ */

@@ -539,6 +539,7 @@ $grouped_jadwal_json = json_encode($grouped_jadwal);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin Panel - Input Data Jadwal Ujian</title>
     <style>
+        
     </style>
 </head>
 <body>
@@ -584,11 +585,11 @@ $grouped_jadwal_json = json_encode($grouped_jadwal);
                 <button type="submit" name="add_jurusan">Tambahkan Jurusan</button>
             </form>
             <table aria-label="Daftar Jurusan">
-    <thead>
+        <thead>
         <tr><th>ID</th><th>Nama Jurusan</th><th>Aksi</th></tr>
-    </thead>
-    <tbody>
-    <?php foreach ($jurusan_list as $row): ?>
+        </thead>
+        <tbody>
+        <?php foreach ($jurusan_list as $row): ?>
         <tr>
             <td><?php echo $row['id'] ?></td>
             <td><?php echo htmlspecialchars($row['nama']) ?></td>
@@ -597,8 +598,8 @@ $grouped_jadwal_json = json_encode($grouped_jadwal);
                 <button class="delete" onclick="confirmDelete('jurusan', '<?php echo $row['id']; ?>', '<?php echo htmlspecialchars($row['nama']); ?>')">Hapus</button>
             </td>
         </tr>
-    <?php endforeach; ?>
-    </tbody>
+        <?php endforeach; ?>
+        </tbody>
 </table>
         </section>
 
@@ -1057,53 +1058,45 @@ window.onclick = function(event) {
 </div>
 
 <!-- Modal Edit Jadwal Ujian -->
-<!-- Modal Edit Jadwal Ujian -->
-    <div id="editJadwalUjianModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editJadwalUjianTitle">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('editJadwalUjianModal')" aria-label="Close">&times;</span>
-            <h3 id="editJadwalUjianTitle">Edit Jadwal Ujian</h3>
-            <form method="POST">
-                <input type="hidden" name="edit_id" id="edit_ju_id">
-                
-                <label for="edit_ju_kelas">Kelas:</label>
-                <select name="edit_kelas_id" id="edit_ju_kelas" required>
-                    <option value="">-- Pilih Kelas --</option>
-                    <?php foreach ($kelas_list as $k): ?>
-                        <option value="<?php echo $k['id'] ?>"><?php echo htmlspecialchars($k['nama']) ?></option>
-                    <?php endforeach; ?>
-                </select>
+<div id="editJadwalUjianModal" style="display:none;">
+    <form id="updateJadwalForm">
+        <input type="hidden" name="id" id="edit_ju_id">
 
-                <label for="edit_ju_jurusan">Jurusan:</label>
-                <select name="edit_jurusan_id" id="edit_ju_jurusan" required>
-                    <option value="">-- Pilih Jurusan --</option>
-                    <?php foreach ($jurusan_list as $j): ?>
-                        <option value="<?php echo $j['id'] ?>"><?php echo htmlspecialchars($j['nama']) ?></option>
-                    <?php endforeach; ?>
-                </select>
+        <label>Kelas:</label>
+        <select name="kelas_id" id="edit_ju_kelas">
+            <?php foreach ($kelasList as $kelas): ?>
+                <option value="<?= $kelas['id'] ?>"><?= $kelas['nama'] ?></option>
+            <?php endforeach; ?>
+        </select>
 
-                <label for="edit_ju_mata_pelajaran">Mata Pelajaran:</label>
-                <select name="edit_mata_pelajaran_id" id="edit_ju_mata_pelajaran" required>
-                    <option value="">-- Pilih Mata Pelajaran --</option>
-                    <?php foreach ($mata_pelajaran_list as $mp): ?>
-                        <option value="<?php echo $mp['id'] ?>"><?php echo htmlspecialchars($mp['nama']) ?> (<?php echo htmlspecialchars($mp['kategori']) ?>)</option>
-                    <?php endforeach; ?>
-                </select>
+        <label>Jurusan:</label>
+        <select name="jurusan_id" id="edit_ju_jurusan">
+            <?php foreach ($jurusanList as $jurusan): ?>
+                <option value="<?= $jurusan['id'] ?>"><?= $jurusan['nama'] ?></option>
+            <?php endforeach; ?>
+        </select>
 
-                <label for="edit_ju_date">Tanggal:</label>
-                <input type="date" name="edit_date" id="edit_ju_date" required />
+        <label>Mata Pelajaran:</label>
+        <select name="mata_pelajaran_id" id="edit_ju_mata_pelajaran">
+            <?php foreach ($mataPelajaranList as $mapel): ?>
+                <option value="<?= $mapel['id'] ?>"><?= $mapel['nama'] ?></option>
+            <?php endforeach; ?>
+        </select>
 
-                <!-- Removed manual hari select -->
+        <label>Tanggal:</label>
+        <input type="date" name="tanggal" id="edit_ju_date" required>
 
-                <label for="edit_ju_jam_mulai">Jam Mulai:</label>
-                <input type="time" name="edit_jam_mulai" id="edit_ju_jam_mulai" required>
+        <label>Jam Mulai:</label>
+        <input type="time" name="jam_mulai" id="edit_ju_jam_mulai" required>
 
-                <label for="edit_ju_jam_selesai">Jam Selesai:</label>
-                <input type="time" name="edit_jam_selesai" id="edit_ju_jam_selesai" required>
+        <label>Jam Selesai:</label>
+        <input type="time" name="jam_selesai" id="edit_ju_jam_selesai" required>
 
-                <button type="submit" name="edit_jadwal_ujian">Update Jadwal Ujian</button>
-            </form>
-        </div>
-    </div>
+        <button type="submit">Simpan Perubahan</button>
+        <button type="button" onclick="document.getElementById('editJadwalUjianModal').style.display='none'">Batal</button>
+    </form>
+</div>
+
 </body>
 </html>
 

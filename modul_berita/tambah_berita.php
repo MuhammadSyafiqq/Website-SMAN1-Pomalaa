@@ -1,22 +1,21 @@
 <?php
 require_once('../koneksi.php');
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
 
+$timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
+
 require_once '../theme.php';
 
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
@@ -26,15 +25,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $deskripsi = $connection->real_escape_string($_POST['deskripsi']);
     $date = date('Y-m-d');
     $id_user = $_SESSION['id_user'];
-
     $image = addslashes(file_get_contents($_FILES['image']['tmp_name']));
 
     $sql = "INSERT INTO berita (title, deskripsi, date, image, id_user) 
             VALUES ('$title', '$deskripsi', '$date', '$image', $id_user)";
     $connection->query($sql);
-    header("Location: admin_berita.php");
+    
+    // Redirect dengan notifikasi berhasil
+    header("Location: admin_berita.php?added=1");
+    exit();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -43,86 +45,97 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Tambah Berita</title>
     <link rel="stylesheet" href="../assets/style/style.css?v=4">
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
-            color: #fff;
-            padding: 50px 20px;
-        }
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #f6f9ff;
+        margin: 0;
+        padding: 0;
+    }
 
-        .form-container {
-            max-width: 700px;
-            margin: auto;
-            background:003366;
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-        }
+    .form-container {
+        max-width: 700px;
+        margin: 50px auto;
+        background-color: white;
+        padding: 30px 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-        h2 {
-            text-align: center;
-            color:rgb(255, 255, 255);
-            margin-bottom: 25px;
-        }
+    h2 {
+        text-align: center;
+        color: #003366;
+        font-weight: 700;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
 
-        label {
-            font-weight: bold;
-            display: block;
-            margin-top: 15px;
-        }
+    label {
+        font-weight: 600;
+        margin-top: 15px;
+        display: block;
+        color: #003366;
+    }
 
-        input[type="text"],
-        textarea,
-        input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+        width: 100%;
+        padding: 12px;
+        margin-top: 5px;
+        border-radius: 6px;
+        border: 1px solid #00589D;
+        color: #1f2937;
+        font-size: 16px;
+        outline: none;
+    }
 
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
 
-        .btn-submit {
-            margin-top: 25px;
-            background-color: #00589D;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-        }
+    input[type="file"] {
+        border: 1px dashed #00589D;
+    }
 
-        .btn-submit:hover {
-            background-color: #00457c;
-        }
+    .btn-submit {
+        margin-top: 25px;
+        background-color: #00589D;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        font-size: 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        transition: 0.3s;
+    }
 
-        .img-preview {
-            margin-top: 15px;
-            max-height: 200px;
-            border-radius: 8px;
-        }
+    .btn-submit:hover {
+        background-color: #003f73;
+    }
 
-        .back-link {
-            display: block;
-            margin-top: 25px;
-            text-align: center;
-            color:rgb(255, 255, 255);
-            text-decoration: none;
-            font-weight: bold;
-        }
+    .img-preview {
+        margin-top: 15px;
+        max-height: 200px;
+        border-radius: 8px;
+        display: none;
+    }
 
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    .back-link {
+        display: block;
+        margin-top: 20px;
+        text-align: center;
+        color: #00589D;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
 </head>
 <body>
 
@@ -137,13 +150,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <label for="image">Gambar</label>
         <input type="file" name="image" id="image" accept="image/*" onchange="previewImage()" required>
-        <img id="preview" class="img-preview" style="display:none;" />
+        <img id="preview" class="img-preview" />
 
         <button type="submit" class="btn-submit">Simpan Berita</button>
     </form>
 
     <a class="back-link" href="admin_berita.php">← Kembali ke Daftar Berita</a>
 </div>
+
 
 <script>
     function previewImage() {

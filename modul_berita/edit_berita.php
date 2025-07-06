@@ -1,23 +1,22 @@
 <?php
 require_once('../koneksi.php');
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
 
+$timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
-require_once '../theme.php'; // sesuaikan path jika perlu
+
+require_once '../theme.php';
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 $id = $_GET['id'];
@@ -37,7 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $connection->query($sql);
-    header("Location: admin_berita.php");
+    header("Location: admin_berita.php?success=1");
+    exit();
 }
 ?>
 
@@ -46,49 +46,57 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Edit Berita</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=4">
+    <link rel="stylesheet" href="../assets/style/style.css?v=5">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(to bottom, #003366, #00589D);
-            padding: 60px 20px;
-            color: white;
+            margin: 0;
+            padding: 40px 20px;
+            color: #111;
         }
 
         .form-container {
             max-width: 700px;
             margin: auto;
-            background:003366;
-            color: white;
+            background: #ffffff;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.25);
         }
 
         h2 {
             text-align: center;
+            color: #003366;
             margin-bottom: 25px;
-            color:rgb(255, 255, 255);
         }
 
         label {
-            font-weight: bold;
+            font-weight: 600;
             display: block;
-            margin-top: 15px;
+            margin-top: 16px;
+            color: #111827;
         }
 
         input[type="text"],
         textarea,
         input[type="file"] {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             margin-top: 6px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            border: 1.5px solid #ccc;
+            color: #1f2937;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
         }
 
         button {
-            margin-top: 20px;
+            margin-top: 24px;
             background-color: #00589D;
             color: white;
             padding: 12px 20px;
@@ -96,39 +104,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            display: block;
             width: 100%;
+            font-weight: 600;
         }
 
         button:hover {
             background-color: #003f70;
         }
 
-        .preview {
-            margin-top: 15px;
-        }
-
         .back-link {
             display: block;
-            margin-top: 25px;
             text-align: center;
-            color:rgb(255, 255, 255);
+            margin-top: 20px;
+            font-weight: 600;
+            color: #00589D;
             text-decoration: none;
-            font-weight: bold;
         }
 
         .back-link:hover {
             text-decoration: underline;
         }
 
-        img.preview-img {
-            margin-top: 10px;
-            max-height: 200px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+        .preview {
+            margin-top: 16px;
         }
 
-        
+        .preview label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            display: block;
+        }
+
+        img.preview-img {
+            max-height: 200px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
@@ -147,8 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <?php if (!empty($row['image'])): ?>
             <div class="preview">
-                <label>Gambar Saat Ini:</label><br>
-                <img class="preview-img" src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar Sebelumnya">
+                <label>Gambar Saat Ini:</label>
+                <img class="preview-img" src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar Saat Ini">
             </div>
         <?php endif; ?>
 

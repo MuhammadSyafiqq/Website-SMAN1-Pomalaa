@@ -1,41 +1,50 @@
 <?php
 require_once('../koneksi.php');
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
 
+// Timeout 15 menit
+$timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
+
 require_once '../theme.php';
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
+$error = '';
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = $connection->real_escape_string($_POST['title']);
-    $description = $connection->real_escape_string($_POST['description']);
-    $level = $connection->real_escape_string($_POST['level']);
-    $date = $connection->real_escape_string($_POST['date']);
-    $category = $connection->real_escape_string($_POST['category']);
-    $image = $_FILES['image']['tmp_name'] ? addslashes(file_get_contents($_FILES['image']['tmp_name'])) : null;
+    $title = trim($_POST['title']);
+    $description = trim($_POST['description']);
+    $level = trim($_POST['level']);
+    $date = trim($_POST['date']);
+    $category = trim($_POST['category']);
+    $image_uploaded = isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK;
 
-    $sql = "INSERT INTO prestasi (title, description, level, date, category, image)
-            VALUES ('$title', '$description', '$level', '$date', '$category', '$image')";
-
-    if ($connection->query($sql) === TRUE) {
-        header("Location: admin_prestasi.php");
-        exit();
+    // Validasi semua input wajib diisi
+    if (empty($title) || empty($description) || empty($level) || empty($date) || empty($category) || !$image_uploaded) {
+        $error = 'Semua form wajib diisi, termasuk gambar.';
     } else {
-        echo "Gagal menyimpan data: " . $connection->error;
+        $image = addslashes(file_get_contents($_FILES['image']['tmp_name']));
+
+        $sql = "INSERT INTO prestasi (title, description, level, date, category, image)
+                VALUES ('$title', '$description', '$level', '$date', '$category', '$image')";
+
+        if ($connection->query($sql) === TRUE) {
+            header("Location: admin_prestasi.php?success=add");
+            exit();
+        } else {
+            $error = "Gagal menyimpan data: " . $connection->error;
+        }
     }
 }
 ?>
@@ -45,79 +54,105 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Tambah Prestasi</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=15">
+    <link rel="stylesheet" href="assets/style/style.css?v=16">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
-            color: white;
-            padding: 50px 20px;
+            background: #ffffff;
+            margin: 0;
+            padding: 60px 20px;
+            color: #fff;
         }
+
         .form-container {
-            max-width: 700px;
+            max-width: 750px;
             margin: auto;
-            background:003366;
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            background: #ffffff;
+            color: #000;
+            padding: 35px 40px;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
         }
+
         h2 {
             text-align: center;
-            color:rgb(255, 255, 255);
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            color: #003366;
         }
+
         label {
-            display: block;
-            margin-top: 15px;
             font-weight: bold;
+            display: block;
+            margin: 15px 0 5px;
+            color: #003366;
         }
+
         input[type="text"],
         textarea,
         select,
-        input[type="date"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            background-color: #00589D;
-            color: white;
-        }
-        select option {
-            background-color: #00589D;
-            color: white;
-        }
+        input[type="date"],
         input[type="file"] {
-            margin-top: 8px;
-            padding: 5px;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #00589D;
+            border-radius: 8px;
+            color: black;
+            margin-bottom: 15px;
+            font-size: 16px;
+            outline: none;
         }
+
+        select option {
+            background-color: #fff;
+            color: #000;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        input[type="file"] {
+            border: 1px dashed #00589D;
+        }
+
         button {
-            margin-top: 25px;
             background-color: #00589D;
             color: white;
+            padding: 12px;
             border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            display: block;
+            border-radius: 8px;
+            font-size: 16px;
             width: 100%;
+            cursor: pointer;
+            transition: 0.3s;
         }
+
         button:hover {
-            background-color: #003f70;
+            background-color: #00487f;
         }
+
         .back-link {
             display: block;
             margin-top: 30px;
             text-align: center;
-            color:rgb(255, 255, 255);
-            font-weight: 600;
+            color: #00589D;
+            font-weight: bold;
             text-decoration: none;
         }
 
         .back-link:hover {
             text-decoration: underline;
+        }
+
+        .error-msg {
+            background-color: #ffe6e6;
+            color: #cc0000;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
         }
     </style>
 </head>
@@ -125,15 +160,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="form-container">
     <h2>Tambah Prestasi</h2>
-    <form action="" method="POST" enctype="multipart/form-data">
+
+    <?php if (!empty($error)): ?>
+        <div class="error-msg"><?= $error ?></div>
+    <?php endif; ?>
+
+    <form method="POST" enctype="multipart/form-data">
         <label for="title">Judul</label>
         <input type="text" name="title" id="title" required>
 
         <label for="description">Deskripsi</label>
-        <textarea name="description" id="description" rows="5" required></textarea>
+        <textarea name="description" id="description" required></textarea>
 
         <label for="level">Level</label>
         <select name="level" id="level" required>
+            <option value="">-- Pilih Level --</option>
             <option value="SEKOLAH">SEKOLAH</option>
             <option value="KABUPATEN">KABUPATEN</option>
             <option value="PROVINSI">PROVINSI</option>
@@ -146,16 +187,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <label for="category">Kategori</label>
         <select name="category" id="category" required>
+            <option value="">-- Pilih Kategori --</option>
             <option value="siswa">siswa</option>
             <option value="guru">guru</option>
             <option value="ekstrakurikuler">ekstrakurikuler</option>
         </select>
 
         <label for="image">Gambar</label>
-        <input type="file" name="image" id="image" accept="image/*">
+        <input type="file" name="image" id="image" accept="image/*" required>
 
         <button type="submit">Simpan</button>
-
     </form>
 
     <a class="back-link" href="admin_prestasi.php">← Kembali ke Daftar Prestasi</a>

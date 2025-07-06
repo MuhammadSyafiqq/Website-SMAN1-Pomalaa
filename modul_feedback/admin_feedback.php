@@ -1,27 +1,47 @@
 <?php
 require_once('../koneksi.php');
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
 
+$timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
+
 require_once '../theme.php';
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
-$sql = "SELECT * FROM feedback ORDER BY created_at DESC";
+// Konfigurasi pagination
+$limit = 15;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Total data
+$total_result = $connection->query("SELECT COUNT(*) AS total FROM feedback");
+$total_rows = $total_result->fetch_assoc()['total'];
+$total_pages = ceil($total_rows / $limit);
+
+// Ambil data sesuai halaman
+$sql = "SELECT * FROM feedback ORDER BY created_at DESC LIMIT $limit OFFSET $offset";
 $result = $connection->query($sql);
+
+// Notifikasi
+$notif = '';
+if (isset($_GET['success'])) {
+    if ($_GET['success'] === 'reply') {
+        $notif = 'Balasan berhasil dikirim.';
+    } elseif ($_GET['success'] === 'delete') {
+        $notif = 'Feedback berhasil dihapus.';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -29,42 +49,71 @@ $result = $connection->query($sql);
 <head>
     <meta charset="UTF-8">
     <title>Kelola Feedback</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=11">
+    <link rel="stylesheet" href="../assets/style/style.css?v=17">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
-            padding: 50px 20px;
-            color: white;
+            background: #ffffff;
+            margin: 0;
+            padding: 60px 20px;
+            color: #fff;
         }
 
         .container {
-            max-width: 950px;
+            max-width: 1000px;
             margin: auto;
-            background: white;
-            color: black;
+            background: #ffffff;
+            color: #000;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
         }
 
         h1 {
             text-align: center;
             color: #003366;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+        }
+
+        .notif {
+            padding: 12px 18px;
+            background-color: #dff0d8;
+            color: #3c763d;
+            border-radius: 6px;
+            border-left: 6px solid #3c763d;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .back-link {
+            background: #888;
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            table-layout: fixed;
+            margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
         }
 
         th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ccc;
+            padding: 14px 12px;
             text-align: left;
+            vertical-align: top;
         }
 
         th {
@@ -73,20 +122,19 @@ $result = $connection->query($sql);
         }
 
         td.balasan {
-            max-width: 250px;
-            word-break: break-word;
+            word-wrap: break-word;
             white-space: pre-wrap;
         }
 
         .btn {
-            padding: 6px 12px;
+            padding: 8px 12px;
             background-color: #00589D;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 6px;
             font-size: 14px;
+            margin-right: 4px;
             display: inline-block;
-            margin-top: 4px;
         }
 
         .btn:hover {
@@ -101,23 +149,34 @@ $result = $connection->query($sql);
             background-color: #a83226;
         }
 
-        .actions a {
-            display: block;
-            margin-bottom: 6px;
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .back-link {
-            background: #888;
-            color: white;
-            padding: 8px 14px;
-            text-decoration: none;
-            border-radius: 5px;
+        .pagination {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .pagination a {
             display: inline-block;
-            margin-bottom: 20px;
+            padding: 8px 14px;
+            margin: 0 4px;
+            background-color: #00589D;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
         }
 
-        .back-link:hover {
-            text-decoration: underline;
+        .pagination a.active {
+            background-color: #003f70;
+            font-weight: bold;
+        }
+
+        .pagination a:hover {
+            background-color: #00497f;
         }
     </style>
 </head>
@@ -125,6 +184,11 @@ $result = $connection->query($sql);
 
 <div class="container">
     <h1>Daftar Feedback</h1>
+
+    <?php if ($notif): ?>
+        <div class="notif"><?= htmlspecialchars($notif) ?></div>
+    <?php endif; ?>
+
     <a class="back-link" href="../dashboard_admin.php">← Kembali ke Dashboard</a>
 
     <table>
@@ -134,7 +198,7 @@ $result = $connection->query($sql);
                 <th style="width: 200px;">Komentar</th>
                 <th style="width: 150px;">Waktu</th>
                 <th style="width: 250px;">Balasan</th>
-                <th style="width: 100px;">Aksi</th>
+                <th style="width: 120px;">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -152,6 +216,14 @@ $result = $connection->query($sql);
             <?php endwhile; ?>
         </tbody>
     </table>
+
+    <?php if ($total_pages > 1): ?>
+        <div class="pagination">
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <a href="?page=<?= $i ?>" class="<?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
+            <?php endfor; ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 </body>

@@ -12,6 +12,6 @@ if (isset($_GET['id'])) {
     $stmt->close();
 }
 
-header("Location: admin_struktur.php");
+header("Location: admin_struktur.php?success=delete");
 exit();
 ?>

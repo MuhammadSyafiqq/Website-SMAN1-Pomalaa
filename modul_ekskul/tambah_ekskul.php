@@ -1,23 +1,23 @@
 <?php
 require_once('../koneksi.php');
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
+$timeout_duration = 900;
 
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
+
 require_once '../theme.php';
+
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -30,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $sql = "INSERT INTO ekstrakurikuler (name, description, date, constructor, image)
             VALUES ('$name', '$desc', '$date', '$constructor', '$image')";
     $connection->query($sql);
-    header("Location: admin_ekskul.php");
+
+    // Redirect ke admin_ekskul.php dengan parameter notifikasi
+    header("Location: admin_ekskul.php?success=add");
+    exit();
 }
 ?>
 
@@ -39,36 +42,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Tambah Ekstrakurikuler</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=5">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
-            padding: 80px 20px;
-            color: #333;
+            background: #f6f9ff;
+            margin: 0;
+            padding: 0;
         }
 
         .form-container {
-            max-width: 750px;
-            margin: auto;
-            background: #003366;
-            color: rgb(255, 255, 255);
-            padding: 35px 40px;
-            border-radius: 16px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 30px;
-            color:rgb(255, 255, 255);
-            font-size: 28px;
+            color: #003366;
+            margin-bottom: 20px;
         }
 
         label {
             font-weight: bold;
             display: block;
-            margin: 15px 0 5px;
+            margin-top: 15px;
+            color: #003366;
         }
 
         input[type="text"],
@@ -76,39 +77,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         input[type="file"] {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            margin-top: 5px;
+            color: black;
+            border-radius: 6px;
+            border: 1px solid #00589D;
             font-size: 16px;
         }
 
         textarea {
             resize: vertical;
-            min-height: 150px;
+            min-height: 120px;
         }
 
-        button {
-            margin-top: 20px;
+        .btn-submit {
+            margin-top: 25px;
             background-color: #00589D;
             color: white;
-            padding: 12px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 8px;
-            cursor: pointer;
             font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
             width: 100%;
         }
 
-        button:hover {
-            background-color: #00487f;
+        .btn-submit:hover {
+            background-color: #003f73;
         }
 
         .back-link {
             display: block;
-            margin-top: 30px;
+            margin-top: 20px;
             text-align: center;
             color: #00589D;
-            font-weight: 600;
+            font-weight: bold;
             text-decoration: none;
         }
 
@@ -121,6 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="form-container">
     <h2>Tambah Ekstrakurikuler</h2>
+
     <form method="post" enctype="multipart/form-data">
         <label for="name">Nama:</label>
         <input type="text" name="name" id="name" required>
@@ -134,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <label for="image">Gambar:</label>
         <input type="file" name="image" id="image" accept="image/*" required>
 
-        <button type="submit">Simpan</button>
+        <button type="submit" class="btn-submit">Simpan</button>
     </form>
 
     <a class="back-link" href="admin_ekskul.php">← Kembali ke Daftar Ekskul</a>

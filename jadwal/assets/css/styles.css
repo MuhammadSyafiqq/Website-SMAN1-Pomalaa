@@ -1,135 +1,216 @@
+:root {
+  font-size: 16px; /* dasar scaling, bisa disesuaikan oleh browser saat zoom */
+}
+
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background: #f9fafb;
   margin: 0;
-  padding: 20px;
+  padding: 1.25rem; /* 20px */
   color: #111827;
 }
+
 h1 {
   text-align: center;
   color: #1e40af;
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem;
+  font-size: 2rem;
 }
+
 .container {
-  max-width: 1200px;
+  max-width: 90vw;
   margin: 0 auto;
 }
+
 .form-section {
   background: #ffffff;
-  padding: 20px 30px;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
-  margin-bottom: 40px;
+  padding: 1.5rem 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.1);
+  margin-bottom: 12px;
+}
+
+.toggle-table {
+  margin-top: 8px; /* Jarak atas tombol */
+  padding: 6px 12px;
+  background-color: #1a49b8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.toggle-table:hover {
+  background-color: #133a92;
 }
 h2 {
   color: #1e40af;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
   border-bottom: 2px solid #3b82f6;
-  padding-bottom: 8px;
+  padding-bottom: 0.5rem;
+  font-size: 1.5rem;
 }
+
 form {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 1rem;
   align-items: flex-end;
 }
+
 label {
   flex-basis: 100%;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 0.375rem;
 }
+
 input[type="text"],
 select,
 input[type="date"],
 input[type="time"] {
   flex-grow: 1;
-  padding: 10px;
+  padding: 0.625rem;
   border: 1.5px solid #94a3b8;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   font-size: 1rem;
   color: #1f2937;
   transition: border-color 0.3s ease;
+  min-width: 0;
 }
-input[type="text"]:focus,
-select:focus,
-input[type="time"]:focus {
+
+input:focus,
+select:focus {
   border-color: #2563eb;
   outline: none;
 }
+
 button {
   background-color: #1e40af;
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  user-select: none;
 }
+
 button:hover {
   background-color: #2563eb;
 }
+
 button.edit {
   background-color: #059669;
-  padding: 6px 12px;
-  font-size: 0.875rem;
 }
 button.edit:hover {
   background-color: #047857;
 }
+
 button.delete {
   background-color: #dc2626;
-  padding: 6px 12px;
+  padding: 0.375rem 0.75rem;
   font-size: 0.875rem;
 }
 button.delete:hover {
   background-color: #b91c1c;
 }
+
 .message {
-  margin: 15px 0 0 0;
+  margin-top: 1rem;
   font-weight: 700;
   color: #16a34a;
 }
 .message.error {
   color: #dc2626;
 }
+
 .day-warning {
   color: #f59e0b;
   font-size: 0.875rem;
-  margin-top: 4px;
+  margin-top: 0.25rem;
   display: none;
 }
 .day-warning.show {
   display: block;
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 12px;
+  margin-top: 0.75rem;
 }
 th,
 td {
-  padding: 8px 12px;
+  padding: 0.5rem 0.75rem;
   border: 1px solid #cbd5e1;
   text-align: left;
 }
 th {
-  background-color: #3b82f6;
+  background-color: #00589D;
   color: white;
-  user-select: none;
 }
+
+body.admin-berita th {
+  background-color: #00589D !important;
+  color: white !important;
+}
+
 .actions {
   white-space: nowrap;
   text-align: right;
   width: 150px;
 }
 .actions button {
-  margin-right: 5px;
+  margin-right: 0.3rem;
 }
+
 .loading {
   opacity: 0.5;
   pointer-events: none;
+}
+
+.action-menu-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.action-menu-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: black;
+}
+
+.action-menu-content {
+  display: none;
+  position: absolute;
+  right: 0; /* Biar nempel kanan dari button */
+  top: 100%; /* Turun di bawah button */
+  background-color: white;
+  min-width: 100px;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.action-menu-content button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: #333;
+}
+
+.action-menu-content button:hover {
+  background-color: #2563eb;
+  border-radius: 0px;
+}
+
+.action-menu-wrapper.show .action-menu-content {
+  display: block;
 }
 
 /* Modal Styles */
@@ -139,23 +220,23 @@ th {
   z-index: 1000;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background-color: rgba(0, 0, 0, 0.5);
 }
 .modal-content {
   background-color: #fefefe;
-  margin: 5% auto;
-  padding: 20px;
-  border-radius: 12px;
-  width: 90%;
+  margin: 5vh auto;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  width: 90vw;
   max-width: 500px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
 }
 .close {
   color: #aaa;
   float: right;
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: bold;
   cursor: pointer;
 }
@@ -165,7 +246,7 @@ th {
 .modal form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1rem;
 }
 .modal input,
 .modal select {
@@ -173,22 +254,25 @@ th {
   box-sizing: border-box;
 }
 
-@media (max-width: 720px) {
+/* Responsif untuk layar kecil */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+  }
   form {
     flex-direction: column;
     align-items: stretch;
   }
-  input[type="text"],
+  input,
   select,
-  input[type="time"],
   button {
-    flex-grow: 0;
+    width: 100%;
   }
   table {
     font-size: 0.875rem;
   }
   .actions button {
-    padding: 4px 8px;
+    padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
   }
 }

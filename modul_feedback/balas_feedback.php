@@ -1,25 +1,27 @@
 <?php
 require_once('../koneksi.php');
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
 
+// Timeout 15 menit
+$timeout_duration = 900; 
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
+// Cek login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
+
 require_once '../theme.php';
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
+// Ambil ID
 $id = $_GET['id'];
 $result = $connection->query("SELECT * FROM feedback WHERE id = $id");
 $row = $result->fetch_assoc();
@@ -27,7 +29,8 @@ $row = $result->fetch_assoc();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $balasan = $connection->real_escape_string($_POST['balasan']);
     $connection->query("UPDATE feedback SET balasan = '$balasan' WHERE id = $id");
-    header("Location: admin_feedback.php");
+    header("Location: admin_feedback.php?success=reply");
+    exit();
 }
 ?>
 
@@ -36,55 +39,92 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Balas Feedback</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=6">
+    <link rel="stylesheet" href="../assets/style/style.css?v=7">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
+            background: #ffffff;
             padding: 60px 20px;
-            color: white;
+            color: #000;
         }
+
         .form-container {
-            max-width: 700px;
+            max-width: 750px;
             margin: auto;
-            background: #003366;
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            background: #ffffff;
+            padding: 35px 40px;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+            color: #000;
         }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #003366;
+        }
+
         label {
             font-weight: bold;
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            color: #003366;
         }
+
         textarea {
             width: 100%;
-            padding: 10px;
-            margin-top: 6px;
+            padding: 12px;
             border: 1px solid #ccc;
-            border-radius: 6px;
+            border-radius: 8px;
             resize: vertical;
+            font-size: 16px;
+            color: black;
         }
+
         button {
-            margin-top: 20px;
+            margin-top: 25px;
             background-color: #00589D;
             color: white;
-            padding: 12px 20px;
+            padding: 14px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
             font-size: 16px;
         }
+
         button:hover {
             background-color: #003f70;
         }
+
         .back-link {
-            margin-top: 25px;
             display: block;
+            margin-top: 25px;
             text-align: center;
-            color: white;
+            color: #00589D;
             text-decoration: none;
             font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .feedback-info {
+            margin-top: 15px;
+            background: #f1f1f1;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .feedback-info strong {
+            color: #003366;
+        }
+
+        .feedback-info p {
+            margin: 6px 0 0;
+            white-space: pre-wrap;
         }
     </style>
 </head>
@@ -92,8 +132,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="form-container">
     <h2>Balas Feedback</h2>
-    <p><strong>Nama:</strong> <?= htmlspecialchars($row['nama']) ?></p>
-    <p><strong>Komentar:</strong><br><?= nl2br(htmlspecialchars($row['komentar'])) ?></p>
+
+    <div class="feedback-info">
+        <strong>Nama:</strong> <?= htmlspecialchars($row['nama']) ?><br>
+        <strong>Komentar:</strong>
+        <p><?= nl2br(htmlspecialchars($row['komentar'])) ?></p>
+    </div>
 
     <form method="post">
         <label for="balasan">Balasan Anda:</label>
@@ -101,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <button type="submit">Kirim Balasan</button>
     </form>
 
-    <a class="back-link" href="admin_feedback.php">← Kembali ke Feedback</a>
+    <a class="back-link" href="admin_feedback.php">← Kembali ke Daftar Feedback</a>
 </div>
 
 </body>

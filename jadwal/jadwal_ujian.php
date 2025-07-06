@@ -11,54 +11,17 @@ if ($connection->connect_error) {
     die("Connection failed: " . $connection->connect_error);
 }
 
+// Set charset to UTF-8
+$connection->set_charset("utf8");
+
 // Initialize variables for selected class and major
 $selectedKelas = '';
 $selectedJurusan = '';
 $scheduleResults = [];
+$error_message = '';
 
-// Check if the form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $selectedKelas = $_POST['kelas'];
-    $selectedJurusan = $_POST['jurusan'];
-
-    // Query to get the exam schedule based on selected class and major
-    $query = "
-        SELECT 
-            k.nama AS kelas,
-            j.nama AS jurusan,
-            mp.nama AS mata_pelajaran,
-            ju.date AS tanggal,
-            ju.hari,
-            ju.jam_mulai,
-            ju.jam_selesai
-        FROM 
-            jadwal_ujian ju
-        JOIN 
-            kelas k ON ju.kelas_id = k.id
-        JOIN 
-            jurusan j ON ju.jurusan_id = j.id
-        JOIN 
-            mata_pelajaran mp ON ju.mata_pelajaran_id = mp.id
-        WHERE 
-            k.nama = ? AND j.nama = ?
-        ORDER BY 
-            ju.hari, ju.jam_mulai;
-    ";
-
-    // Prepare and bind
-    $stmt = $connection->prepare($query);
-    $stmt->bind_param("ss", $selectedKelas, $selectedJurusan);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    // Fetch results
-    while ($row = $result->fetch_assoc()) {
-        $scheduleResults[] = $row;
-    }
-
-    $stmt->close();
-
-    function convertHariIndo($hariEn) {
+// Function to convert English day names to Indonesian
+function convertHariIndo($hariEn) {
     $map = [
         'Sunday' => 'Minggu',
         'Monday' => 'Senin',
@@ -70,6 +33,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     ];
     return $map[$hariEn] ?? $hariEn;
 }
+
+// Check if the form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $selectedKelas = $_POST['kelas'] ?? '';
+    $selectedJurusan = $_POST['jurusan'] ?? '';
+
+    if (!empty($selectedKelas) && !empty($selectedJurusan)) {
+        // Query to get the exam schedule based on selected class and major
+        $query = "
+            SELECT 
+                k.nama AS kelas,
+                j.nama AS jurusan,
+                mp.nama AS mata_pelajaran,
+                ju.tanggal AS tanggal,
+                ju.hari,
+                ju.jam_mulai,
+                ju.jam_selesai
+            FROM 
+                jadwal_ujian ju
+            JOIN 
+                kelas k ON ju.kelas_id = k.id
+            JOIN 
+                jurusan j ON ju.jurusan_id = j.id
+            JOIN 
+                mata_pelajaran mp ON ju.mata_pelajaran_id = mp.id
+            WHERE 
+                k.nama = ? AND j.nama = ?
+            ORDER BY 
+                DATE(ju.tanggal), TIME(ju.jam_mulai)
+        ";
+
+        // Prepare statement with error handling
+        $stmt = $connection->prepare($query);
+        
+        if ($stmt === false) {
+            $error_message = "Error preparing statement: " . $connection->error;
+        } else {
+            // Bind parameters
+            $stmt->bind_param("ss", $selectedKelas, $selectedJurusan);
+            
+            // Execute query
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+                
+                // Fetch results
+                while ($row = $result->fetch_assoc()) {
+                    $scheduleResults[] = $row;
+                }
+            } else {
+                $error_message = "Error executing query: " . $stmt->error;
+            }
+            
+            $stmt->close();
+        }
+    } else {
+        $error_message = "Please select both class and major.";
+    }
 }
 ?>
 
@@ -116,6 +136,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 40px 30px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
             border-radius: 12px;
+        }
+
+        /* Error message styling */
+        .error-message {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
         }
 
         /* Modern Table Styling */
@@ -207,14 +238,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         /* Subject name styling */
-        .modern-table td:nth-child(2) {
+        .modern-table td:nth-child(3) {
             font-weight: 600;
             color: var(--text-dark);
         }
 
         /* Time styling */
-        .modern-table td:nth-child(3),
-        .modern-table td:nth-child(4) {
+        .modern-table td:nth-child(4),
+        .modern-table td:nth-child(5) {
             font-family: 'Courier New', monospace;
             font-weight: 500;
             color: var(--primary-blue);
@@ -297,7 +328,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .empty-state i {
             font-size: 48px;
             margin-bottom: 16px;
-            opacity: 0.5
+            opacity: 0.5;
             color: #ffff;
         }
 
@@ -339,14 +370,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <li class="dropdown">
                     <a href="#">Profil</a>
                     <ul class="dropdown-menu">
-                        <li><a href="../tentang.php">Tentang</a></li>
+                        <li><a href="#">Tentang</a></li>
                         <li><a href="../visi_misi.php">Visi Dan Misi</a></li>
                         <li><a href="../akreditasi.php">Akreditasi</a></li>
+                        <li><a href="#">Tentang</a></li>
                     </ul>
                 </li>
                 <li><a href="../prestasi.php">Prestasi</a></li>
                 <li><a href="../struktural.php">Struktural</a></li>
-                <li><a href="berita.php">Berita</a></li>
                 <li class="dropdown">
                     <a href="#">Layanan</a>
                     <ul class="dropdown-menu">
@@ -362,6 +393,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <section class="jadwal-ujian-section">
         <div class="container">
             <h2>Jadwal Ujian</h2>
+            
+            <?php if (!empty($error_message)): ?>
+                <div class="error-message">
+                    <?php echo htmlspecialchars($error_message); ?>
+                </div>
+            <?php endif; ?>
+            
             <form class="form-jadwal" method="POST" action="">
                 <div class="form-group">
                     <label for="kelas">Pilih Kelas</label>
@@ -377,7 +415,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for="jurusan">Pilih Jurusan</label>
                     <select id="jurusan" name="jurusan" required>
                         <option value="">-- Pilih Jurusan --</option>
-                        <option value="-" <?php echo ($selectedJurusan == '-') ? 'selected' : ''; ?>>-</option>
+                        <option value="UMUM" <?php echo ($selectedJurusan == 'UMUM') ? 'selected' : ''; ?>>UMUM</option>
                         <option value="IPA" <?php echo ($selectedJurusan == 'IPA') ? 'selected' : ''; ?>>IPA</option>
                         <option value="IPS" <?php echo ($selectedJurusan == 'IPS') ? 'selected' : ''; ?>>IPS</option>
                     </select>
@@ -388,7 +426,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <?php if (!empty($scheduleResults)): ?>
                 <div class="table-container">
-                    <h3>Jadwal Ujian untuk Kelas <?php echo $selectedKelas; ?> Jurusan <?php echo $selectedJurusan; ?></h3>
+                    <h3>Jadwal Ujian untuk Kelas <?php echo htmlspecialchars($selectedKelas); ?> Jurusan <?php echo htmlspecialchars($selectedJurusan); ?></h3>
                     <table class="modern-table">
                         <thead>
                             <tr>
@@ -402,95 +440,93 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <tbody>
                             <?php foreach ($scheduleResults as $schedule): ?>
                                 <tr>
-                                    <td><?php echo $schedule['tanggal']; ?></td>
-                                    <td><?php echo convertHariIndo($schedule['hari']); ?></td> 
-                                    <td><?php echo $schedule['mata_pelajaran']; ?></td>
-                                    <td><?php echo $schedule['jam_mulai']; ?></td>
-                                    <td><?php echo $schedule['jam_selesai']; ?></td>
+                                    <td><?php echo htmlspecialchars($schedule['tanggal']); ?></td>
+                                    <td><?php echo htmlspecialchars(convertHariIndo($schedule['hari'])); ?></td> 
+                                    <td><?php echo htmlspecialchars($schedule['mata_pelajaran']); ?></td>
+                                    <td><?php echo htmlspecialchars($schedule['jam_mulai']); ?></td>
+                                    <td><?php echo htmlspecialchars($schedule['jam_selesai']); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
-            <?php elseif ($_SERVER["REQUEST_METHOD"] == "POST"): ?>
+            <?php elseif ($_SERVER["REQUEST_METHOD"] == "POST" && empty($error_message)): ?>
                 <div class="table-container">
                     <div class="empty-state">
                         <i class="fas fa-calendar-times"></i>
                         <h3>Tidak ada jadwal ujian</h3>
-                        <p>Belum ada jadwal ujian untuk kelas <?php echo $selectedKelas; ?> jurusan <?php echo $selectedJurusan; ?></p>
+                        <p>Belum ada jadwal ujian untuk kelas <?php echo htmlspecialchars($selectedKelas); ?> jurusan <?php echo htmlspecialchars($selectedJurusan); ?></p>
                     </div>
                 </div>
             <?php endif; ?>
         </div>
     </section>
 
-    <!-- partials/footer.php -->
-<footer id="footer" class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>HUBUNGI KAMI</h3>
-                <div class="contact-info">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <p>Jl. Pendidikan No. 123, Pomalaa<br>Kabupaten Kolaka, Sulawesi Tenggara</p>
+    <!-- Footer -->
+    <footer id="footer" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>HUBUNGI KAMI</h3>
+                    <div class="contact-info">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Jl. Pendidikan No. 123, Pomalaa<br>Kabupaten Kolaka, Sulawesi Tenggara</p>
+                    </div>
+                    <div class="contact-info">
+                        <i class="fas fa-phone"></i>
+                        <p>(0405) 123456</p>
+                    </div>
+                    <div class="contact-info">
+                        <i class="fas fa-envelope"></i>
+                        <p>info@sman1pomalaa.sch.id</p>
+                    </div>
+                    <div class="contact-info">
+                        <i class="fas fa-fax"></i>
+                        <p>(0405) 123457</p>
+                    </div>
                 </div>
-                <div class="contact-info">
-                    <i class="fas fa-phone"></i>
-                    <p>(0405) 123456</p>
+
+                <div class="footer-section">
+                    <h3>INFO SEKOLAH</h3>
+                    <ul>
+                        <li><a href="#">Profil Sekolah</a></li>
+                        <li><a href="#">Visi & Misi</a></li>
+                        <li><a href="#">Struktur Organisasi</a></li>
+                        <li><a href="#">Fasilitas</a></li>
+                        <li><a href="#">Prestasi</a></li>
+                    </ul>
                 </div>
-                <div class="contact-info">
-                    <i class="fas fa-envelope"></i>
-                    <p>info@sman1pomalaa.sch.id</p>
+
+                <div class="footer-section">
+                    <h3>AGENDA SEKOLAH</h3>
+                    <ul>
+                        <li><a href="#">Kalender Akademik</a></li>
+                        <li><a href="#">Kegiatan Sekolah</a></li>
+                        <li><a href="#">Pengumuman</a></li>
+                        <li><a href="#">Event Terbaru</a></li>
+                    </ul>
                 </div>
-                <div class="contact-info">
-                    <i class="fas fa-fax"></i>
-                    <p>(0405) 123457</p>
+
+                <div class="footer-section">
+                    <h3>DENAH LOKAL</h3>
+                    <p>Temukan lokasi ruang kelas, laboratorium, dan fasilitas sekolah lainnya dengan mudah melalui denah interaktif kami.</p>
                 </div>
             </div>
 
-            <div class="footer-section">
-                <h3>INFO SEKOLAH</h3>
-                <ul>
-                    <li><a href="tentang.php">Profil Sekolah</a></li>
-                    <li><a href="visi_misi.php">Visi & Misi</a></li>
-                    <li><a href="struktural.php">Struktural</a></li>
-                    <li><a href="prestasi.php">Prestasi</a></li>
-                </ul>
-            </div>
-
-
-            <div class="footer-section">
-                <h3>LOKASI SEKOLAH</h3>
-                <div class="map-container">
-                    <iframe
-                        src="https://www.google.com/maps?q=-4.195127844991689,121.60381329283022&hl=id&z=17&output=embed"
-                        width="100%" 
-                        height="200" 
-                        style="border:0;" 
-                        allowfullscreen="" 
-                        loading="lazy" 
-                        referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
+            <div class="footer-bottom">
+                <div class="footer-logo">
+                    <img src="../assets/image/logo_sekolah.png" alt="Logo SMA Negeri 1 Pomalaa">
+                    <div>
+                        <h3>SMA NEGERI 1 POMALAA</h3>
+                        <p>Unggul dalam prestasi, berkarakter, dan berwawasan global</p>
+                    </div>
                 </div>
-            </div>
-
-        </div>
-
-        <div class="footer-bottom">
-            <div class="footer-logo">
-                <img src="assets/image/logo_sekolah.png" alt="Logo SMA Negeri 1 Pomalaa">
                 <div>
-                    <h3>SMA NEGERI 1 POMALAA</h3>
-                    <p>Unggul dalam prestasi, berkarakter, dan berwawasan global</p>
+                    <p>&copy; 2025 SMA Negeri 1 Pomalaa. All rights reserved.</p>
                 </div>
             </div>
-            <div>
-                <p>&copy; 2025 SMA Negeri 1 Pomalaa. All rights reserved.</p>
-            </div>
         </div>
-    </div>
-</footer>
-
+    </footer>
 
     <script>
         // Smooth scrolling for navigation links

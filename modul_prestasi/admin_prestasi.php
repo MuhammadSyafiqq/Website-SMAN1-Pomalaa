@@ -1,27 +1,25 @@
 <?php
 require_once('../koneksi.php');
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
 
+// Timeout session 15 menit
+$timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
+
 require_once '../theme.php';
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
-
-$sql = "SELECT * FROM prestasi ORDER BY date DESC";
-$result = $connection->query($sql);
+$result = $connection->query("SELECT * FROM prestasi ORDER BY date DESC");
 ?>
 
 <!DOCTYPE html>
@@ -29,114 +27,163 @@ $result = $connection->query($sql);
 <head>
     <meta charset="UTF-8">
     <title>Kelola Prestasi</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=10">
+    <link rel="stylesheet" href="../assets/style/style.css?v=13">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
-            padding: 50px 20px;
-            color: white;
+            background: #f3f6fc;
+            padding: 40px;
+            margin: 0;
         }
 
         .container {
             max-width: 1000px;
             margin: auto;
-            background: white;
-            color: black;
+            background: #fff;
+            border-radius: 12px;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         h1 {
             text-align: center;
             color: #003366;
-            margin-bottom: 25px;
-        }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .back-link {
-            background: #888;
-            color: white;
-            padding: 8px 14px;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-
-        .btn-add {
-            background-color: #00589D;
-            color: white;
-            padding: 8px 14px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ccc;
-            text-align: left;
-            vertical-align: middle;
-        }
-
-        th {
-            background-color: #00589D;
-            color: white;
-        }
-
-        img.preview-img {
-            height: 60px;
-            border-radius: 6px;
+            margin-bottom: 30px;
         }
 
         .btn {
             display: inline-block;
-            min-width: 60px;
-            padding: 6px 10px;
-            text-align: center;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-back {
+            background-color: #888;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .btn-back:hover {
+            background-color: #666;
+        }
+
+        .btn-add {
+            float: right;
             background-color: #00589D;
             color: white;
-            border-radius: 5px;
-            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .btn-add:hover {
+            background-color: #00417a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: #00589D !important;
+        }
+
+        thead th {
+            background-color: #00589D !important;
+            color: white !important;
+            padding: 12px;
+            text-align: left;
+            border-right: 1px solid #ddd;
+        }
+
+        thead th:last-child {
+            border-right: none;
+        }
+
+        tbody td {
+            background-color: white;
+            padding: 12px;
+            vertical-align: middle;
+            color: #000;
+            border-top: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 1px solid #ddd;
+        }
+
+        tbody td:last-child {
+            border-right: none;
+        }
+
+        td img {
+            height: 60px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .actions a {
+            margin-right: 8px;
+            padding: 6px 12px;
+            border-radius: 4px;
             text-decoration: none;
+            font-size: 14px;
         }
 
-        .btn-danger {
-            background-color: #c0392b;
+        .actions .edit {
+            background-color: #1d4ed8;
+            color: white;
         }
 
-        .actions {
-            white-space: nowrap;
-            width: 130px;
+        .actions .edit:hover {
+            background-color: #1e40af;
         }
 
-        .action-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        .actions .delete {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .actions .delete:hover {
+            background-color: #b91c1c;
+        }
+
+        .notif {
+            margin-bottom: 20px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            color: #0f5132;
+            background-color: #d1e7dd;
+            border: 1px solid #badbcc;
+            font-size: 15px;
         }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>Daftar Prestasi</h1>
+    <h1>Kelola Prestasi</h1>
 
-    <div class="top-bar">
-        <a class="back-link" href="../dashboard_admin.php">← Kembali ke Dashboard</a>
-        <a class="btn-add" href="tambah_prestasi.php">+ Tambah Prestasi</a>
-    </div>
+    <?php if (isset($_GET['success'])): ?>
+        <?php if ($_GET['success'] === 'add'): ?>
+            <div class="notif">✅ Prestasi berhasil ditambahkan.</div>
+        <?php elseif ($_GET['success'] === 'edit'): ?>
+            <div class="notif">✏️ Prestasi berhasil diperbarui.</div>
+        <?php elseif ($_GET['success'] === 'delete'): ?>
+            <div class="notif">🗑️ Prestasi berhasil dihapus.</div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <a href="../dashboard_admin.php" class="btn btn-back">← Kembali ke Dashboard</a>
+    <a href="tambah_prestasi.php" class="btn btn-add">+ Tambah Prestasi</a>
 
     <table>
         <thead>
@@ -164,17 +211,15 @@ $result = $connection->query($sql);
                     <?php endif; ?>
                 </td>
                 <td class="actions">
-                    <div class="action-group">
-                        <a href="edit_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="btn">Edit</a>
-                        <a href="hapus_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus prestasi ini?')">Hapus</a>
-                    </div>
+                    <a href="edit_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="edit">Edit</a>
+                    <a href="hapus_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="delete" onclick="return confirm('Yakin ingin menghapus prestasi ini?')">Hapus</a>
                 </td>
             </tr>
         <?php endwhile; ?>
         </tbody>
     </table>
-
 </div>
-
 </body>
 </html>
+
+<?php $connection->close(); ?>

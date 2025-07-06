@@ -1,22 +1,22 @@
 <?php
 require_once('../koneksi.php');
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
 
+// Timeout 15 menit
+$timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
+
 require_once '../theme.php';
 $connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
@@ -31,26 +31,33 @@ if (!$data) {
     die("Data tidak ditemukan.");
 }
 
+$error = '';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nama = $_POST['nama'];
     $nip = $_POST['nip'];
     $position = $_POST['position'];
     $status = $_POST['status'];
 
-    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-        $photo = file_get_contents($_FILES['photo']['tmp_name']);
-        $stmt = $connection->prepare("UPDATE struktur SET nama=?, nip=?, position=?, status=?, photo=? WHERE id_struktur=?");
-        $stmt->bind_param("sssssi", $nama, $nip, $position, $status, $photo, $id);
-        $stmt->send_long_data(4, $photo);
+    if (empty($nama) || empty($nip) || empty($position) || empty($status)) {
+        $error = "Semua field wajib diisi.";
     } else {
-        $stmt = $connection->prepare("UPDATE struktur SET nama=?, nip=?, position=?, status=? WHERE id_struktur=?");
-        $stmt->bind_param("ssssi", $nama, $nip, $position, $status, $id);
-    }
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+            $photo = file_get_contents($_FILES['photo']['tmp_name']);
+            $stmt = $connection->prepare("UPDATE struktur SET nama=?, nip=?, position=?, status=?, photo=? WHERE id_struktur=?");
+            $stmt->bind_param("sssssi", $nama, $nip, $position, $status, $photo, $id);
+            $stmt->send_long_data(4, $photo);
+        } else {
+            $stmt = $connection->prepare("UPDATE struktur SET nama=?, nip=?, position=?, status=? WHERE id_struktur=?");
+            $stmt->bind_param("ssssi", $nama, $nip, $position, $status, $id);
+        }
 
-    $stmt->execute();
-    $stmt->close();
-    header("Location: admin_struktur.php");
-    exit();
+        $stmt->execute();
+        $stmt->close();
+
+        header("Location: admin_struktur.php?success=edit");
+        exit();
+    }
 }
 ?>
 
@@ -59,20 +66,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Edit Struktur</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=9">
+    <link rel="stylesheet" href="assets/style/style.css?v=10">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
-            color: white;
-            padding: 40px;
+            background: #ffffff;
+            margin: 0;
+            padding: 60px 20px;
+            color: #000;
         }
 
         .form-container {
             max-width: 750px;
             margin: auto;
-            background: #003366;
-            color: rgb(255, 255, 255);
+            background: #ffffff;
+            color: #000;
             padding: 35px 40px;
             border-radius: 16px;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
@@ -80,62 +88,76 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         h2 {
             text-align: center;
-            margin-bottom: 25px;
-            color:rgb(255, 255, 255);
+            margin-bottom: 30px;
+            color: #003366;
         }
 
         label {
-            display: block;
-            margin-top: 15px;
             font-weight: bold;
+            display: block;
+            margin: 15px 0 5px;
+            color: #003366;
         }
 
         input[type="text"],
         select,
         input[type="file"] {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            background-color: #00589D;
-            color: white;
+            padding: 12px;
+            border: 1px solid #00589D;
+            border-radius: 8px;
+            color: black;
+            margin-bottom: 15px;
+            font-size: 16px;
+            outline: none;
         }
 
         select option {
-            background-color: #00589D;
-            color: white;
+            background-color: #fff;
+            color: #000;
+        }
+
+        input[type="file"] {
+            border: 1px dashed #00589D;
         }
 
         button {
-            margin-top: 25px;
-            width: 100%;
-            padding: 12px;
             background-color: #00589D;
             color: white;
+            padding: 12px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 16px;
+            width: 100%;
             cursor: pointer;
+            transition: 0.3s;
         }
 
         button:hover {
-            background-color: #003f70;
+            background-color: #00487f;
         }
 
-        .back-btn {
-            display: inline-block;
-            margin-top: 20px;
-            background-color: #888;
-            color: white;
-            padding: 10px 18px;
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            text-align: center;
+            color: #00589D;
+            font-weight: bold;
             text-decoration: none;
-            border-radius: 6px;
-            font-size: 14px;
         }
 
-        .back-btn:hover {
+        .back-link:hover {
             text-decoration: underline;
+        }
+
+        .error-msg {
+            background-color: #ff4d4d;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
         }
     </style>
 </head>
@@ -143,30 +165,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <div class="form-container">
     <h2>Edit Struktur</h2>
+
+    <?php if (!empty($error)): ?>
+        <div class="error-msg"><?= $error ?></div>
+    <?php endif; ?>
+
     <form action="" method="POST" enctype="multipart/form-data">
-        <label for="nama">Nama:</label>
+        <label for="nama">Nama</label>
         <input type="text" name="nama" value="<?= htmlspecialchars($data['nama']) ?>" required>
 
-        <label for="nip">NIP:</label>
-        <input type="text" name="nip" value="<?= htmlspecialchars($data['nip']) ?>">
+        <label for="nip">NIP</label>
+        <input type="text" name="nip" value="<?= htmlspecialchars($data['nip']) ?>" required>
 
-        <label for="position">Jabatan/Posisi:</label>
+        <label for="position">Jabatan/Posisi</label>
         <input type="text" name="position" value="<?= htmlspecialchars($data['position']) ?>" required>
 
-        <label for="status">Status:</label>
+        <label for="status">Status</label>
         <select name="status" required>
+            <option value="">-- Pilih Status --</option>
             <option value="Guru" <?= $data['status'] == 'Guru' ? 'selected' : '' ?>>Guru</option>
             <option value="Staf" <?= $data['status'] == 'Staf' ? 'selected' : '' ?>>Staf</option>
-            <option value="" <?= $data['status'] == '' ? 'selected' : '' ?>>Lainnya</option>
+            <option value="Lainnya" <?= $data['status'] == 'Lainnya' ? 'selected' : '' ?>>Lainnya</option>
         </select>
 
-        <label for="photo">Foto (biarkan kosong jika tidak diubah):</label>
+        <label for="photo">Foto (biarkan kosong jika tidak diubah)</label>
         <input type="file" name="photo" accept="image/*">
 
         <button type="submit">Simpan Perubahan</button>
     </form>
 
-    <a href="admin_struktur.php" class="back-btn">← Kembali ke Daftar Struktur</a>
+    <a class="back-link" href="admin_struktur.php">← Kembali ke Daftar Struktur</a>
 </div>
 
 </body>

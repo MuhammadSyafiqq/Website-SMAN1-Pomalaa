@@ -12,7 +12,7 @@ if (isset($_POST['add_kelas'])) {
     if (!empty($nama)) {
         $id = generateNextId($connection, 'kelas', 'KL-');
         if ($kelasModel->create($id, $nama)) {
-            redirectWithMessage("Kelas berhasil ditambahkan.");
+            redirectWithMessage("Kelas berhasil ditambahkan redirect.");
         } else {
             redirectWithMessage("Gagal menambahkan kelas.");
         }

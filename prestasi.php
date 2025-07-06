@@ -36,7 +36,7 @@ $result = $connection->query($sql);
             }
         }
 
-        
+        /* General Body Styling */
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
@@ -71,7 +71,6 @@ $result = $connection->query($sql);
             justify-content: center;
         }
 
-
         .poster-link {
             text-decoration: none;
         }
@@ -90,36 +89,46 @@ $result = $connection->query($sql);
         }
 
         .poster:hover {
-            transform: scale(1.05); /* efek zoom */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* efek bayangan lebih besar saat hover */
+            transform: scale(1.05); /* zoom effect */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* larger shadow on hover */
         }
 
-
+        /* --- NEW CSS FOR IMAGE HEIGHT CONTROL --- */
+        .poster img {
+            width: 100%;
+            height: 200px; /* Fixed height for consistency in the grid */
+            object-fit: cover; /* Ensures image covers the area without distortion */
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        /* -------------------------------------- */
 
         .poster-content {
             padding: 15px 20px;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            flex-grow: 1; /* Allows content to expand and push footer down */
         }
 
         .poster h3 {
             margin: 0 0 10px;
             font-size: 20px;
             color: #003366;
+            min-height: 50px; /* Give a minimum height to title to prevent layout shifts */
         }
 
         .poster p {
             font-size: 14px;
             color: #333;
-            margin-top: auto; /* menjaga p selalu di bawah */
+            margin-top: auto; /* Pushes the paragraph to the bottom */
+            flex-grow: 1; /* Allows description to take up available space */
         }
-
 
         .no-data {
             text-align: center;
             font-size: 18px;
             padding: 50px 0;
+            grid-column: 1 / -1; /* Make it span all columns */
         }
     </style>
 </head>
@@ -136,8 +145,19 @@ $result = $connection->query($sql);
         <?php if ($result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <?php
-                    $deskripsi_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['description'])), 0, 10)) . '...';
-                    $judul_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['title'])), 0, 6)) . '...';
+                    // Limit description to 10 words and add ellipsis
+                    $deskripsi_words = explode(' ', strip_tags($row['description']));
+                    $deskripsi_pendek = implode(' ', array_slice($deskripsi_words, 0, 10));
+                    if (count($deskripsi_words) > 10) {
+                        $deskripsi_pendek .= '...';
+                    }
+
+                    // Limit title to 6 words and add ellipsis
+                    $judul_words = explode(' ', strip_tags($row['title']));
+                    $judul_pendek = implode(' ', array_slice($judul_words, 0, 6));
+                    if (count($judul_words) > 6) {
+                        $judul_pendek .= '...';
+                    }
                 ?>
                 <a href="detail_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="poster-link">
                     <div class="poster">
@@ -156,7 +176,6 @@ $result = $connection->query($sql);
 </div>
 
 <?php include 'partials/footer.php'; ?>
-
 
 </body>
 </html>
