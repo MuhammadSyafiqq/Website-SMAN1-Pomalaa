@@ -1,11 +1,20 @@
 <?php
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 
 
+<<<<<<< Updated upstream
+=======
+>>>>>>> ddd48b794be1558b2cda4cf6c4b81222566941ff
+>>>>>>> Stashed changes
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../helpers/functions.php';
