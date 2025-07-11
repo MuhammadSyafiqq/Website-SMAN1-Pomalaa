@@ -2,7 +2,7 @@
 // Start session (jika belum)
 session_start();
 
-require_once 'koneksi.php'; // ✅ pakai koneksi terpusat
+require_once 'koneksi.php';
 
 // Tangani form feedback sebelum HTML
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
