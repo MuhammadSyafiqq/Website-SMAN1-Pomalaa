@@ -5,12 +5,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Visi & Misi</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=2">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+
     <style>
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
+            background: white;
             color: white;
         }
 
@@ -28,7 +29,7 @@
             font-size: 36px;
             font-weight: bold;
             margin-bottom: 40px;
-            color: #fff;
+            color: #1e40af;
             border-bottom: 3px solid #FFD700;
             display: inline-block;
             padding-bottom: 10px;
@@ -42,20 +43,20 @@
         .visi h3, .misi h3 {
             font-size: 26px;
             margin-bottom: 15px;
-            color: #FFD700;
+            color: #1e40af;
         }
 
         .visi p {
             font-size: 18px;
             line-height: 1.6;
-            color: #ffffff;
+            color: #1e40af;
         }
 
         .misi ol {
             font-size: 18px;
             line-height: 1.8;
             padding-left: 20px;
-            color: #ffffff;
+            color: #1e40af;
         }
 
         .misi li {

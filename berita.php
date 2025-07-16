@@ -1,7 +1,7 @@
 <?php
 require_once 'theme.php';
 
-require_once 'koneksi.php'; // ✅ pakai koneksi terpusat
+require_once 'config/database.php';
 
 $sql = "SELECT id_berita, title, deskripsi, image, date FROM berita ORDER BY date DESC";
 $result = $connection->query($sql);
@@ -12,12 +12,12 @@ $result = $connection->query($sql);
 <head>
     <meta charset="UTF-8">
     <title>Berita Sekolah</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=4">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
     <style>
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
+            background: white;
             color: #333;
         }
 
@@ -35,7 +35,7 @@ $result = $connection->query($sql);
         .header h1 {
             font-size: 38px;
             font-weight: bold;
-            color: white;
+            color: primary-blue;
             border-bottom: 4px solid #FFD700;
             display: inline-block;
             padding-bottom: 12px;
@@ -79,10 +79,10 @@ $result = $connection->query($sql);
             font-size: 20px;
             color: #003366;
             margin-bottom: 10px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            white-space: normal; /* Biarkan teks mengalir */
+            word-wrap: break-word;
         }
+
 
         .news-content .date {
             font-size: 13px;
@@ -137,7 +137,7 @@ $result = $connection->query($sql);
             <?php while ($row = $result->fetch_assoc()): ?>
                 <?php
                     $isi_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['deskripsi'])), 0, 25)) . '...';
-                    $judul_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['title'])), 0, 10)) . '...';
+                    $judul_pendek = strip_tags($row['title']);
                     $tanggal = date('d M Y', strtotime($row['date']));
                 ?>
                 <div class="news-card">

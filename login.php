@@ -1,17 +1,24 @@
 <?php
 session_start();
-require_once 'koneksi.php'; // ✅ gunakan koneksi yang sudah ada
 
+if (isset($_SESSION['username']) && isset($_SESSION['role'])) {
+    header("Location: dashboard_admin.php");
+    exit();
+}
+
+require_once 'config/database.php';
 // Lama waktu tidak aktif sebelum logout otomatis (dalam detik)
 $timeout_duration = 900; // 15 menit
 
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
     session_unset();
     session_destroy();
-    header("Location: login_admin.php?timeout=true"); // ganti jika nama file login berbeda
+    header("Location: login_admin.php?timeout=true"); // ganti dengan nama file login kamu jika perlu
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui aktivitas
+$_SESSION['LAST_ACTIVITY'] = time();
+
+
 
 $error = '';
 
@@ -30,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['username'] = $user['username'];
             $_SESSION['nama'] = $user['nama'];
             $_SESSION['role'] = $user['role'];
-            $_SESSION['LAST_ACTIVITY'] = time();
+            $_SESSION['LAST_ACTIVITY'] = time(); // Set ulang waktu aktivitas terakhir
 
             header("Location: dashboard_admin.php");
             exit();
@@ -42,7 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="id">
@@ -173,11 +179,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <button type="submit">LOG IN</button>
             </form>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="index.php" style="
+                    display: inline-block;
+                    padding: 10px 20px;
+                    background-color: #f3f4f6;
+                    color: #003366;
+                    border: 1px solid #003366;
+                    border-radius: 25px;
+                    text-decoration: none;
+                    font-size: 14px;
+                    transition: background-color 0.3s, color 0.3s;
+                ">
+                    ← Kembali ke Dashboard
+                </a>
+            </div>
 
-            <div class="logo">
+
+            <a href="index.php" class="logo" style="text-decoration: none;">
                 <img src="assets/image/logo_sekolah.png" alt="Logo Sekolah">
                 <h3>SMA NEGERI 1 POMALAA</h3>
-            </div>
+            </a>
+
 
             <div class="footer">
                 SMAN 1 POMALAA, berlokasi di JL. SALAK NO. 2 POMALAA, KUMORO, KEC. POMALAA, KAB. KOLAKA, PROV. SULAWESI TENGGARA,<br>

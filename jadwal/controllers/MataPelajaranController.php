@@ -1,7 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../models/MataPelajaranModel.php';
-require_once __DIR__ . '/../helpers/functions.php';
+
+require_once(__DIR__ . '/../../config/database.php');
+require_once(__DIR__ . '/../models/MataPelajaranModel.php');
+require_once(__DIR__ . '/../helpers/functions.php');
 
 $mataPelajaranModel = new MataPelajaranModel($connection);
 
@@ -10,6 +11,18 @@ if (isset($_POST['add_mata_pelajaran'])) {
     $kategori = $_POST['kategori'];           // FIXED
 
     if (!empty($nama) && !empty($kategori)) {
+        if (!isValidNamaPelajaran($nama)) {
+            $_SESSION['error'] = "Nama mata pelajaran hanya boleh berisi huruf dan spasi.";
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+
+        if ($mataPelajaranModel->isDuplicate($nama, $kategori)) {
+            $_SESSION['error'] = "Mata pelajaran dengan nama dan kategori yang sama sudah ada.";
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+
         $id = generateNextId($connection, 'mata_pelajaran', 'MP-');
         $mataPelajaranModel->create($id, $nama, $kategori);
         $_SESSION['success'] = "Mata pelajaran berhasil ditambahkan.";
@@ -30,6 +43,18 @@ if (isset($_POST['edit_mata_pelajaran'])) {
 
     if (!$id || !$nama || !$kategori) {
         $_SESSION['error'] = "Data mata pelajaran tidak valid.";
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+        exit;
+    }
+
+    if (!isValidNamaPelajaran($nama)) {
+        $_SESSION['error'] = "Nama mata pelajaran hanya boleh berisi huruf dan spasi.";
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+        exit;
+    }
+
+    if ($mataPelajaranModel->isDuplicate($nama, $kategori, $id)) {
+        $_SESSION['error'] = "Mata pelajaran dengan nama dan kategori yang sama sudah ada.";
         header("Location: " . $_SERVER['HTTP_REFERER']);
         exit;
     }

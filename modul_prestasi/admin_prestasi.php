@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 // Timeout session 15 menit
@@ -18,8 +18,26 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
-$result = $connection->query("SELECT * FROM prestasi ORDER BY date DESC");
+
+// Ambil filter dari GET
+$search = $_GET['search'] ?? '';
+$level = $_GET['level'] ?? '';
+$category = $_GET['category'] ?? '';
+
+// Query dengan filter
+$sql = "SELECT * FROM prestasi WHERE 1=1";
+if (!empty($search)) {
+    $sql .= " AND title LIKE '%" . $connection->real_escape_string($search) . "%'";
+}
+if (!empty($level)) {
+    $sql .= " AND level = '" . $connection->real_escape_string($level) . "'";
+}
+if (!empty($category)) {
+    $sql .= " AND category = '" . $connection->real_escape_string($category) . "'";
+}
+$sql .= " ORDER BY date DESC";
+
+$result = $connection->query($sql);
 ?>
 
 <!DOCTYPE html>
@@ -82,6 +100,25 @@ $result = $connection->query("SELECT * FROM prestasi ORDER BY date DESC");
             background-color: #00417a;
         }
 
+        .notif {
+            margin-bottom: 20px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .notif.success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+
+        .notif.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
         table {
             width: 100%;
             border-collapse: separate;
@@ -92,37 +129,18 @@ $result = $connection->query("SELECT * FROM prestasi ORDER BY date DESC");
             overflow: hidden;
         }
 
-        thead {
-            background-color: #00589D !important;
-        }
-
         thead th {
-            background-color: #00589D !important;
-            color: white !important;
+            background-color: #00589D;
+            color: white;
             padding: 12px;
             text-align: left;
-            border-right: 1px solid #ddd;
-        }
-
-        thead th:last-child {
-            border-right: none;
         }
 
         tbody td {
             background-color: white;
             padding: 12px;
-            vertical-align: middle;
             color: #000;
-            border-top: 1px solid #ddd;
-            border-right: 1px solid #ddd;
-        }
-
-        tbody tr:last-child td {
-            border-bottom: 1px solid #ddd;
-        }
-
-        tbody td:last-child {
-            border-right: none;
+            vertical-align: middle;
         }
 
         td img {
@@ -144,27 +162,39 @@ $result = $connection->query("SELECT * FROM prestasi ORDER BY date DESC");
             color: white;
         }
 
-        .actions .edit:hover {
-            background-color: #1e40af;
-        }
-
         .actions .delete {
             background-color: #dc2626;
             color: white;
         }
 
-        .actions .delete:hover {
-            background-color: #b91c1c;
+        .filter-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
-        .notif {
-            margin-bottom: 20px;
-            padding: 12px 18px;
-            border-radius: 8px;
-            color: #0f5132;
-            background-color: #d1e7dd;
-            border: 1px solid #badbcc;
-            font-size: 15px;
+        .filter-form input[type="text"],
+        .filter-form select {
+            color: black;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .filter-form button {
+            background-color: #00589D;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-form button:hover {
+            background-color: #003f70;
         }
     </style>
 </head>
@@ -174,50 +204,77 @@ $result = $connection->query("SELECT * FROM prestasi ORDER BY date DESC");
 
     <?php if (isset($_GET['success'])): ?>
         <?php if ($_GET['success'] === 'add'): ?>
-            <div class="notif">✅ Prestasi berhasil ditambahkan.</div>
+            <div class="notif success">✅ Prestasi berhasil ditambahkan.</div>
         <?php elseif ($_GET['success'] === 'edit'): ?>
-            <div class="notif">✏️ Prestasi berhasil diperbarui.</div>
+            <div class="notif success">✏️ Prestasi berhasil diperbarui.</div>
         <?php elseif ($_GET['success'] === 'delete'): ?>
-            <div class="notif">🗑️ Prestasi berhasil dihapus.</div>
+            <div class="notif success">🗑️ Prestasi berhasil dihapus.</div>
         <?php endif; ?>
     <?php endif; ?>
 
     <a href="../dashboard_admin.php" class="btn btn-back">← Kembali ke Dashboard</a>
     <a href="tambah_prestasi.php" class="btn btn-add">+ Tambah Prestasi</a>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Judul</th>
-                <th>Level</th>
-                <th>Kategori</th>
-                <th>Tanggal</th>
-                <th>Gambar</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php while ($row = $result->fetch_assoc()): ?>
-            <tr>
-                <td><?= htmlspecialchars($row['title']) ?></td>
-                <td><?= htmlspecialchars($row['level']) ?></td>
-                <td><?= htmlspecialchars($row['category']) ?></td>
-                <td><?= date('d M Y', strtotime($row['date'])) ?></td>
-                <td>
-                    <?php if ($row['image']): ?>
-                        <img class="preview-img" src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar">
-                    <?php else: ?>
-                        <em>Tidak ada</em>
-                    <?php endif; ?>
-                </td>
-                <td class="actions">
-                    <a href="edit_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="edit">Edit</a>
-                    <a href="hapus_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="delete" onclick="return confirm('Yakin ingin menghapus prestasi ini?')">Hapus</a>
-                </td>
-            </tr>
-        <?php endwhile; ?>
-        </tbody>
-    </table>
+    <form method="GET" class="filter-form">
+        <input type="text" name="search" placeholder="Cari judul..." value="<?= htmlspecialchars($search) ?>">
+        <select name="level">
+            <option value="">-- Pilih Level --</option>
+            <?php
+            $levels = ['SEKOLAH', 'KABUPATEN', 'PROVINSI', 'NASIONAL', 'INTERNASIONAL'];
+            foreach ($levels as $l) {
+                echo "<option value=\"$l\" " . ($level == $l ? 'selected' : '') . ">$l</option>";
+            }
+            ?>
+        </select>
+        <select name="category">
+            <option value="">-- Pilih Kategori --</option>
+            <?php
+            $categories = ['sekolah','siswa', 'guru', 'ekstrakurikuler'];
+            foreach ($categories as $c) {
+                echo "<option value=\"$c\" " . ($category == $c ? 'selected' : '') . ">$c</option>";
+            }
+            ?>
+        </select>
+        <button type="submit">🔍 Cari</button>
+    </form>
+
+    <?php if ($result->num_rows > 0): ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Judul</th>
+                    <th>Level</th>
+                    <th>Kategori</th>
+                    <th>Tanggal</th>
+                    <th>Gambar</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['title']) ?></td>
+                    <td><?= htmlspecialchars($row['level']) ?></td>
+                    <td><?= htmlspecialchars($row['category']) ?></td>
+                    <td><?= date('d M Y', strtotime($row['date'])) ?></td>
+                    <td>
+                        <?php if (!empty($row['image'])): ?>
+                            <img src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar">
+                        <?php else: ?>
+                            <em>Tidak ada</em>
+                        <?php endif; ?>
+                    </td>
+                    <td class="actions">
+                        <a href="edit_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="edit">Edit</a>
+                        <a href="hapus_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="delete" onclick="return confirm('Yakin ingin menghapus prestasi ini?')">Hapus</a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <div class="notif warning">⚠️ Tidak ada data ditemukan untuk filter yang digunakan.</div>
+    <?php endif; ?>
 </div>
 </body>
 </html>

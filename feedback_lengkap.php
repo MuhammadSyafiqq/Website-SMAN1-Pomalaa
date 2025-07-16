@@ -1,6 +1,6 @@
 <?php
 
-require_once 'koneksi.php';
+require_once 'config/database.php';
 
 
 $limit = 10;

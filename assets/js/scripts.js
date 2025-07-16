@@ -541,3 +541,15 @@ function formatDate(dateString) {
     year: "numeric",
   });
 }
+
+document.getElementById('hamburger').addEventListener('click', function () {
+  document.getElementById('navLinks').classList.toggle('active');
+});
+
+const dropdown = document.querySelector('.dropdown');
+dropdown.addEventListener('click', function (e) {
+  if (window.innerWidth <= 768) {
+    e.preventDefault();
+    dropdown.classList.toggle('open');
+  }
+});

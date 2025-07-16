@@ -1,6 +1,6 @@
 <?php
-require_once('../koneksi.php');
 session_start();
+require_once '../config/database.php';
 
 // Timeout 15 menit
 $timeout_duration = 900;
@@ -18,7 +18,6 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 $id = $_GET['id'];
 $query = $connection->prepare("SELECT * FROM struktur WHERE id_struktur = ?");
@@ -31,7 +30,7 @@ if (!$data) {
     die("Data tidak ditemukan.");
 }
 
-$error = '';
+$error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nama = $_POST['nama'];
@@ -39,8 +38,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $position = $_POST['position'];
     $status = $_POST['status'];
 
-    if (empty($nama) || empty($nip) || empty($position) || empty($status)) {
+    if (
+        empty($nama) || empty($nip) || empty($position) || empty($status)
+    ) {
         $error = "Semua field wajib diisi.";
+    } elseif (!ctype_digit($nip)) {
+        $error = "NIP hanya boleh diisi dengan angka.";
+    } elseif (strlen($nip) > 50) {
+        $error = "NIP maksimal 50 digit.";
     } else {
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
             $photo = file_get_contents($_FILES['photo']['tmp_name']);
@@ -52,11 +57,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_param("ssssi", $nama, $nip, $position, $status, $id);
         }
 
-        $stmt->execute();
-        $stmt->close();
-
-        header("Location: admin_struktur.php?success=edit");
-        exit();
+        if ($stmt->execute()) {
+            $stmt->close();
+            header("Location: admin_struktur.php?success=edit");
+            exit();
+        } else {
+            $error = "Gagal memperbarui data.";
+        }
     }
 }
 ?>
@@ -66,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Edit Struktur</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=10">
+    <link rel="stylesheet" href="assets/style/style.css?v=11">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -137,6 +144,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background-color: #00487f;
         }
 
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
         .back-link {
             display: block;
             margin-top: 30px;
@@ -170,7 +182,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="error-msg"><?= $error ?></div>
     <?php endif; ?>
 
-    <form action="" method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" onsubmit="disableSubmitButton()">
         <label for="nama">Nama</label>
         <input type="text" name="nama" value="<?= htmlspecialchars($data['nama']) ?>" required>
 
@@ -178,24 +190,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="text" name="nip" value="<?= htmlspecialchars($data['nip']) ?>" required>
 
         <label for="position">Jabatan/Posisi</label>
-        <input type="text" name="position" value="<?= htmlspecialchars($data['position']) ?>" required>
+        <select name="position" required>
+            <option value="">-- Pilih Jabatan --</option>
+            <option value="Kepala Sekolah" <?= $data['position'] == 'Kepala Sekolah' ? 'selected' : '' ?>>Kepala Sekolah</option>
+            <option value="Wakasek Kesiswaan" <?= $data['position'] == 'Wakasek Kesiswaan' ? 'selected' : '' ?>>Wakasek Kesiswaan</option>
+            <option value="Wakasek Prasarana" <?= $data['position'] == 'Wakasek Prasarana' ? 'selected' : '' ?>>Wakasek Prasarana</option>
+            <option value=" " <?= trim($data['position']) == '' ? 'selected' : '' ?>>None</option>
+        </select>
 
         <label for="status">Status</label>
-        <select name="status" required>
-            <option value="">-- Pilih Status --</option>
-            <option value="Guru" <?= $data['status'] == 'Guru' ? 'selected' : '' ?>>Guru</option>
-            <option value="Staf" <?= $data['status'] == 'Staf' ? 'selected' : '' ?>>Staf</option>
-            <option value="Lainnya" <?= $data['status'] == 'Lainnya' ? 'selected' : '' ?>>Lainnya</option>
-        </select>
+        <input type="text" name="status" value="<?= htmlspecialchars($data['status']) ?>" placeholder="Contoh: Guru Matematika" required>
 
         <label for="photo">Foto (biarkan kosong jika tidak diubah)</label>
         <input type="file" name="photo" accept="image/*">
 
-        <button type="submit">Simpan Perubahan</button>
+        <button type="submit" id="submitBtn">Simpan Perubahan</button>
     </form>
 
     <a class="back-link" href="admin_struktur.php">← Kembali ke Daftar Struktur</a>
 </div>
+
+<script>
+    function disableSubmitButton() {
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.innerText = "Menyimpan...";
+    }
+</script>
 
 </body>
 </html>

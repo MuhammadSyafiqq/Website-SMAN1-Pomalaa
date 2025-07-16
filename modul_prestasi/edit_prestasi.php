@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 // Timeout 15 menit
@@ -18,7 +18,6 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 if (!isset($_GET['id'])) {
     header("Location: admin_prestasi.php");
@@ -34,6 +33,8 @@ if (!$data) {
     exit();
 }
 
+$error = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $connection->real_escape_string($_POST['title']);
     $description = $connection->real_escape_string($_POST['description']);
@@ -42,17 +43,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category = $connection->real_escape_string($_POST['category']);
     $image = $_FILES['image']['tmp_name'] ? addslashes(file_get_contents($_FILES['image']['tmp_name'])) : null;
 
-    if ($image) {
-        $sql = "UPDATE prestasi SET title='$title', description='$description', level='$level', date='$date', category='$category', image='$image' WHERE id_prestasi=$id";
+    if ($date > date('Y-m-d')) {
+        $error = "Tanggal tidak boleh melebihi hari ini.";
     } else {
-        $sql = "UPDATE prestasi SET title='$title', description='$description', level='$level', date='$date', category='$category' WHERE id_prestasi=$id";
-    }
+        if ($image) {
+            $sql = "UPDATE prestasi SET title='$title', description='$description', level='$level', date='$date', category='$category', image='$image' WHERE id_prestasi=$id";
+        } else {
+            $sql = "UPDATE prestasi SET title='$title', description='$description', level='$level', date='$date', category='$category' WHERE id_prestasi=$id";
+        }
 
-    if ($connection->query($sql)) {
-        header("Location: admin_prestasi.php?success=edit");
-        exit();
-    } else {
-        echo "Gagal mengupdate: " . $connection->error;
+        if ($connection->query($sql)) {
+            header("Location: admin_prestasi.php?success=edit");
+            exit();
+        } else {
+            $error = "Gagal mengupdate: " . $connection->error;
+        }
     }
 }
 ?>
@@ -152,12 +157,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .back-link:hover {
             text-decoration: underline;
         }
+
+        .error-msg {
+            background-color: #ffe6e6;
+            color: #cc0000;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 <div class="form-container">
     <h2>Edit Prestasi</h2>
-    <form method="POST" enctype="multipart/form-data">
+
+    <?php if (!empty($error)): ?>
+        <div class="error-msg"><?= $error ?></div>
+    <?php endif; ?>
+
+    <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
         <label for="title">Judul</label>
         <input type="text" name="title" id="title" value="<?= htmlspecialchars($data['title']) ?>" required>
 
@@ -175,12 +195,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </select>
 
         <label for="date">Tanggal</label>
-        <input type="date" name="date" value="<?= $data['date'] ?>" required>
+        <input type="date" name="date" id="date" value="<?= $data['date'] ?>" required>
 
         <label for="category">Kategori</label>
         <select name="category" required>
             <?php
-            $categories = ["siswa", "guru", "ekstrakurikuler"];
+            $categories = ["sekolah","siswa", "guru", "ekstrakurikuler"];
             foreach ($categories as $cat) {
                 echo "<option value='$cat'" . ($cat == $data['category'] ? " selected" : "") . ">$cat</option>";
             }
@@ -195,5 +215,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <a class="back-link" href="admin_prestasi.php">← Kembali ke Daftar Prestasi</a>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const dateInput = document.getElementById("date");
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("max", today);
+});
+
+function validateForm() {
+    const dateInput = document.getElementById("date");
+    const today = new Date().toISOString().split("T")[0];
+
+    if (dateInput.value > today) {
+        alert("Tanggal tidak boleh melebihi hari ini.");
+        return false;
+    }
+
+    return true;
+}
+</script>
+
 </body>
 </html>

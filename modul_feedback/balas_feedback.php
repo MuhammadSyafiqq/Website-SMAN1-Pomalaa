@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 // Timeout 15 menit
@@ -19,7 +19,6 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 // Ambil ID
 $id = $_GET['id'];
@@ -140,9 +139,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <form method="post">
-        <label for="balasan">Balasan Anda:</label>
-        <textarea name="balasan" id="balasan" rows="5" required><?= htmlspecialchars($row['balasan']) ?></textarea>
-        <button type="submit">Kirim Balasan</button>
+        <label for="balasan">Balasan Anda (Kosongkan jika ingin menghapus balasan):</label>
+        <textarea name="balasan" id="balasan" rows="5"><?= htmlspecialchars($row['balasan']) ?></textarea>
+        <button type="submit">Konfirmasi</button>
     </form>
 
     <a class="back-link" href="admin_feedback.php">← Kembali ke Daftar Feedback</a>

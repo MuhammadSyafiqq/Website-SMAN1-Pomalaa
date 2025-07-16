@@ -1,5 +1,5 @@
 <?php
-require_once 'koneksi.php'; // ini akan mendefinisikan $connection
+require_once 'config/database.php';
 ?>
 
 <!DOCTYPE html>
@@ -7,7 +7,8 @@ require_once 'koneksi.php'; // ini akan mendefinisikan $connection
 <head>
     <meta charset="UTF-8">
     <title>Struktur Pegawai</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=2">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+
     <style>
         .struktur-section {
             background: #ffffff;
@@ -93,7 +94,7 @@ require_once 'koneksi.php'; // ini akan mendefinisikan $connection
     <h2 class="struktur-title">STRUKTUR PEGAWAI</h2>
 
     <?php
-    $query = mysqli_query($connection, "SELECT * FROM struktur ORDER BY id_struktur ASC");
+    $query = mysqli_query($connection, "SELECT * FROM struktur WHERE position IS NOT NULL AND TRIM(position) != '' ORDER BY id_struktur ASC");
     while ($data = mysqli_fetch_assoc($query)) {
         $photo = base64_encode($data['photo']);
         $imgSrc = 'data:image/jpeg;base64,' . $photo;
@@ -109,6 +110,24 @@ require_once 'koneksi.php'; // ini akan mendefinisikan $connection
     </div>
     <?php } ?>
 </section>
+
+<div style="text-align: center; margin: 40px 0 60px;">
+    <a href="struktural_selengkapnya.php" style="
+        display: inline-block;
+        padding: 14px 32px;
+        background-color: #003366;
+        color: white;
+        text-decoration: none;
+        border-radius: 30px;
+        font-size: 16px;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        transition: background-color 0.3s ease;
+    " onmouseover="this.style.backgroundColor='#002244';" onmouseout="this.style.backgroundColor='#003366';">
+        Lihat Pegawai Lainnya
+    </a>
+</div>
+
 
 <?php include 'partials/footer.php'; ?>
 

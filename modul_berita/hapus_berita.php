@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 // Cek apakah user sudah login
@@ -9,7 +9,6 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 // Pastikan parameter ID valid
 if (isset($_GET['id'])) {

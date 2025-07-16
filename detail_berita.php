@@ -1,15 +1,14 @@
 <?php
 require_once 'theme.php';
+require_once 'config/database.php';
 
-require_once 'koneksi.php'; // ✅ pakai koneksi terpusat
+if ($connection->connect_error) {
+    die("Connection failed: " . $connection->connect_error);
+}
+
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-// Ambil data berita dan user-nya
-$sql = "SELECT b.title, b.deskripsi, b.image, b.date, u.username AS publisher
-        FROM berita b
-        JOIN user u ON b.id_user = u.id_user
-        WHERE b.id_berita = $id";
-
+$sql = "SELECT title, deskripsi, image, date FROM berita WHERE id_berita = $id";
 $result = $connection->query($sql);
 
 if (!$result || $result->num_rows === 0) {
@@ -23,136 +22,90 @@ $data = $result->fetch_assoc();
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Detail Berita - <?= htmlspecialchars($data['title']) ?></title>
+    <title>Detail Berita</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/style/style.css?v=4">
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #fff;
-            color: #111;
-        }
-
-        .header {
-            background: linear-gradient(to right, #003366, #00589D);
-            padding: 50px 20px 30px;
-            text-align: center;
+            background: white;
             color: white;
         }
 
-        .header h1 {
-            font-size: 3em;
-            margin: 0;
-            letter-spacing: 2px;
-            position: relative;
-            display: inline-block;
+        .container {
+            padding: 100px 20px 40px;
         }
 
-        .header h1::after {
-            content: '';
-            display: block;
-            width: 100px;
-            height: 5px;
-            background: #FFD700;
-            margin: 10px auto 0;
+        .detail-box {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            color: #000;
+            max-width: 1000px;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
         }
 
-        .image-wrapper {
-            position: relative;
-        }
-
-        .main-image {
+        .detail-box img {
             width: 100%;
-            max-height: 500px;
+            max-height: 400px;
             object-fit: cover;
-            display: block;
-        }
-
-        .content {
-            padding: 10px 60px 80px;
-            text-align: center;
-            background: linear-gradient(to bottom, #003366, #00589D);
-            color: white;
-        }
-
-        .content h2 {
-            font-size: 1.8em;
-            font-weight: bold;
+            border-radius: 10px;
             margin-bottom: 20px;
         }
 
-        .content p {
-            font-size: 1em;
-            max-width: 1600px;
-            margin: 0 auto;
-            line-height: 1.8em;
-            text-align: justify;
+        .detail-box h2 {
+            margin-top: 0;
+            font-size: 2em;
+            color: #003366;
         }
 
-        .berita-info {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            color: #ddd;
-            font-size: 0.95em;
-            text-align: left;
-            max-width: 1600px;
-            margin-left: auto;
-            margin-right: auto;
+        .meta-info {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #555;
         }
 
-        .publisher-bottom {
-            color: #ccc;
-            font-size: 0.9em;
-            font-style: italic;
-            text-align: left;
-            max-width: 1600px;
-            margin: 0 auto;
-            margin-top: 60px;
-            margin-bottom: -60px;
+        .meta-info strong {
+            display: inline-block;
+            width: 90px;
         }
 
-
-        @media (max-width: 768px) {
-            .content {
-                padding: 20px;
-            }
-            .content p {
-                font-size: 0.95em;
-            }
-            .footer {
-                padding: 20px;
-            }
-            .berita-info,
-            .publisher-bottom {
-                text-align: left;
-                max-width: 100%;
-            }
+        .detail-box p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
         }
+
+        .back-link {
+            display: block;
+            margin: 30px auto;
+            text-align: center;
+            color: #003366;
+            text-decoration: underline;
+        }
+
     </style>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/style/style.css?v=2">
 </head>
 <body>
 
 <?php include 'partials/navbar.php'; ?>
 
-<div class="image-wrapper">
-    <img src="data:image/jpeg;base64,<?= base64_encode($data['image']) ?>" alt="Berita" class="main-image">
-</div>
+<div class="container">
+    <div class="detail-box">
+        <img src="data:image/jpeg;base64,<?= base64_encode($data['image']) ?>" alt="Gambar Berita">
+        <h2><?= htmlspecialchars($data['title']) ?></h2>
 
-<div class="content">
-    <h2><?= htmlspecialchars($data['title']) ?></h2>
-    <p><?= nl2br(htmlspecialchars($data['deskripsi'])) ?></p>
+        <div class="meta-info">
+            <div><strong>Tanggal:</strong> <?= date('d M Y', strtotime($data['date'])) ?></div>
+        </div>
 
-    <div class="berita-info">
-        <span><strong>Tanggal:</strong> <?= htmlspecialchars($data['date']) ?></span>
-    </div>
-
-    <div class="publisher-bottom">
-        Publisher: <?= htmlspecialchars($data['publisher']) ?>
+        <p><?= nl2br(htmlspecialchars($data['deskripsi'])) ?></p>
     </div>
 </div>
 
- <?php include 'partials/footer.php'; ?>
+<?php include 'partials/footer.php'; ?>
 
 </body>
 </html>

@@ -18,6 +18,22 @@ if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
 }
+
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+$base_url = $protocol . $_SERVER['HTTP_HOST'] . '/';
+
+// Deteksi apakah sedang di subfolder atau tidak
+$current_dir = dirname($_SERVER['SCRIPT_NAME']);
+$is_subfolder = (basename($current_dir) !== '' && basename($current_dir) !== '/');
+
+// Sesuaikan path untuk assets berdasarkan lokasi file
+if ($is_subfolder) {
+    $asset_path = '../assets/';
+    $page_path = '../';
+} else {
+    $asset_path = 'assets/';
+    $page_path = '';
+};
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +41,7 @@ if (!isset($_SESSION['username'])) {
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard - SMAN 1 Pomalaa</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=3">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
@@ -37,7 +53,7 @@ if (!isset($_SESSION['username'])) {
         /* Hero Section */
         .hero-admin {
             position: relative;
-            background: url('image/sekolah_dashboard.png') no-repeat center center;
+            background: url('image/bg.png') no-repeat center center;
             background-size: cover;
             height: 400px;
             display: flex;
@@ -192,20 +208,12 @@ if (!isset($_SESSION['username'])) {
         }
     </style>
 </head>
+
+<?php include 'partials/navbar.php'; ?>
+
 <body>
 
-<!-- Profil -->
-<div class="profile-wrapper">
-    <button class="profile-icon" onclick="toggleProfileDropdown()">
-        <i class="fas fa-user-circle"></i>
-    </button>
-    <div class="profile-dropdown" id="profileDropdown">
-        <p><strong><?= $_SESSION['nama']; ?></strong></p>
-        <p>Username: <?= $_SESSION['username']; ?></p>
-        <p>Role: <?= $_SESSION['role']; ?></p>
-        <a href="logout.php" class="logout-button">Logout</a>
-    </div>
-</div>
+
 
 <!-- Hero Section -->
     <section id="home" class="hero">
@@ -225,7 +233,7 @@ if (!isset($_SESSION['username'])) {
 <!-- Tombol Dashboard -->
 <section class="admin-section">
     <div class="admin-buttons">
-        <a href="modul_berita//admin_berita.php" class="admin-button">
+        <a href="modul_berita/admin_berita.php" class="admin-button">
             KELOLA BERITA <i class="fas fa-plus"></i>
         </a>
         <a href="modul_prestasi/admin_prestasi.php" class="admin-button">

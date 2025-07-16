@@ -1,7 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../models/JadwalUjianModel.php';
-require_once __DIR__ . '/../helpers/functions.php';
+
+require_once(__DIR__ . '/../../config/database.php');
+require_once(__DIR__ . '/../models/JadwalUjianModel.php');
+require_once(__DIR__ . '/../helpers/functions.php');
 
 $jadwalModel = new JadwalUjianModel($connection);
 
@@ -15,6 +16,29 @@ if (isset($_POST['add_jadwal_ujian'])) {
     $jam_selesai = trim($_POST['jam_selesai']);
     
     if ($kelas_id && $jurusan_id && $mata_pelajaran_id && $tanggal && $jam_mulai && $jam_selesai) {
+
+        $tahun = (int)date('Y', strtotime($tanggal));
+        if ($tahun < 2000 || $tahun > 2100) {
+            $_SESSION['error'] = "Tahun pada tanggal tidak valid";
+        }
+        
+        // VALIDASI UTAMA: Jam mulai harus lebih awal dari jam selesai
+        if (strtotime($jam_mulai) >= strtotime($jam_selesai)) {
+            $_SESSION['error'] = "Jam Mulai Harus lebih awal dari jam selesai";
+        }
+        
+        // Validasi durasi minimal
+        $durasi_menit = (strtotime($jam_selesai) - strtotime($jam_mulai)) / 60;
+        if ($durasi_menit < 30) {
+            $_SESSION['error'] = "Durasi ujian minimal 30 menit";
+        }
+        
+        // Validasi durasi maksimal
+        if ($durasi_menit > 120) {
+            $_SESSION['error'] = "Durasi ujian maksimal 4 jam";
+        }
+
+
         $id = generateNextId($connection, 'jadwal_ujian', 'JU-');
         
         // Generate hari otomatis dari tanggal
@@ -48,7 +72,28 @@ if (isset($_POST['edit_jadwal_ujian'])) {
     $jam_selesai = trim($_POST['edit_jam_selesai']);
 
     if (!$id || !$tanggal || !$jam_mulai || !$jam_selesai) {
-        redirectWithMessage("Semua field harus diisi.", "../views/jadwal_ujian/index.php");
+        redirectWithMessage("Semua field harus diisi.", "../admin-panel.php");
+    }
+
+    $tahun = (int)date('Y', strtotime($tanggal));
+    if ($tahun < 2000 || $tahun > 2100) {
+        $_SESSION['error'] = "Tahun pada tanggal tidak valid";
+    }
+    
+    // VALIDASI UTAMA: Jam mulai harus lebih awal dari jam selesai
+    if (strtotime($jam_mulai) >= strtotime($jam_selesai)) {
+        $_SESSION['error'] = "Jam Mulai Harus lebih awal dari jam selesai";
+    }
+    
+    // Validasi durasi minimal
+    $durasi_menit = (strtotime($jam_selesai) - strtotime($jam_mulai)) / 60;
+    if ($durasi_menit < 30) {
+        $_SESSION['error'] = "Durasi ujian minimal 30 menit";
+    }
+    
+    // Validasi durasi maksimal
+    if ($durasi_menit > 120) {
+        $_SESSION['error'] = "Durasi ujian maksimal 4 jam";
     }
     
     // Generate hari otomatis dari tanggal

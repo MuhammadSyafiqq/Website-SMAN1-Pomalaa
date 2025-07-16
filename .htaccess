@@ -1,0 +1,108 @@
+# ======================================== 
+# KEAMANAN DASAR 
+# ========================================  
+
+# Melindungi file .htaccess
+<Files ".htaccess">
+Order allow,deny
+Deny from all
+</Files>
+
+# Melindungi file konfigurasi database
+<Files "database.php">
+Order allow,deny
+Deny from all
+</Files>
+
+# Melindungi file konfigurasi
+<Files "config.php">
+Order allow,deny
+Deny from all
+</Files>
+
+# Melindungi direktori config
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^config/ - [F,L]
+</IfModule>
+
+# Melindungi file sistem PHP
+<FilesMatch "^(controllers|models|helpers|handlers)">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+# Melindungi file backup dan log
+<FilesMatch "\.(bak|backup|old|tmp|temp|log|sql)$">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+# Mencegah directory browsing
+Options -Indexes
+
+# ======================================== 
+# CLEAN URL 
+# ========================================  
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Mengizinkan akses ke file statis (CSS, JS, images, dll)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_FILENAME} \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ [NC]
+RewriteRule . - [L]
+
+# Mengizinkan akses ke direktori assets
+RewriteCond %{REQUEST_URI} ^/assets/
+RewriteRule . - [L]
+
+# Redirect dari .php ke clean URL (kecuali untuk file yang tidak ada)
+RewriteCond %{THE_REQUEST} /([^.]+)\.php[\s?] [NC]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ /%1 [R=301,L]
+
+# Routing untuk halaman utama
+RewriteRule ^home/?$ index.php [L]
+RewriteRule ^animasi/?$ animasi/index.php [L]
+RewriteRule ^jadwal/?$ jadwal/index.php [L]
+RewriteRule ^admin/?$ admin-panel.php [L]
+
+# Routing untuk AJAX
+RewriteRule ^ajax/([^/]+)/?$ jadwal/ajax/$1.php [L]
+
+# Menghilangkan .php extension (hanya untuk file yang ada)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^.]+)$ $1.php [L]
+
+</IfModule>
+
+# ======================================== 
+# PENGATURAN TAMBAHAN 
+# ========================================  
+
+# Default charset
+AddDefaultCharset UTF-8
+
+# Custom error pages (optional)
+# ErrorDocument 404 /404.php
+# ErrorDocument 403 /403.php
+
+# Cache untuk file statis
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/jpg "access plus 1 week"
+ExpiresByType image/jpeg "access plus 1 week"
+ExpiresByType image/gif "access plus 1 week"
+ExpiresByType image/png "access plus 1 week"
+ExpiresByType text/css "access plus 1 week"
+ExpiresByType application/javascript "access plus 1 week"
+</IfModule>
+
+# Mengatur MIME type untuk file CSS dan JS
+<IfModule mod_mime.c>
+AddType text/css .css
+AddType application/javascript .js
+</IfModule>

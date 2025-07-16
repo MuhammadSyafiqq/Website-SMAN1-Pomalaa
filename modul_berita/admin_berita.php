@@ -1,7 +1,8 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
+// Timeout
 $timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
     session_unset();
@@ -18,11 +19,24 @@ if (!isset($_SESSION['username'])) {
 
 require_once '../theme.php';
 
-$sql = "SELECT b.id_berita, b.title, b.date, u.nama, b.image 
-        FROM berita b 
-        LEFT JOIN user u ON b.id_user = u.id_user 
-        ORDER BY b.date DESC";
-$result = $connection->query($sql);
+// Pencarian judul
+$search = $_GET['search'] ?? '';
+if (!empty($search)) {
+    $search_like = '%' . $connection->real_escape_string($search) . '%';
+    $stmt = $connection->prepare("SELECT b.id_berita, b.title, b.date, u.nama, b.image 
+                                  FROM berita b 
+                                  LEFT JOIN user u ON b.id_user = u.id_user 
+                                  WHERE b.title LIKE ?
+                                  ORDER BY b.date DESC");
+    $stmt->bind_param("s", $search_like);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $connection->query("SELECT b.id_berita, b.title, b.date, u.nama, b.image 
+                                  FROM berita b 
+                                  LEFT JOIN user u ON b.id_user = u.id_user 
+                                  ORDER BY b.date DESC");
+}
 ?>
 
 <!DOCTYPE html>
@@ -30,17 +44,17 @@ $result = $connection->query($sql);
 <head>
     <meta charset="UTF-8">
     <title>Kelola Berita</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=11">
+    <link rel="stylesheet" href="../assets/style/style.css?v=<?php echo time(); ?>">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
             background: white;
-            padding: 40px;
+            padding: 0px;
             margin: 0;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: auto;
             background: #fff;
             border-radius: 12px;
@@ -67,7 +81,6 @@ $result = $connection->query($sql);
         .btn-back {
             background-color: #888;
             color: white;
-            margin-bottom: 15px;
         }
 
         .btn-back:hover {
@@ -75,10 +88,8 @@ $result = $connection->query($sql);
         }
 
         .btn-add {
-            float: right;
             background-color: #00589D;
             color: white;
-            margin-bottom: 20px;
         }
 
         .btn-add:hover {
@@ -177,13 +188,39 @@ $result = $connection->query($sql);
         .actions .delete:hover {
             background-color: #b91c1c;
         }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .top-bar form {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-bar input[type="text"] {
+            padding: 8px 12px;
+            color: black;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 200px;
+        }
     </style>
 </head>
 <body>
+    
+    <?php include '../partials/navbar.php'; ?>
+
 <div class="container">
     <h1>Kelola Berita</h1>
 
-    <!-- ✅ Notifikasi Sukses -->
     <?php if (isset($_GET['added']) && $_GET['added'] == 1): ?>
         <div class="alert success">Berita berhasil ditambahkan!</div>
     <?php elseif (isset($_GET['edited']) && $_GET['edited'] == 1): ?>
@@ -192,8 +229,16 @@ $result = $connection->query($sql);
         <div class="alert error">Berita berhasil dihapus.</div>
     <?php endif; ?>
 
-    <a href="../../dashboard_admin.php" class="btn btn-back">← Kembali ke Dashboard</a>
-    <a href="tambah_berita.php" class="btn btn-add">+ Tambah Berita</a>
+    <div class="top-bar">
+        <div>
+            <a href="../../dashboard_admin.php" class="btn btn-back">← Kembali ke Dashboard</a>
+            <a href="tambah_berita.php" class="btn btn-add">+ Tambah Berita</a>
+        </div>
+        <form method="GET">
+            <input type="text" name="search" placeholder="Cari judul..." value="<?= htmlspecialchars($search) ?>">
+            <button type="submit" class="btn btn-add">Cari</button>
+        </form>
+    </div>
 
     <table>
         <thead>
@@ -206,17 +251,15 @@ $result = $connection->query($sql);
             </tr>
         </thead>
         <tbody>
+        <?php if ($result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
                     <td>
-                        <?php
-                        if (!empty($row['image'])) {
-                            $base64 = base64_encode($row['image']);
-                            echo "<img src='data:image/jpeg;base64,$base64'>";
-                        } else {
-                            echo "<i>Tidak ada</i>";
-                        }
-                        ?>
+                        <?php if (!empty($row['image'])): ?>
+                            <img src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar">
+                        <?php else: ?>
+                            <i>Tidak ada</i>
+                        <?php endif; ?>
                     </td>
                     <td><?= htmlspecialchars($row['title']) ?></td>
                     <td><?= date('d M Y', strtotime($row['date'])) ?></td>
@@ -227,10 +270,15 @@ $result = $connection->query($sql);
                     </td>
                 </tr>
             <?php endwhile; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="5" style="text-align:center; padding: 20px;">Tidak ada berita ditemukan.</td>
+            </tr>
+        <?php endif; ?>
         </tbody>
     </table>
 </div>
-</body>
-</html>
 
 <?php $connection->close(); ?>
+</body>
+</html>

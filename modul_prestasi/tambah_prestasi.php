@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 // Timeout 15 menit
@@ -18,7 +18,6 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 $error = '';
 
@@ -30,20 +29,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $category = trim($_POST['category']);
     $image_uploaded = isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK;
 
-    // Validasi semua input wajib diisi
     if (empty($title) || empty($description) || empty($level) || empty($date) || empty($category) || !$image_uploaded) {
         $error = 'Semua form wajib diisi, termasuk gambar.';
+    } elseif ($date > date('Y-m-d')) {
+        $error = 'Tanggal tidak boleh melebihi hari ini.';
     } else {
-        $image = addslashes(file_get_contents($_FILES['image']['tmp_name']));
+        $imageData = file_get_contents($_FILES['image']['tmp_name']);
 
-        $sql = "INSERT INTO prestasi (title, description, level, date, category, image)
-                VALUES ('$title', '$description', '$level', '$date', '$category', '$image')";
+        // Gunakan prepared statement
+        $stmt = $connection->prepare("INSERT INTO prestasi (title, description, level, date, category, image) VALUES (?, ?, ?, ?, ?, ?)");
+        if ($stmt) {
+            $stmt->bind_param("ssssss", $title, $description, $level, $date, $category, $imageData);
 
-        if ($connection->query($sql) === TRUE) {
-            header("Location: admin_prestasi.php?success=add");
-            exit();
+            $null = null; // untuk tipe BLOB
+
+            if ($stmt->execute()) {
+                header("Location: admin_prestasi.php?success=add");
+                exit();
+            } else {
+                $error = "Gagal menyimpan data: " . $stmt->error;
+            }
+
+            $stmt->close();
         } else {
-            $error = "Gagal menyimpan data: " . $connection->error;
+            $error = "Gagal menyiapkan query: " . $connection->error;
         }
     }
 }
@@ -54,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Tambah Prestasi</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=16">
+    <link rel="stylesheet" href="assets/style/style.css?v=17">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -132,6 +141,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: #00487f;
         }
 
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
         .back-link {
             display: block;
             margin-top: 30px;
@@ -165,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="error-msg"><?= $error ?></div>
     <?php endif; ?>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
         <label for="title">Judul</label>
         <input type="text" name="title" id="title" required>
 
@@ -188,6 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <label for="category">Kategori</label>
         <select name="category" id="category" required>
             <option value="">-- Pilih Kategori --</option>
+            <option value="sekolah">sekolah</option>
             <option value="siswa">siswa</option>
             <option value="guru">guru</option>
             <option value="ekstrakurikuler">ekstrakurikuler</option>
@@ -196,11 +211,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <label for="image">Gambar</label>
         <input type="file" name="image" id="image" accept="image/*" required>
 
-        <button type="submit">Simpan</button>
+        <button type="submit" id="submitBtn">Simpan</button>
     </form>
 
     <a class="back-link" href="admin_prestasi.php">← Kembali ke Daftar Prestasi</a>
 </div>
+
+<script>
+function disableSubmitButton() {
+    const btn = document.getElementById("submitBtn");
+    btn.disabled = true;
+    btn.innerText = "Menyimpan...";
+}
+
+function validateForm() {
+    const dateInput = document.getElementById("date");
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("max", today);
+
+    if (dateInput.value > today) {
+        alert("Tanggal tidak boleh melebihi hari ini.");
+        return false;
+    }
+
+    disableSubmitButton();
+    return true;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const dateInput = document.getElementById("date");
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("max", today);
+});
+</script>
 
 </body>
 </html>

@@ -5,8 +5,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Tentang Sekolah</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=2">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+
     <style>
+    *{
+        margin : 0;
+        padding :0;
+    }
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;

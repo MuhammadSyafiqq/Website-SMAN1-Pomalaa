@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 $timeout_duration = 900;
@@ -18,8 +18,6 @@ if (!isset($_SESSION['username'])) {
 
 require_once '../theme.php';
 
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = $connection->real_escape_string($_POST['title']);
     $deskripsi = $connection->real_escape_string($_POST['deskripsi']);
@@ -27,121 +25,132 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id_user = $_SESSION['id_user'];
     $image = addslashes(file_get_contents($_FILES['image']['tmp_name']));
 
-    $sql = "INSERT INTO berita (title, deskripsi, date, image, id_user) 
-            VALUES ('$title', '$deskripsi', '$date', '$image', $id_user)";
-    $connection->query($sql);
-    
-    // Redirect dengan notifikasi berhasil
-    header("Location: admin_berita.php?added=1");
-    exit();
+    // Cek duplikasi berdasarkan judul dan tanggal
+    $check_sql = "SELECT * FROM berita 
+                  WHERE title='$title' AND date='$date' AND id_user=$id_user";
+    $check_result = $connection->query($check_sql);
+
+    if ($check_result->num_rows == 0) {
+        $sql = "INSERT INTO berita (title, deskripsi, date, image, id_user) 
+                VALUES ('$title', '$deskripsi', '$date', '$image', $id_user)";
+        $connection->query($sql);
+        header("Location: admin_berita.php?added=1");
+        exit();
+    } else {
+        header("Location: admin_berita.php?error=duplicate");
+        exit();
+    }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Tambah Berita</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=4">
+    <link rel="stylesheet" href="../assets/style/style.css?v=5">
     <style>
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        background: #f6f9ff;
-        margin: 0;
-        padding: 0;
-    }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f6f9ff;
+            margin: 0;
+            padding: 0;
+        }
 
-    .form-container {
-        max-width: 700px;
-        margin: 50px auto;
-        background-color: white;
-        padding: 30px 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+        .form-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-    h2 {
-        text-align: center;
-        color: #003366;
-        font-weight: 700;
-        font-size: 24px;
-        margin-bottom: 20px;
-    }
+        h2 {
+            text-align: center;
+            color: #003366;
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
 
-    label {
-        font-weight: 600;
-        margin-top: 15px;
-        display: block;
-        color: #003366;
-    }
+        label {
+            font-weight: 600;
+            margin-top: 15px;
+            display: block;
+            color: #003366;
+        }
 
-    input[type="text"],
-    textarea,
-    input[type="file"] {
-        width: 100%;
-        padding: 12px;
-        margin-top: 5px;
-        border-radius: 6px;
-        border: 1px solid #00589D;
-        color: #1f2937;
-        font-size: 16px;
-        outline: none;
-    }
+        input[type="text"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #00589D;
+            color: #1f2937;
+            font-size: 16px;
+            outline: none;
+        }
 
-    textarea {
-        resize: vertical;
-        min-height: 120px;
-    }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
 
-    input[type="file"] {
-        border: 1px dashed #00589D;
-    }
+        input[type="file"] {
+            border: 1px dashed #00589D;
+        }
 
-    .btn-submit {
-        margin-top: 25px;
-        background-color: #00589D;
-        color: white;
-        padding: 12px 25px;
-        border: none;
-        font-size: 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        width: 100%;
-        transition: 0.3s;
-    }
+        .btn-submit {
+            margin-top: 25px;
+            background-color: #00589D;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
 
-    .btn-submit:hover {
-        background-color: #003f73;
-    }
+        .btn-submit:hover {
+            background-color: #003f73;
+        }
 
-    .img-preview {
-        margin-top: 15px;
-        max-height: 200px;
-        border-radius: 8px;
-        display: none;
-    }
+        .btn-submit:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
 
-    .back-link {
-        display: block;
-        margin-top: 20px;
-        text-align: center;
-        color: #00589D;
-        text-decoration: none;
-        font-weight: bold;
-    }
+        .img-preview {
+            margin-top: 15px;
+            max-height: 200px;
+            border-radius: 8px;
+            display: none;
+        }
 
-    .back-link:hover {
-        text-decoration: underline;
-    }
-</style>
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #00589D;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
 <div class="form-container">
     <h2>Tambah Berita</h2>
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" onsubmit="disableSubmitButton()">
         <label for="title">Judul</label>
         <input type="text" name="title" id="title" required>
 
@@ -152,12 +161,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="file" name="image" id="image" accept="image/*" onchange="previewImage()" required>
         <img id="preview" class="img-preview" />
 
-        <button type="submit" class="btn-submit">Simpan Berita</button>
+        <button type="submit" class="btn-submit" id="submitBtn">Simpan Berita</button>
     </form>
 
     <a class="back-link" href="admin_berita.php">← Kembali ke Daftar Berita</a>
 </div>
-
 
 <script>
     function previewImage() {
@@ -172,6 +180,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             };
             reader.readAsDataURL(file);
         }
+    }
+
+    function disableSubmitButton() {
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.innerText = "Menyimpan...";
     }
 </script>
 

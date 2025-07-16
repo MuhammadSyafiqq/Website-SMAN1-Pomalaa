@@ -1,9 +1,8 @@
 <?php
 require_once 'theme.php';
+require_once 'config/database.php';
 
-require_once('koneksi.php');
-
-$sql = "SELECT id_prestasi, title, description, image FROM prestasi";
+$sql = "SELECT id_prestasi, title, description, image, level, category, date FROM prestasi";
 $result = $connection->query($sql);
 ?>
 
@@ -11,121 +10,116 @@ $result = $connection->query($sql);
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Prestasi Siswa</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=3">
+    <title>Prestasi Sekolah</title>
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+
     <style>
-
-        @media (max-width: 992px) {
-            .poster-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .poster-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .poster-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* General Body Styling */
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
-            color: white;
+            background: white;
+            color: #333;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 100px 20px 60px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
         }
 
         .header h1 {
-            font-size: 36px;
+            font-size: 38px;
             font-weight: bold;
-            border-bottom: 3px solid #ff7f3f;
+            color: #1e40af;
+            border-bottom: 4px solid #FFD700;
             display: inline-block;
-            padding-bottom: 10px;
-            color: #fff;
+            padding-bottom: 12px;
         }
 
-        .poster-grid {
+        .news-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* Maksimal 4 kolom */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
-            justify-content: center;
         }
 
-        .poster-link {
-            text-decoration: none;
-        }
-
-        .poster {
+        .news-card {
             background-color: white;
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
-            height: 100%;
-            max-width: 260px;
-            margin: 0 auto;
+            transition: transform 0.3s ease;
         }
 
-        .poster:hover {
-            transform: scale(1.05); /* zoom effect */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* larger shadow on hover */
+        .news-card:hover {
+            transform: translateY(-5px);
         }
 
-        /* --- NEW CSS FOR IMAGE HEIGHT CONTROL --- */
-        .poster img {
+        .news-card img {
             width: 100%;
-            height: 200px; /* Fixed height for consistency in the grid */
-            object-fit: cover; /* Ensures image covers the area without distortion */
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
+            height: 180px;
+            object-fit: cover;
         }
-        /* -------------------------------------- */
 
-        .poster-content {
-            padding: 15px 20px;
+        .news-content {
+            padding: 20px;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            flex-grow: 1; /* Allows content to expand and push footer down */
+            justify-content: space-between;
         }
 
-        .poster h3 {
-            margin: 0 0 10px;
+        .news-content h3 {
             font-size: 20px;
             color: #003366;
-            min-height: 50px; /* Give a minimum height to title to prevent layout shifts */
+            margin-bottom: 10px;
+            white-space: normal; /* Biarkan teks turun ke baris baru */
+            word-wrap: break-word; /* Pecah jika terlalu panjang */
         }
 
-        .poster p {
+
+        .news-content .date,
+        .news-content .meta {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .news-content p {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .read-more {
+            align-self: flex-start;
             font-size: 14px;
-            color: #333;
-            margin-top: auto; /* Pushes the paragraph to the bottom */
-            flex-grow: 1; /* Allows description to take up available space */
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: auto;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
         }
 
         .no-data {
+            color: #555;
             text-align: center;
-            font-size: 18px;
             padding: 50px 0;
-            grid-column: 1 / -1; /* Make it span all columns */
+            font-size: 18px;
         }
     </style>
 </head>
@@ -138,33 +132,24 @@ $result = $connection->query($sql);
         <h1>Prestasi Sekolah</h1>
     </div>
 
-    <div class="poster-grid">
+    <div class="news-grid">
         <?php if ($result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <?php
-                    // Limit description to 10 words and add ellipsis
-                    $deskripsi_words = explode(' ', strip_tags($row['description']));
-                    $deskripsi_pendek = implode(' ', array_slice($deskripsi_words, 0, 10));
-                    if (count($deskripsi_words) > 10) {
-                        $deskripsi_pendek .= '...';
-                    }
-
-                    // Limit title to 6 words and add ellipsis
-                    $judul_words = explode(' ', strip_tags($row['title']));
-                    $judul_pendek = implode(' ', array_slice($judul_words, 0, 6));
-                    if (count($judul_words) > 6) {
-                        $judul_pendek .= '...';
-                    }
+                    $deskripsi_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['description'])), 0, 25)). '...';
+                    $judul_pendek = implode(' ', array_slice(explode(' ', strip_tags($row['title'])), 0, 10));
+                    $tanggal = date('d M Y', strtotime($row['date']));
                 ?>
-                <a href="detail_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="poster-link">
-                    <div class="poster">
-                        <img src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="<?= htmlspecialchars($row['title']) ?>">
-                        <div class="poster-content">
-                            <h3><?= htmlspecialchars($judul_pendek) ?></h3>
-                            <p><?= htmlspecialchars($deskripsi_pendek) ?></p>
-                        </div>
+                <div class="news-card">
+                    <img src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar Prestasi <?= htmlspecialchars($row['title']) ?>">
+                    <div class="news-content">
+                        <span class="date"><?= $tanggal ?></span>
+                        <div class="meta">Level: <?= htmlspecialchars($row['level']) ?> | Kategori: <?= htmlspecialchars($row['category']) ?></div>
+                        <h3><?= htmlspecialchars($judul_pendek) ?></h3>
+                        <p><?= htmlspecialchars($deskripsi_pendek) ?></p>
+                        <a href="detail_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="read-more">Lihat Detail</a>
                     </div>
-                </a>
+                </div>
             <?php endwhile; ?>
         <?php else: ?>
             <div class="no-data">Tidak ada data prestasi ditemukan.</div>

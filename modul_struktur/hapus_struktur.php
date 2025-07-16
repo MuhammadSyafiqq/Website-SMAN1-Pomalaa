@@ -1,8 +1,7 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];

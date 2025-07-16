@@ -105,7 +105,7 @@ public function getByJurusanId($jurusanId) {
 
 public function getFilteredMataPelajaran($kelasId, $jurusanId) {
     $filtered = [];
-
+    
     // Ambil nama jurusan
     $stmt = $this->conn->prepare("SELECT nama FROM jurusan WHERE id = ?");
     $stmt->bind_param("s", $jurusanId);
@@ -113,46 +113,85 @@ public function getFilteredMataPelajaran($kelasId, $jurusanId) {
     $result = $stmt->get_result();
     $jurusanRow = $result->fetch_assoc();
     $stmt->close();
-
+    
     if ($jurusanRow) {
         $jurusanNama = strtolower(trim($jurusanRow['nama']));
-        $kategoriList = ['umum'];
-        if ($jurusanNama === 'ipa') {
-            $kategoriList[] = 'ipa';
-        } elseif ($jurusanNama === 'ips') {
-            $kategoriList[] = 'ips';
+        
+        // Tentukan query berdasarkan jenis jurusan
+        if ($jurusanNama === 'umum') {
+            // Untuk jurusan umum, tampilkan semua mata pelajaran
+            $query = "
+                SELECT mp.id, mp.nama, mp.kategori
+                FROM mata_pelajaran mp
+                WHERE mp.id NOT IN (
+                    SELECT mata_pelajaran_id FROM jadwal_ujian
+                    WHERE kelas_id = ? AND jurusan_id = ?
+                )
+                ORDER BY mp.nama ASC
+            ";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("ss", $kelasId, $jurusanId);
+        } else {
+            // Untuk jurusan khusus (IPA/IPS), filter berdasarkan kategori
+            $kategoriList = ['umum'];
+            if ($jurusanNama === 'ipa') {
+                $kategoriList[] = 'ipa';
+            } elseif ($jurusanNama === 'ips') {
+                $kategoriList[] = 'ips';
+            }
+            
+            // Bangun placeholders
+            $placeholders = implode(',', array_fill(0, count($kategoriList), '?'));
+            
+            $query = "
+                SELECT mp.id, mp.nama, mp.kategori
+                FROM mata_pelajaran mp
+                WHERE LOWER(mp.kategori) IN ($placeholders)
+                AND mp.id NOT IN (
+                    SELECT mata_pelajaran_id FROM jadwal_ujian
+                    WHERE kelas_id = ? AND jurusan_id = ?
+                )
+                ORDER BY mp.nama ASC
+            ";
+            
+            $stmt = $this->conn->prepare($query);
+            $types = str_repeat('s', count($kategoriList)) . "ss";
+            $params = array_merge($kategoriList, [$kelasId, $jurusanId]);
+            $stmt->bind_param($types, ...$params);
         }
-
-        // Bangun placeholders
-        $placeholders = implode(',', array_fill(0, count($kategoriList), '?'));
-
-        $query = "
-            SELECT mp.id, mp.nama, mp.kategori
-            FROM mata_pelajaran mp
-            WHERE LOWER(mp.kategori) IN ($placeholders)
-            AND mp.id NOT IN (
-                SELECT mata_pelajaran_id FROM jadwal_ujian
-                WHERE kelas_id = ? AND jurusan_id = ?
-            )
-            ORDER BY mp.nama ASC
-        ";
-
-        $stmt = $this->conn->prepare($query);
-        $types = str_repeat('s', count($kategoriList)) . "ss";
-        $params = array_merge($kategoriList, [$kelasId, $jurusanId]);
-        $stmt->bind_param($types, ...$params);
-
+        
         $stmt->execute();
         $result = $stmt->get_result();
-
+        
         while ($row = $result->fetch_assoc()) {
             $filtered[] = $row;
         }
-
+        
         $stmt->close();
     }
-
+    
     return $filtered;
+}
+
+public function isDuplicate($nama, $kategori, $excludeId = null) {
+    $query = "SELECT COUNT(*) FROM mata_pelajaran WHERE nama = ? AND kategori = ?";
+    if ($excludeId) {
+        $query .= " AND id != ?";
+    }
+
+    $stmt = $this->conn->prepare($query);
+    if ($excludeId) {
+        $stmt->bind_param("sss", $nama, $kategori, $excludeId);
+    } else {
+        $stmt->bind_param("ss", $nama, $kategori);
+    }
+    $stmt->execute();
+    $stmt->bind_result($count);
+    $stmt->fetch();
+    $stmt->close();
+
+    return $count > 0;
 }
 
 

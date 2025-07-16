@@ -1,26 +1,23 @@
 <?php
 session_start();
 
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
+// Waktu timeout (15 menit = 900 detik)
+$timeout_duration = 900;
 
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
-
+$_SESSION['LAST_ACTIVITY'] = time();
 
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
 }
 
-
-require_once 'koneksi.php';
-
+require_once 'config/database.php';
 
 $message = '';
 
@@ -35,8 +32,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
     if ($check->num_rows > 0) {
         $message = "Username sudah digunakan.";
     } else {
-        $sql = "INSERT INTO user (nama, username, password, role)
-                VALUES ('$nama', '$username', '$password', '$role')";
+        $sql = "INSERT INTO user (nama, username, password, role, date)
+                VALUES ('$nama', '$username', '$password', '$role', CURRENT_TIMESTAMP)";
         if ($connection->query($sql) === TRUE) {
             $message = "Admin berhasil didaftarkan!";
         } else {
@@ -49,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
 if (isset($_GET['hapus'])) {
     $id = intval($_GET['hapus']);
     $connection->query("DELETE FROM user WHERE id_user = $id");
-    header("Location: hash.php");
+    header("Location: manajemen_admin.php");
     exit();
 }
 
@@ -130,7 +127,6 @@ $admins = $connection->query("SELECT * FROM user WHERE role = 'admin'");
         .actions a:hover {
             text-decoration: underline;
         }
-
         .back-link {
             text-align: center;
             margin-top: 15px;
@@ -171,6 +167,7 @@ $admins = $connection->query("SELECT * FROM user WHERE role = 'admin'");
             <tr>
                 <th>Nama</th>
                 <th>Username</th>
+                <th>Tanggal Dibuat / Diubah</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -179,6 +176,7 @@ $admins = $connection->query("SELECT * FROM user WHERE role = 'admin'");
             <tr>
                 <td><?= htmlspecialchars($admin['nama']) ?></td>
                 <td><?= htmlspecialchars($admin['username']) ?></td>
+                <td><?= htmlspecialchars($admin['date']) ?></td>
                 <td class="actions">
                     <a href="edit_admin.php?id=<?= $admin['id_user'] ?>">Ubah</a>
                     <a href="?hapus=<?= $admin['id_user'] ?>" onclick="return confirm('Yakin ingin menghapus admin ini?')">Hapus</a>

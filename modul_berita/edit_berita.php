@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 $timeout_duration = 900;
@@ -17,7 +17,6 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 $id = $_GET['id'];
 $result = $connection->query("SELECT * FROM berita WHERE id_berita = $id");

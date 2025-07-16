@@ -1,7 +1,10 @@
 <?php
 require_once 'theme.php';
+require_once 'config/database.php';
 
-require_once 'koneksi.php'; // ✅ pakai koneksi terpusat
+if ($connection->connect_error) {
+    die("Connection failed: " . $connection->connect_error);
+}
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -21,88 +24,63 @@ $image = !empty($data['image']) ? 'data:image/jpeg;base64,' . base64_encode($dat
 <head>
     <meta charset="UTF-8">
     <title>Detail Ekstrakurikuler - <?= htmlspecialchars($data['name']) ?></title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/style/style.css?v=2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/style/style.css?v=3">
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #fff;
-            color: #111;
-        }
-
-        .header {
-            background: linear-gradient(to right, #003366, #00589D);
-            padding: 50px 20px 30px;
-            text-align: center;
+            background: white;
             color: white;
         }
 
-        .header h1 {
-            font-size: 3em;
-            margin: 0;
-            letter-spacing: 2px;
-            position: relative;
-            display: inline-block;
+        .container {
+            padding: 100px 20px 40px;
         }
 
-        .header h1::after {
-            content: '';
-            display: block;
-            width: 100px;
-            height: 5px;
-            background: #FFD700;
-            margin: 10px auto 0;
+        .detail-box {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            color: #000;
+            max-width: 1000px;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
         }
 
-        .image-wrapper {
-            position: relative;
-        }
-
-        .main-image {
+        .detail-box img {
             width: 100%;
-            max-height: 500px;
+            max-height: 400px;
             object-fit: cover;
-            display: block;
-        }
-
-        .content {
-            padding: 10px 60px 80px;
-            text-align: center;
-            background: linear-gradient(to bottom, #003366, #00589D);
-            color: white;
-        }
-
-        .content h2 {
-            font-size: 1.8em;
-            font-weight: bold;
+            border-radius: 10px;
             margin-bottom: 20px;
         }
 
-        .content p {
-            font-size: 1em;
-            max-width: 1600px;
-            margin: 0 auto;
-            line-height: 1.8em;
+        .detail-box h2 {
+            margin-top: 0;
+            font-size: 2em;
+            color: #003366;
+        }
+
+        .meta-info {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .detail-box p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
             text-align: justify;
         }
 
-        .back-button {
-            margin-top: 40px;
-            display: inline-block;
-            text-decoration: none;
-            color: #FFD700;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .content {
-                padding: 20px;
-            }
-
-            .content p {
-                font-size: 0.95em;
-            }
+        .back-link {
+            display: block;
+            margin: 30px auto;
+            text-align: center;
+            color: #003366;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -110,23 +88,23 @@ $image = !empty($data['image']) ? 'data:image/jpeg;base64,' . base64_encode($dat
 
 <?php include 'partials/navbar.php'; ?>
 
-<div class="header">
-    <h1>Ekstrakurikuler</h1>
+<div class="container">
+    <div class="detail-box">
+        <?php if ($image): ?>
+            <img src="<?= $image ?>" alt="Ekstrakurikuler">
+        <?php endif; ?>
+
+        <h2><?= htmlspecialchars($data['name']) ?></h2>
+
+        <p><?= nl2br(htmlspecialchars($data['description'])) ?></p>
+
+        <?php if (!empty($data['constructor'])): ?>
+            <div class="meta-info"><strong>Pembina:</strong> <?= htmlspecialchars($data['constructor']) ?></div>
+        <?php endif; ?>
+    </div>
 </div>
 
-<div class="image-wrapper">
-    <?php if ($image): ?>
-        <img src="<?= $image ?>" alt="Ekstrakurikuler" class="main-image">
-    <?php endif; ?>
-</div>
-
-<div class="content">
-    <h2><?= htmlspecialchars($data['name']) ?></h2>
-    <p><?= nl2br(htmlspecialchars($data['description'])) ?></p>
-    <a href="javascript:history.back()" class="back-button">&larr; Kembali</a>
-</div>
-
- <?php include 'partials/footer.php'; ?>
+<?php include 'partials/footer.php'; ?>
 
 </body>
 </html>

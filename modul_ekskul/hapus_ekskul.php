@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 // Cek login
@@ -9,8 +9,6 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);

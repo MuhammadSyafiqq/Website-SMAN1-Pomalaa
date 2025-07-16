@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 $timeout_duration = 900;
@@ -17,7 +17,6 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
 $id = $_GET['id'];
 $result = $connection->query("SELECT * FROM ekstrakurikuler WHERE id_ekskul = $id");
@@ -30,9 +29,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($_FILES['image']['tmp_name']) {
         $image = addslashes(file_get_contents($_FILES['image']['tmp_name']));
-        $sql = "UPDATE ekstrakurikuler SET name='$name', description='$desc', constructor='$constructor', image='$image' WHERE id_ekskul=$id";
+        $sql = "UPDATE ekstrakurikuler 
+                SET name='$name', description='$desc', constructor='$constructor', image='$image' 
+                WHERE id_ekskul=$id";
     } else {
-        $sql = "UPDATE ekstrakurikuler SET name='$name', description='$desc', constructor='$constructor' WHERE id_ekskul=$id";
+        $sql = "UPDATE ekstrakurikuler 
+                SET name='$name', description='$desc', constructor='$constructor' 
+                WHERE id_ekskul=$id";
     }
 
     $connection->query($sql);
@@ -117,6 +120,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: #00487f;
         }
 
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
         .preview {
             margin-top: 15px;
         }
@@ -145,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="form-container">
     <h2>Edit Ekstrakurikuler</h2>
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" onsubmit="disableSubmitButton()">
         <label for="name">Nama:</label>
         <input type="text" name="name" id="name" value="<?= htmlspecialchars($row['name']) ?>" required>
 
@@ -165,11 +173,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
         <?php endif; ?>
 
-        <button type="submit">Simpan Perubahan</button>
+        <button type="submit" id="submitBtn">Simpan Perubahan</button>
     </form>
 
     <a class="back-link" href="admin_ekskul.php">← Kembali ke Daftar Ekskul</a>
 </div>
+
+<script>
+function disableSubmitButton() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerText = "Menyimpan...";
+}
+</script>
 
 </body>
 </html>

@@ -17,7 +17,7 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-require_once 'koneksi.php'; // ✅ pakai koneksi terpusat
+require_once 'config/database.php';
 
 // Redirect jika tidak ada ID
 if (!isset($_GET['id'])) {

@@ -153,3 +153,8 @@ function getHariIndonesia($tanggal)
  * @param string $tanggal Tanggal dalam format 'Y-m-d'
  * @return string Tanggal dalam format 'd F Y'
  */
+
+
+ function isValidNamaPelajaran($nama) {
+    return preg_match("/^[a-zA-Z\s]+$/", $nama);
+}

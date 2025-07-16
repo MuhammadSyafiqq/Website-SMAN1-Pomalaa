@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 // Timeout 15 menit
@@ -19,7 +19,6 @@ if (!isset($_SESSION['username'])) {
 
 require_once '../theme.php';
 
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 $result = $connection->query("SELECT * FROM ekstrakurikuler ORDER BY date DESC");
 ?>
 

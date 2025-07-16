@@ -146,15 +146,9 @@ td {
   text-align: left;
 }
 th {
-  background-color: #00589D;
+  background-color: #3b82f6;
   color: white;
 }
-
-body.admin-berita th {
-  background-color: #00589D !important;
-  color: white !important;
-}
-
 .actions {
   white-space: nowrap;
   text-align: right;

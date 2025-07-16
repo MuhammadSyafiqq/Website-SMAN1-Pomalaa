@@ -1,6 +1,6 @@
 <?php
-require_once('../koneksi.php');
 session_start();
+require_once '../config/database.php';
 
 // Timeout 15 menit
 $timeout_duration = 900;
@@ -18,9 +18,8 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
-$error = '';
+$error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nama = $_POST['nama'];
@@ -29,24 +28,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $status = $_POST['status'];
 
     if (
-        empty($nama) ||
-        empty($nip) ||
-        empty($position) ||
-        empty($status) ||
+        empty($nama) || empty($nip) || empty($position) || empty($status) ||
         $_FILES['photo']['error'] !== UPLOAD_ERR_OK
     ) {
         $error = "Semua field wajib diisi, termasuk NIP dan foto.";
+    } elseif (!ctype_digit($nip)) {
+        $error = "NIP hanya boleh diisi dengan angka.";
+    } elseif (strlen($nip) > 50) {
+        $error = "NIP maksimal 50 digit.";
     } else {
-        $photo = file_get_contents($_FILES['photo']['tmp_name']);
+        $check = $connection->prepare("SELECT COUNT(*) FROM struktur WHERE nip = ?");
+        $check->bind_param("s", $nip);
+        $check->execute();
+        $check->bind_result($count);
+        $check->fetch();
+        $check->close();
 
-        $stmt = $connection->prepare("INSERT INTO struktur (nama, nip, position, status, photo) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $nama, $nip, $position, $status, $photo);
-        $stmt->send_long_data(4, $photo);
-        $stmt->execute();
-        $stmt->close();
+        if ($count > 0) {
+            $error = "NIP sudah digunakan oleh pegawai lain.";
+        } else {
+            $photo = file_get_contents($_FILES['photo']['tmp_name']);
 
-        header("Location: admin_struktur.php?success=add");
-        exit();
+            $stmt = $connection->prepare("INSERT INTO struktur (nama, nip, position, status, photo) VALUES (?, ?, ?, ?, ?)");
+            if (!$stmt) {
+                $error = "Prepare gagal: " . $connection->error;
+            } else {
+                $stmt->bind_param("sssss", $nama, $nip, $position, $status, $photo);
+                $stmt->send_long_data(4, $photo);
+
+                if ($stmt->execute()) {
+                    $stmt->close();
+                    header("Location: admin_struktur.php?success=add");
+                    exit();
+                } else {
+                    $error = "Gagal menambahkan data: " . $stmt->error;
+                }
+            }
+        }
     }
 }
 ?>
@@ -56,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Tambah Struktur</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=10">
+    <link rel="stylesheet" href="assets/style/style.css?v=11">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -127,6 +145,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background-color: #00487f;
         }
 
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
         .back-link {
             display: block;
             margin-top: 30px;
@@ -160,7 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="error-msg"><?= $error ?></div>
     <?php endif; ?>
 
-    <form action="" method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" onsubmit="disableSubmitButton()">
         <label for="nama">Nama</label>
         <input type="text" name="nama" required>
 
@@ -168,24 +191,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="text" name="nip" required>
 
         <label for="position">Jabatan/Posisi</label>
-        <input type="text" name="position" required>
+<select name="position" required>
+    <option value="">-- Pilih Jabatan --</option>
+    <option value="Kepala Sekolah">Kepala Sekolah</option>
+    <option value="Wakasek Kesiswaan">Wakasek Kesiswaan</option>
+    <option value="Wakasek Prasarana">Wakasek Prasarana</option>
+    <option value=" ">None</option>
+</select>
 
-        <label for="status">Status</label>
-        <select name="status" required>
-            <option value="">-- Pilih Status --</option>
-            <option value="Guru">Guru</option>
-            <option value="Staf">Staf</option>
-            <option value="Lainnya">Lainnya</option>
-        </select>
+<label for="status">Status</label>
+<input type="text" name="status" placeholder="Contoh: Guru Matematika" required>
+
 
         <label for="photo">Foto</label>
         <input type="file" name="photo" accept="image/*" required>
 
-        <button type="submit">Simpan</button>
+        <button type="submit" id="submitBtn">Simpan</button>
     </form>
 
     <a class="back-link" href="admin_struktur.php">← Kembali ke Daftar Struktur</a>
 </div>
+
+<script>
+    function disableSubmitButton() {
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.innerText = "Menyimpan...";
+    }
+</script>
 
 </body>
 </html>

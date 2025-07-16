@@ -5,7 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Akreditasi - SMAN 1 Pomalaa</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=2">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+
     <style>
         .akreditasi-container {
             max-width: 960px;

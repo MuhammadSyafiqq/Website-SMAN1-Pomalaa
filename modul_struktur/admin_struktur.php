@@ -1,5 +1,5 @@
 <?php
-require_once('../koneksi.php');
+require_once '../config/database.php';
 session_start();
 
 $timeout_duration = 900;
@@ -17,9 +17,18 @@ if (!isset($_SESSION['username'])) {
 }
 
 require_once '../theme.php';
-$connection = new mysqli("localhost", "root", "", "db_sman1pomalaa");
 
-$result = $connection->query("SELECT * FROM struktur ORDER BY id_struktur DESC");
+// Cek apakah ada pencarian
+$search = $_GET['search'] ?? '';
+if (!empty($search)) {
+    $search_query = "%" . $connection->real_escape_string($search) . "%";
+    $stmt = $connection->prepare("SELECT * FROM struktur WHERE nama LIKE ? OR nip LIKE ? OR position LIKE ? OR status LIKE ? ORDER BY id_struktur DESC");
+    $stmt->bind_param("ssss", $search_query, $search_query, $search_query, $search_query);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $connection->query("SELECT * FROM struktur ORDER BY id_struktur DESC");
+}
 
 $notif = '';
 if (isset($_GET['success'])) {
@@ -38,7 +47,7 @@ if (isset($_GET['success'])) {
 <head>
     <meta charset="UTF-8">
     <title>Kelola Struktur</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=16">
+    <link rel="stylesheet" href="../assets/style/style.css?v=17">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -67,7 +76,9 @@ if (isset($_GET['success'])) {
         .top-actions {
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap;
             margin-bottom: 25px;
+            gap: 10px;
         }
 
         .btn {
@@ -86,6 +97,21 @@ if (isset($_GET['success'])) {
 
         .btn-danger {
             background-color: #c0392b;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            justify-content: end;
+        }
+
+        .search-box input[type="text"] {
+            padding: 8px 12px;
+            color: black;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 200px;
         }
 
         table {
@@ -144,39 +170,50 @@ if (isset($_GET['success'])) {
     <div class="top-actions">
         <a href="../dashboard_admin.php" class="btn" style="background: gray;">← Kembali ke Dashboard</a>
         <a href="tambah_struktur.php" class="btn">+ Tambah Struktur</a>
+
+        <form method="GET" class="search-box">
+            <input type="text" name="search" placeholder="Cari..." value="<?= htmlspecialchars($search) ?>">
+            <button type="submit" class="btn">Cari</button>
+        </form>
     </div>
 
     <table>
         <thead>
-            <tr>
-                <th>Nama</th>
-                <th>NIP</th>
-                <th>Jabatan</th>
-                <th>Status</th>
-                <th>Foto</th>
-                <th>Aksi</th>
-            </tr>
+        <tr>
+            <th>Nama</th>
+            <th>NIP</th>
+            <th>Jabatan</th>
+            <th>Status</th>
+            <th>Foto</th>
+            <th>Aksi</th>
+        </tr>
         </thead>
         <tbody>
-        <?php while ($row = $result->fetch_assoc()): ?>
+        <?php if ($result->num_rows > 0): ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['nama']) ?></td>
+                    <td><?= htmlspecialchars($row['nip']) ?></td>
+                    <td><?= htmlspecialchars($row['position']) ?></td>
+                    <td><?= htmlspecialchars($row['status']) ?></td>
+                    <td>
+                        <?php if (!empty($row['photo'])): ?>
+                            <img src="data:image/jpeg;base64,<?= base64_encode($row['photo']) ?>" class="photo-preview" alt="Foto">
+                        <?php else: ?>
+                            <em>Tidak ada</em>
+                        <?php endif; ?>
+                    </td>
+                    <td class="actions">
+                        <a href="edit_struktur.php?id=<?= $row['id_struktur'] ?>" class="btn">Edit</a>
+                        <a href="hapus_struktur.php?id=<?= $row['id_struktur'] ?>" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
             <tr>
-                <td><?= htmlspecialchars($row['nama']) ?></td>
-                <td><?= htmlspecialchars($row['nip']) ?></td>
-                <td><?= htmlspecialchars($row['position']) ?></td>
-                <td><?= htmlspecialchars($row['status']) ?></td>
-                <td>
-                    <?php if (!empty($row['photo'])): ?>
-                        <img src="data:image/jpeg;base64,<?= base64_encode($row['photo']) ?>" class="photo-preview" alt="Foto">
-                    <?php else: ?>
-                        <em>Tidak ada</em>
-                    <?php endif; ?>
-                </td>
-                <td class="actions">
-                    <a href="edit_struktur.php?id=<?= $row['id_struktur'] ?>" class="btn">Edit</a>
-                    <a href="hapus_struktur.php?id=<?= $row['id_struktur'] ?>" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</a>
-                </td>
+                <td colspan="6" style="text-align:center;"><em>Tidak ada data ditemukan.</em></td>
             </tr>
-        <?php endwhile; ?>
+        <?php endif; ?>
         </tbody>
     </table>
 </div>
