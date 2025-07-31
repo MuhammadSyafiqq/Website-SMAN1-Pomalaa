@@ -1,7 +1,9 @@
     <?php
 
     
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     
     $timeout_duration = 900; 
     
@@ -14,6 +16,9 @@
     $_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
     
     // require_once 'theme.php';
+    $role = $_SESSION['role'] ?? null;
+    $username = $_SESSION['username'] ?? null;
+    $nama = $_SESSION['nama'] ?? null;
     
     // Cek jika belum login
     if (!isset($_SESSION['username'])) {
@@ -59,7 +64,9 @@
     <html>
     <head>
         <title>Admin Panel - Jadwal Ujian</title>
-       <link rel="stylesheet" href="../assets/style/style.css?v=<?php echo time(); ?>">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="../assets/image/logo_sekolah.png">
+        <link rel="stylesheet" href="../assets/style/style.css?v=<?php echo time(); ?>">
 
         <style>
          * {
@@ -188,6 +195,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: white;
+            margin-top: 110px;
             min-height: 100vh;
             padding: 20px;
         }
@@ -780,6 +788,16 @@
             flex: 1;
             max-width: 200px;
         }
+        
+        .btn-back {
+            background-color: #888;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .btn-back:hover {
+            background-color: #666;
+        }
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -880,24 +898,6 @@
             scroll-behavior: smooth;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 12px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #764ba2, #667eea);
-        }
 
         /* Enhanced Visual Effects */
         .form-section, .modal-content {
@@ -924,20 +924,99 @@
                 white-space: nowrap;
             }
         }
+        
+        @media (max-width: 480px) {
+    h1 {
+        font-size: 1.6em;
+    }
+
+    h2 {
+        font-size: 1.4em;
+    }
+
+    .container {
+        padding: 15px;
+        margin: 5px;
+    }
+
+    .form-section,
+    .dropdown-container,
+    .filter-container {
+        padding: 15px;
+    }
+
+    form input, form select {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .floating-dashboard-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .floating-dashboard-btn::before {
+        font-size: 11px;
+        padding: 5px 10px;
+        right: 50px;
+    }
+
+    .floating-dashboard-btn::after {
+        right: 40px;
+        border-left-width: 5px;
+        border-top-width: 5px;
+        border-bottom-width: 5px;
+    }
+
+    table {
+        font-size: 11px;
+    }
+
+    th, td {
+        padding: 10px 6px;
+    }
+
+    .modal-content {
+        padding: 20px;
+    }
+
+    .modal-content form input,
+    .modal-content form select {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .modal-content form button {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .action-menu-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .action-menu-content button {
+        padding: 10px 15px;
+        font-size: 13px;
+    }
+
+    .no-data,
+    .no-jadwal {
+        font-size: 14px;
+        padding: 30px;
+    }
+}
     </style>
     </head>
     <body>
         
         <?php include '../partials/navbar.php'; ?>
         
-        <a href="../" class="floating-dashboard-btn" title="Kembali ke Dashboard">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="9"></rect>
-            <rect x="14" y="3" width="7" height="5"></rect>
-            <rect x="14" y="12" width="7" height="9"></rect>
-            <rect x="3" y="16" width="7" height="5"></rect>
-        </svg>
-        </a>
+        
 
         <?php if (isset($_SESSION['success'])): ?>
         <div id="flash-message" class="flash-success"><?= $_SESSION['success'] ?></div>
@@ -948,8 +1027,9 @@
         <?php unset($_SESSION['error']); endif; ?>
             <h1>Admin Panel</h1>
             <div class ="container"> 
-        
-        
+            
+            <a href="../dashboard_admin.php" class="btn btn-back">← Kembali ke Dashboard</a>
+
 
             <!-- Kelas Section
             <section class="form-section" aria-label="Form Input Kelas">
@@ -1043,7 +1123,6 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Nama</th>
                         <th>Kategori</th>
                         <th>Aksi</th>
@@ -1053,7 +1132,6 @@
                     <?php if (count($mapelUmum) > 0): ?>
                         <?php foreach ($mapelUmum as $mapel): ?>
                             <tr>
-                                <td><?= $mapel['id'] ?></td>
                                 <td><?= $mapel['nama'] ?></td>
                                 <td><span class="kategori-badge kategori-umum"><?= $mapel['kategori'] ?></span></td>
                                 <td>
@@ -1082,7 +1160,6 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Nama</th>
                         <th>Kategori</th>
                         <th>Aksi</th>
@@ -1092,7 +1169,6 @@
                     <?php if (count($mapelIPA) > 0): ?>
                         <?php foreach ($mapelIPA as $mapel): ?>
                             <tr>
-                                <td><?= $mapel['id'] ?></td>
                                 <td><?= $mapel['nama'] ?></td>
                                 <td><span class="kategori-badge kategori-ipa"><?= $mapel['kategori'] ?></span></td>
                                 <td>
@@ -1121,7 +1197,6 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Nama</th>
                         <th>Kategori</th>
                         <th>Aksi</th>
@@ -1131,7 +1206,6 @@
                     <?php if (count($mapelIPS) > 0): ?>
                         <?php foreach ($mapelIPS as $mapel): ?>
                             <tr>
-                                <td><?= $mapel['id'] ?></td>
                                 <td><?= $mapel['nama'] ?></td>
                                 <td><span class="kategori-badge kategori-ips"><?= $mapel['kategori'] ?></span></td>
                                 <td>
@@ -1184,109 +1258,109 @@
 
 
                     <input type="date" name="tanggal" id="tanggal_input" required min="2000-01-01" max="2030-12-31">  
-                    <input type='time' class="time" name="jam_mulai" placeholder="Jam Mulai">
-                    <input type="time" name="jam_selesai" placeholder="Jam Selesai">
-                    <input type="hidden" name="hari" id="hari_input">
+                    <input type='time' class="time" name="jam_mulai" placeholder="Jam Mulai" required>
+                    <input type="time" name="jam_selesai" placeholder="Jam Selesai" required>
+                    <input type="hidden" name="hari" id="hari_input" required>
                     <button type="submit" name="add_jadwal">Tambah</button>
                 </form>
                 
-                </section>
+            </section>
 
                 
 
             <!-- Section untuk Filter Jadwal dengan Dropdown -->
-<section class="form-section" aria-label="Filter Jadwal Ujian">
-    <h2>Lihat Jadwal Ujian Berdasarkan Kelas & Jurusan</h2>
-    
-    <!-- Dropdown untuk filter -->
-    <div class="form-section">
-                <label for="kelas-dropdown">Pilih Kelas:</label>
-                <select id="kelas-dropdown" class="filter-dropdown-select" onchange="filterJadwalByKelasJurusan()">
-                    <option value="">-- Pilih Kelas --</option>
-                    <?php foreach ($dataKelas as $kelas): ?>
-                        <option value="<?= $kelas['id'] ?>"><?= $kelas['nama'] ?></option>
-                    <?php endforeach; ?>
-                </select>
+            <section class="form-section" aria-label="Filter Jadwal Ujian">
+                <h2>Lihat Jadwal Ujian Berdasarkan Kelas & Jurusan</h2>
                 
-                <label for="jurusan-dropdown">Pilih Jurusan:</label>
-                <select id="jurusan-dropdown" class="filter-dropdown-select" onchange="filterJadwalByKelasJurusan()">
-                    <option value="">-- Pilih Jurusan --</option>
-                    <?php foreach ($dataJurusan as $jurusan): ?>
-                        <option value="<?= $jurusan['id'] ?>"><?= $jurusan['nama'] ?></option>
-                    <?php endforeach; ?>
-                </select>
-        
-    </div>
-    <button type="button" style="align-itens: left;" onclick="showAllJadwal()" class="btn btn-primary">Tampilkan Semua</button>
-    <button type="button" onclick="resetJadwalFilter()" class="btn btn-reset">Reset</button>
-
-    <!-- Container untuk menampilkan jadwal -->
-    <div id="jadwal-container">
-        <?php foreach ($dataKelas as $kelas): ?>
-            <?php foreach ($dataJurusan as $jurusan): ?>
-                <?php 
-                $key = $kelas['id'] . '-' . $jurusan['id'];
-                $jadwalList = isset($jadwalByKelasJurusan[$key]) ? $jadwalByKelasJurusan[$key] : [];
-                ?>
-                
-                <div id="jadwal-<?= $kelas['id'] ?>-<?= $jurusan['id'] ?>" class="jadwal-category" data-kelas="<?= $kelas['id'] ?>" data-jurusan="<?= $jurusan['id'] ?>">
-                    <h3><?= $kelas['nama'] ?> - <?= $jurusan['nama'] ?></h3>
-                    
-                    <?php if (count($jadwalList) > 0): ?>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Mata Pelajaran</th>
-                                    <th>Kategori</th>
-                                    <th>Hari</th>
-                                    <th>Tanggal</th>
-                                    <th>Jam Mulai</th>
-                                    <th>Jam Selesai</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($jadwalList as $jadwal): ?>
-                                    <tr>
-                                        <td><?= $jadwal['mata_pelajaran_nama'] ?></td>
-                                        <td>
-                                            <?php 
-                                            // Dapatkan kategori mata pelajaran
-                                            $kategoriMapel = '';
-                                            foreach ($dataMapel as $mapel) {
-                                                if ($mapel['id'] == $jadwal['mata_pelajaran_id']) {
-                                                    $kategoriMapel = ucfirst(strtolower($mapel['kategori']));
-                                                    break;
-                                                }
-                                            }
-                                            ?>
-                                            <span class="kategori-badge kategori-<?= strtolower($kategoriMapel) ?>"><?= $kategoriMapel ?></span>
-                                        </td>
-                                        <td><?= $jadwal['hari'] ?></td>
-                                        <td><?= date('d/m/Y', strtotime($jadwal['tanggal'])) ?></td>
-                                        <td><?= $jadwal['jam_mulai'] ?></td>
-                                        <td><?= $jadwal['jam_selesai'] ?></td>
-                                        <td>
-                                            <div class="action-menu-wrapper">
-                                                <button type="button" class="action-menu-btn">⋮</button>
-                                                <div class="action-menu-content">
-                                                    <button class="edit" onclick="editJadwal('<?= $jadwal['id'] ?>')">Edit</button>
-                                                    <button class="delete" onclick="confirmDelete('jadwal', '<?= $jadwal['id'] ?>', 'Jadwal <?= htmlspecialchars($jadwal['mata_pelajaran_nama']) ?>')">Hapus</button>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
+                <!-- Dropdown untuk filter -->
+                <div class="form-section">
+                            <label for="kelas-dropdown">Pilih Kelas:</label>
+                            <select id="kelas-dropdown" class="filter-dropdown-select" onchange="filterJadwalByKelasJurusan()">
+                                <option value="">-- Pilih Kelas --</option>
+                                <?php foreach ($dataKelas as $kelas): ?>
+                                    <option value="<?= $kelas['id'] ?>"><?= $kelas['nama'] ?></option>
                                 <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    <?php else: ?>
-                        <div class="no-jadwal">Tidak ada jadwal ujian untuk kelas <?= $kelas['nama'] ?> - <?= $jurusan['nama'] ?></div>
-                    <?php endif; ?>
+                            </select>
+                            
+                            <label for="jurusan-dropdown">Pilih Jurusan:</label>
+                            <select id="jurusan-dropdown" class="filter-dropdown-select" onchange="filterJadwalByKelasJurusan()">
+                                <option value="">-- Pilih Jurusan --</option>
+                                <?php foreach ($dataJurusan as $jurusan): ?>
+                                    <option value="<?= $jurusan['id'] ?>"><?= $jurusan['nama'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                    
                 </div>
-            <?php endforeach; ?>
-        <?php endforeach; ?>
-    </div>
-</section>
+                <button type="button" style="align-itens: left;" onclick="showAllJadwal()" class="btn btn-primary">Tampilkan Semua</button>
+                <button type="button" onclick="resetJadwalFilter()" class="btn btn-reset">Reset</button>
+            
+                <!-- Container untuk menampilkan jadwal -->
+                <div id="jadwal-container">
+                    <?php foreach ($dataKelas as $kelas): ?>
+                        <?php foreach ($dataJurusan as $jurusan): ?>
+                            <?php 
+                            $key = $kelas['id'] . '-' . $jurusan['id'];
+                            $jadwalList = isset($jadwalByKelasJurusan[$key]) ? $jadwalByKelasJurusan[$key] : [];
+                            ?>
+                            
+                            <div id="jadwal-<?= $kelas['id'] ?>-<?= $jurusan['id'] ?>" class="jadwal-category" data-kelas="<?= $kelas['id'] ?>" data-jurusan="<?= $jurusan['id'] ?>">
+                                <h3><?= $kelas['nama'] ?> - <?= $jurusan['nama'] ?></h3>
+                                
+                                <?php if (count($jadwalList) > 0): ?>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Mata Pelajaran</th>
+                                                <th>Kategori</th>
+                                                <th>Hari</th>
+                                                <th>Tanggal</th>
+                                                <th>Jam Mulai</th>
+                                                <th>Jam Selesai</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($jadwalList as $jadwal): ?>
+                                                <tr>
+                                                    <td><?= $jadwal['mata_pelajaran_nama'] ?></td>
+                                                    <td>
+                                                        <?php 
+                                                        // Dapatkan kategori mata pelajaran
+                                                        $kategoriMapel = '';
+                                                        foreach ($dataMapel as $mapel) {
+                                                            if ($mapel['id'] == $jadwal['mata_pelajaran_id']) {
+                                                                $kategoriMapel = ucfirst(strtolower($mapel['kategori']));
+                                                                break;
+                                                            }
+                                                        }
+                                                        ?>
+                                                        <span class="kategori-badge kategori-<?= strtolower($kategoriMapel) ?>"><?= $kategoriMapel ?></span>
+                                                    </td>
+                                                    <td><?= $jadwal['hari'] ?></td>
+                                                    <td><?= date('d/m/Y', strtotime($jadwal['tanggal'])) ?></td>
+                                                    <td><?= $jadwal['jam_mulai'] ?></td>
+                                                    <td><?= $jadwal['jam_selesai'] ?></td>
+                                                    <td>
+                                                        <div class="action-menu-wrapper">
+                                                            <button type="button" class="action-menu-btn">⋮</button>
+                                                            <div class="action-menu-content">
+                                                                <button class="edit" onclick="editJadwal('<?= $jadwal['id'] ?>')">Edit</button>
+                                                                <button class="delete" onclick="confirmDelete('jadwal', '<?= $jadwal['id'] ?>', 'Jadwal <?= htmlspecialchars($jadwal['mata_pelajaran_nama']) ?>')">Hapus</button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                <?php else: ?>
+                                    <div class="no-jadwal">Tidak ada jadwal ujian untuk kelas <?= $kelas['nama'] ?> - <?= $jurusan['nama'] ?></div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                </div>
+            </section>
 
             </div>
         </div>
@@ -1494,6 +1568,8 @@
                 lastScrollY = currentScrollY;
             });
         });
+        
+        
         </script>
 
 

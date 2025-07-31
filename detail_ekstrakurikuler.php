@@ -26,6 +26,7 @@ $image = !empty($data['image']) ? 'data:image/jpeg;base64,' . base64_encode($dat
     <title>Detail Ekstrakurikuler - <?= htmlspecialchars($data['name']) ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/style/style.css?v=3">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
     <style>
         body {
             margin: 0;
@@ -59,7 +60,7 @@ $image = !empty($data['image']) ? 'data:image/jpeg;base64,' . base64_encode($dat
         .detail-box h2 {
             margin-top: 0;
             font-size: 2em;
-            color: #003366;
+            color: black;
         }
 
         .meta-info {

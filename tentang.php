@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <title>Tentang Sekolah</title>
     <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
 
     <style>
     *{
@@ -14,14 +15,15 @@
     }
         body {
             margin: 0;
+            margin-top: 30px;
             font-family: 'Segoe UI', sans-serif;
-            background: #ffffff;
-            color: #003366;
+            background: white;
+            color: black;
         }
 
         .section-tentang {
             padding: 80px 20px;
-            background: linear-gradient(to bottom, #003366, #00589D);
+            background: white);
             color: white;
             text-align: center;
         }
@@ -30,6 +32,7 @@
             font-size: 36px;
             border-bottom: 4px solid #ff7f3f;
             display: inline-block;
+            color: black;
             padding-bottom: 10px;
         }
 
@@ -37,66 +40,12 @@
             max-width: 1100px;
             margin: 30px auto 0;
             font-size: 18px;
+            color: black;
             line-height: 1.7;
             text-align: justify;
         }
 
-        .section-sambutan {
-    background: #fff;
-    padding: 60px 20px;
-    color: #003366;
-}
-
-.sambutan-container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    max-width: 1100px;
-    margin: auto;
-    gap: 30px;
-    align-items: flex-start;
-}
-
-.sambutan-img {
-    flex: 0 0 auto;
-    width: 220px;
-}
-
-.sambutan-img img {
-    width: 100%;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-.sambutan-text {
-    flex: 1;
-    min-width: 300px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.sambutan-text h3 {
-    font-size: 28px;
-    margin: 0 0 15px 0;
-    color: #003366;
-}
-
-.sambutan-text p {
-    font-size: 18px;
-    line-height: 1.7;
-    text-align: justify;
-}
-
-.sambutan-penutup {
-    max-width: 1150px;
-    margin: 30px auto 0 auto;
-    color: #003366;
-    font-size: 18px;
-    line-height: 1.7;
-    text-align: justify;
-    padding: 0 20px;
-}
+        
 
 
 @media (max-width: 768px) {
@@ -129,36 +78,19 @@
 <section class="section-tentang">
     <h2>TENTANG SEKOLAH</h2>
     <p>
-        SMA Negeri 1 Pomalaa berlokasi di Jl. Salak No. 2, Pomalaa, Kolaka, Sulawesi Tenggara.
-        Sekolah ini merupakan salah satu institusi pendidikan menengah yang memiliki reputasi baik
-        di wilayahnya. Dengan tekad menjadi sekolah yang unggul dalam prestasi serta menjunjung tinggi
-        nilai-nilai karakter, SMAN 1 Pomalaa terus berbenah dalam pengembangan fasilitas, kurikulum,
-        dan tenaga pendidik yang profesional untuk menciptakan generasi penerus bangsa yang berkualitas.
+        SMA Negeri 1 Pomalaa merupakan salah satu lembaga pendidikan menengah atas negeri yang berlokasi di Jl. Salak No. 2, Kecamatan Pomalaa, Kabupaten Kolaka, Provinsi Sulawesi Tenggara. Berdiri sebagai institusi yang telah lama berkontribusi dalam dunia pendidikan, SMAN 1 Pomalaa terus menunjukkan eksistensinya sebagai sekolah yang unggul, berprestasi, dan berakar kuat pada nilai-nilai luhur bangsa. Dengan landasan filosofi pendidikan yang menempatkan siswa sebagai pusat pembelajaran, sekolah ini tidak hanya berfokus pada pencapaian akademik, tetapi juga pada pembentukan karakter, pengembangan potensi, dan penanaman nilai-nilai moral serta etika.
+    </p>
+    <p>Didukung oleh tenaga pendidik yang profesional, berkompeten, dan berdedikasi tinggi, SMAN 1 Pomalaa menghadirkan proses belajar yang inovatif dan adaptif terhadap perkembangan zaman. Kurikulum yang diterapkan mengakomodasi kebutuhan abad ke-21 dengan menekankan pada kemampuan berpikir kritis, kreativitas, kolaborasi, serta literasi digital. Berbagai program ekstrakurikuler juga dikembangkan secara aktif untuk menggali dan menyalurkan minat serta bakat siswa, seperti olahraga, seni, sains, keagamaan, hingga kepemimpinan.
+    </p>
+    <p>
+        Lingkungan sekolah yang bersih, aman, dan ramah anak menjadi salah satu kekuatan utama SMAN 1 Pomalaa dalam menciptakan atmosfer belajar yang menyenangkan dan produktif. Fasilitas yang terus diperbarui, mulai dari laboratorium, perpustakaan, ruang kelas modern, hingga sarana ibadah, menjadi penunjang penting dalam mencapai visi sekolah: “Menjadi sekolah yang berprestasi, berkarakter, dan berwawasan global.”
+    </p>
+    <p>
+        Sebagai bagian dari komunitas pendidikan di Kabupaten Kolaka, SMAN 1 Pomalaa juga aktif menjalin kerja sama dengan berbagai pihak, baik instansi pemerintah, perguruan tinggi, dunia usaha, maupun masyarakat sekitar. Hal ini menjadi wujud nyata dari semangat kolaboratif dalam membangun pendidikan yang inklusif dan berdaya saing tinggi.
     </p>
 </section>
 
-<!-- Bagian Sambutan -->
-<section class="section-sambutan">
-    <div class="sambutan-container">
-        <div class="sambutan-img">
-            <img src="image/kepala_sekolah.png" alt="Kepala Sekolah">
-        </div>
-        <div class="sambutan-text">
-            <h3>SAMBUTAN</h3>
-            <p>Assalamu’alaikum warahmatullahi wabarakatuh.</p>
-            <p>
-                Puji syukur ke hadirat Allah SWT atas rahmat dan karunia-Nya, sehingga website SMA Negeri 1 Pomalaa ini dapat dikembangkan sebagai sarana informasi dan komunikasi sekolah dengan masyarakat. Kami berharap media ini dapat memberikan gambaran tentang profil sekolah, kegiatan belajar-mengajar, prestasi siswa, serta berbagai program yang telah dan akan kami laksanakan.
-            </p>
-        </div>
-    </div>
 
-    <div class="sambutan-penutup">
-        <p>
-            Semoga dengan adanya website ini, terjalin hubungan yang baik antara sekolah dengan peserta didik, orang tua, alumni, serta masyarakat luas. Terima kasih atas dukungan semua pihak demi kemajuan pendidikan di SMA Negeri 1 Pomalaa.
-        </p>
-        <p>Wassalamu’alaikum warahmatullahi wabarakatuh.</p>
-    </div>
-</section>
 
 
 <?php include 'partials/footer.php'; ?>

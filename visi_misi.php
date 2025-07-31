@@ -6,10 +6,12 @@
     <meta charset="UTF-8">
     <title>Visi & Misi</title>
     <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
 
     <style>
         body {
             margin: 0;
+            margin-top: 70px;
             font-family: 'Segoe UI', sans-serif;
             background: white;
             color: white;
@@ -29,7 +31,7 @@
             font-size: 36px;
             font-weight: bold;
             margin-bottom: 40px;
-            color: #1e40af;
+            color: black;
             border-bottom: 3px solid #FFD700;
             display: inline-block;
             padding-bottom: 10px;
@@ -43,20 +45,20 @@
         .visi h3, .misi h3 {
             font-size: 26px;
             margin-bottom: 15px;
-            color: #1e40af;
+            color: black;
         }
 
         .visi p {
             font-size: 18px;
             line-height: 1.6;
-            color: #1e40af;
+            color: black;
         }
 
         .misi ol {
             font-size: 18px;
             line-height: 1.8;
             padding-left: 20px;
-            color: #1e40af;
+            color: #004030;
         }
 
         .misi li {

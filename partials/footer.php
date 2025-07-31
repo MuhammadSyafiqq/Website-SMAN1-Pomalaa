@@ -19,19 +19,25 @@ $base_url = 'https://' . $_SERVER['HTTP_HOST'] . '/';
                 <h3>HUBUNGI KAMI</h3>
                 <div class="contact-info">
                     <i class="fas fa-map-marker-alt"></i>
-                    <p>Jl. Salak No.2, Pomalaa<br>Kabupaten Kolaka, Sulawesi Tenggara</p>
+                    <p>Jl. Salak No.2, Kumoro, Kec. Pomalaa<br>Kabupaten Kolaka, Sulawesi Tenggara 93562</p>
                 </div>
                 <div class="contact-info">
                     <i class="fas fa-phone"></i>
-                    <p>(0405) 123456</p>
+                    <p>(0405) 2310587</p>
                 </div>
                 <div class="contact-info">
                     <i class="fas fa-envelope"></i>
-                    <p>info@sman1pomalaa.sch.id</p>
+                    <p>smanegeripomalaa1@gmail.com</p>
                 </div>
                 <div class="contact-info">
-                    <i class="fas fa-fax"></i>
-                    <p>(0405) 123457</p>
+                    <a href="https://www.instagram.com/smanpoltv/" target="_blank" style="color: inherit;">
+                        <i class="fab fa-instagram"></i>smanpoltv
+                    </a>
+                </div>
+                <div class="contact-info">
+                    <a href="https://web.facebook.com/profile.php?id=100069534373516" target="_blank" style="color: inherit;">
+                        <i class="fab fa-facebook-f"></i>SMAN 1 Pomalaa
+                    </a>
                 </div>
             </div>
 

@@ -1,5 +1,9 @@
 <?php
-session_start();
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
 $role = $_SESSION['role'] ?? null;
 $username = $_SESSION['username'] ?? null;
 $nama = $_SESSION['nama'] ?? null;
@@ -8,8 +12,7 @@ $nama = $_SESSION['nama'] ?? null;
 $base_url = '/'; // Atau bisa juga: '/nama_folder_project/'
 
 // Deteksi halaman untuk styling navbar
-$current_page = basename($_SERVER['PHP_SELF']);
-$is_homepage = ($current_page === 'index.php');
+
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -25,29 +28,30 @@ $is_homepage = ($current_page === 'index.php');
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         line-height: 1.6;
         color: #333;
-        padding-top: 80px; /* Space for fixed navbar */
+        padding-top: 80px;
+        padding : 0px;/* Space for fixed navbar */
     }
 
     .navbar {
         position: fixed;
+        background: rgba(0, 64, 48, 1); /* Transparan dengan opacity 0.9 */ /* Efek blur untuk background */
+        -webkit-backdrop-filter: blur(10px); /* Untuk Safari */
         top: 0;
         width: 100%;
         z-index: 1000;
-        transition: all 0.3s ease;
+        transition: all 0.5s ease;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
-    .navbar.blue-theme {
-        background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
-    }
-
-    .navbar.white-theme {
-        background: white;
-        border-bottom: 1px solid #e0e0e0;
+    
+    .navbar.scrolled {
+        background: rgba(0, 64, 48, 1); /* Solid saat di-scroll */
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
     }
 
     .navbar .container {
-        max-width: 1200px;
+        max-width: 100%;
+        background: transparent;
         margin: 0 auto;
         padding: 0 1rem;
         display: flex;
@@ -81,13 +85,10 @@ $is_homepage = ($current_page === 'index.php');
         line-height: 1.2;
     }
 
-    .blue-theme .nav-brand-text {
+    .nav-brand-text {
         color: white;
     }
 
-    .white-theme .nav-brand-text {
-        color: #2c3e50;
-    }
 
     .nav-brand-text .school-name {
         font-size: 1.1rem;
@@ -130,13 +131,10 @@ $is_homepage = ($current_page === 'index.php');
         position: relative;
     }
 
-    .blue-theme .nav-item {
+    .nav-item {
         color: white;
     }
 
-    .white-theme .nav-item {
-        color: #2c3e50;
-    }
 
     .nav-item:hover {
         background: rgba(255,255,255,0.1);
@@ -236,15 +234,11 @@ $is_homepage = ($current_page === 'index.php');
         text-decoration: none;
     }
 
-    .blue-theme .profile-icon {
+    .profile-icon {
         background: rgba(255,255,255,0.2);
         color: white;
     }
 
-    .white-theme .profile-icon {
-        background: #f8f9fa;
-        color: #2c3e50;
-    }
 
     .profile-icon:hover {
         transform: scale(1.1);
@@ -311,6 +305,26 @@ $is_homepage = ($current_page === 'index.php');
         background: #c0392b;
         transform: translateY(-2px);
     }
+    
+    .login-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.7rem 1.2rem;
+        background: #4A90E2;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .login-btn:hover {
+        background: #357abd;
+        transform: translateY(-2px);
+    }
 
     .mobile-menu-toggle {
         display: none;
@@ -322,14 +336,226 @@ $is_homepage = ($current_page === 'index.php');
         border-radius: 8px;
         transition: all 0.3s ease;
     }
+    
+    .search-container {
+    position: relative;
+    margin-right: 1rem;
+}
 
-    .blue-theme .mobile-menu-toggle {
+.search-box {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-width: 250px;
+}
+
+.white-theme .search-box {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+}
+
+.search-box:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.white-theme .search-box:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+}
+
+.search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 0.9rem;
+    width: 100%;
+    padding: 0.2rem 0.5rem;
+}
+
+.white-theme .search-input {
+    color: #333;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.white-theme .search-input::placeholder {
+    color: #666;
+}
+
+.search-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.white-theme .search-btn {
+    color: #666;
+}
+
+.search-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.white-theme .search-btn:hover {
+    background: #dee2e6;
+}
+
+/* Search Results Dropdown */
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1002;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    margin-top: 0.5rem;
+}
+
+.search-results.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.search-category {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0.5rem 0;
+}
+
+.search-category:last-child {
+    border-bottom: none;
+}
+
+.search-category-title {
+    font-weight: 600;
+    color: #4A90E2;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #f8f9fa;
+    margin: 0;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+.search-item:hover {
+    background: #f8f9fa;
+    color: #4A90E2;
+    transform: translateX(5px);
+}
+
+.search-item-icon {
+    margin-right: 0.8rem;
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    color: #4A90E2;
+}
+
+.search-item-content {
+    flex: 1;
+}
+
+.search-item-title {
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+}
+
+.search-item-description {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.search-no-results {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #666;
+}
+
+.search-no-results i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #ddd;
+}
+
+/* Mobile Search Styles */
+.mobile-search-container {
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
+}
+
+.mobile-search-box {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 25px;
+    padding: 0.8rem 1rem;
+    border: 1px solid #e0e0e0;
+}
+
+.mobile-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #333;
+    font-size: 0.9rem;
+    width: 100%;
+    padding: 0.2rem 0.5rem;
+}
+
+.mobile-search-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.mobile-search-btn:hover {
+    background: #dee2e6;
+}
+
+    .mobile-menu-toggle {
         color: white;
     }
 
-    .white-theme .mobile-menu-toggle {
-        color: #2c3e50;
-    }
 
     .mobile-menu-toggle:hover {
         background: rgba(255,255,255,0.1);
@@ -503,6 +729,10 @@ $is_homepage = ($current_page === 'index.php');
         .mobile-menu {
             width: 100%;
         }
+        .search-container {
+            display: none;
+            
+        }
     }
 
     @media (max-width: 480px) {
@@ -526,7 +756,7 @@ $is_homepage = ($current_page === 'index.php');
     }
 </style>
 
-<nav class="navbar <?= $is_homepage ? 'blue-theme' : 'white-theme' ?>" id="navbar">
+<nav class="navbar" id="navbar">
     <div class="container">
         <a href="<?= $base_url ?>index.php" class="nav-brand">
             <img src="<?= $base_url ?>assets/image/logo_sekolah.png" alt="Logo SMA Negeri 1 Pomalaa">
@@ -613,10 +843,24 @@ $is_homepage = ($current_page === 'index.php');
                 <?php endif; ?>
             </ul>
 
-            <!-- Profile Section -->
             <div class="profile-section">
-                <?php if ($username): ?>
-                    <div class="profile-dropdown">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Cari menu, berita, atau informasi..." id="searchInput">
+                        <button class="search-btn" id="searchBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Search Results Dropdown -->
+                    <div class="search-results" id="searchResults">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Profile button - always visible -->
+                <div class="profile-dropdown">
+                    <?php if ($username): ?>
                         <a href="#" class="profile-icon" id="profileIcon">
                             <i class="fas fa-user-circle"></i>
                         </a>
@@ -631,8 +875,12 @@ $is_homepage = ($current_page === 'index.php');
                                 Logout
                             </a>
                         </div>
-                    </div>
-                <?php endif; ?>
+                    <?php else: ?>
+                        <a href="<?= $base_url ?>login.php" class="profile-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
 
@@ -656,6 +904,15 @@ $is_homepage = ($current_page === 'index.php');
         <button class="mobile-menu-close" id="mobileMenuClose">
             <i class="fas fa-times"></i>
         </button>
+    </div>
+    
+    <div class="mobile-search-container">
+        <div class="mobile-search-box">
+            <input type="text" class="mobile-search-input" placeholder="Cari menu, berita, atau informasi..." id="mobileSearchInput">
+            <button class="mobile-search-btn" id="mobileSearchBtn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
     </div>
 
     <ul class="mobile-nav-links">
@@ -730,6 +987,9 @@ $is_homepage = ($current_page === 'index.php');
                 <i class="fas fa-sign-out-alt"></i>
                 Logout
             </a>
+            <a href="<?= $base_url ?>login.php" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                </a>
         </li>
         <?php endif; ?>
     </ul>
@@ -739,6 +999,277 @@ $is_homepage = ($current_page === 'index.php');
 <div class="overlay" id="overlay"></div>
 
 <script>
+    // Data untuk pencarian
+const searchData = {
+    menu: [
+        {
+            title: "Profil Sekolah",
+            description: "Informasi umum tentang sekolah",
+            icon: "fas fa-user",
+            url: "<?= $base_url ?>tentang.php"
+        },
+        {
+            title: "Visi dan Misi",
+            description: "Visi, misi, dan tujuan sekolah",
+            icon: "fas fa-eye",
+            url: "<?= $base_url ?>visi_misi.php"
+        },
+        {
+            title: "Akreditasi",
+            description: "Informasi akreditasi sekolah",
+            icon: "fas fa-certificate",
+            url: "<?= $base_url ?>akreditasi.php"
+        },
+        {
+            title: "Prestasi",
+            description: "Prestasi siswa dan sekolah",
+            icon: "fas fa-trophy",
+            url: "<?= $base_url ?>prestasi.php"
+        },
+        {
+            title: "Struktural",
+            description: "Struktur organisasi sekolah",
+            icon: "fas fa-users",
+            url: "<?= $base_url ?>struktural.php"
+        },
+        {
+            title: "Berita",
+            description: "Berita dan artikel terbaru",
+            icon: "fas fa-newspaper",
+            url: "<?= $base_url ?>berita.php"
+        },
+        {
+            title: "Jadwal Ujian",
+            description: "Jadwal ujian dan evaluasi",
+            icon: "fas fa-calendar-alt",
+            url: "<?= $base_url ?>jadwal/jadwal_ujian.php"
+        }
+    ],
+    quickActions: [
+        {
+            title: "Hubungi Sekolah",
+            description: "Informasi kontak dan alamat",
+            icon: "fas fa-phone",
+            url: "#footer"
+        },
+        {
+            title: "Beranda",
+            description: "Kembali ke halaman utama",
+            icon: "fas fa-home",
+            url: "<?= $base_url ?>index.php"
+        }
+    ]
+};
+
+// Add admin menu if user is admin
+<?php if ($role === 'admin' || $role === 'super-admin'): ?>
+searchData.admin = [
+    {
+        title: "Dashboard Admin",
+        description: "Kelola konten website",
+        icon: "fas fa-cog",
+        url: "<?= $base_url ?>dashboard_admin.php"
+    }
+];
+<?php endif; ?>
+
+// Search functionality
+function performSearch(query) {
+    const results = {};
+    
+    if (!query.trim()) {
+        return results;
+    }
+    
+    const searchTerm = query.toLowerCase();
+    
+    // Search in menu items
+    const menuResults = searchData.menu.filter(item => 
+        item.title.toLowerCase().includes(searchTerm) ||
+        item.description.toLowerCase().includes(searchTerm)
+    );
+    
+    if (menuResults.length > 0) {
+        results.menu = menuResults;
+    }
+    
+    // Search in quick actions
+    const quickResults = searchData.quickActions.filter(item => 
+        item.title.toLowerCase().includes(searchTerm) ||
+        item.description.toLowerCase().includes(searchTerm)
+    );
+    
+    if (quickResults.length > 0) {
+        results.quickActions = quickResults;
+    }
+    
+    // Search in admin menu (if exists)
+    if (searchData.admin) {
+        const adminResults = searchData.admin.filter(item => 
+            item.title.toLowerCase().includes(searchTerm) ||
+            item.description.toLowerCase().includes(searchTerm)
+        );
+        
+        if (adminResults.length > 0) {
+            results.admin = adminResults;
+        }
+    }
+    
+    return results;
+}
+
+function displaySearchResults(results, container) {
+    const hasResults = Object.keys(results).length > 0;
+    
+    if (!hasResults) {
+        container.innerHTML = `
+            <div class="search-no-results">
+                <i class="fas fa-search"></i>
+                <div>Tidak ada hasil yang ditemukan</div>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    
+    // Display menu results
+    if (results.menu) {
+        html += `
+            <div class="search-category">
+                <h4 class="search-category-title">Menu Navigasi</h4>
+                ${results.menu.map(item => `
+                    <a href="${item.url}" class="search-item">
+                        <i class="${item.icon} search-item-icon"></i>
+                        <div class="search-item-content">
+                            <div class="search-item-title">${item.title}</div>
+                            <div class="search-item-description">${item.description}</div>
+                        </div>
+                    </a>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    // Display quick actions
+    if (results.quickActions) {
+        html += `
+            <div class="search-category">
+                <h4 class="search-category-title">Aksi Cepat</h4>
+                ${results.quickActions.map(item => `
+                    <a href="${item.url}" class="search-item">
+                        <i class="${item.icon} search-item-icon"></i>
+                        <div class="search-item-content">
+                            <div class="search-item-title">${item.title}</div>
+                            <div class="search-item-description">${item.description}</div>
+                        </div>
+                    </a>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    // Display admin results
+    if (results.admin) {
+        html += `
+            <div class="search-category">
+                <h4 class="search-category-title">Admin</h4>
+                ${results.admin.map(item => `
+                    <a href="${item.url}" class="search-item">
+                        <i class="${item.icon} search-item-icon"></i>
+                        <div class="search-item-content">
+                            <div class="search-item-title">${item.title}</div>
+                            <div class="search-item-description">${item.description}</div>
+                        </div>
+                    </a>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+// Desktop search
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const searchBtn = document.getElementById('searchBtn');
+
+if (searchInput && searchResults) {
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        if (query.length === 0) {
+            searchResults.classList.remove('active');
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            const results = performSearch(query);
+            displaySearchResults(results, searchResults);
+            searchResults.classList.add('active');
+        }, 300);
+    });
+    
+    searchInput.addEventListener('focus', function() {
+        if (this.value.trim().length > 0) {
+            searchResults.classList.add('active');
+        }
+    });
+    
+    searchBtn.addEventListener('click', function() {
+        const query = searchInput.value.trim();
+        if (query) {
+            const results = performSearch(query);
+            displaySearchResults(results, searchResults);
+            searchResults.classList.add('active');
+        }
+    });
+}
+
+// Mobile search
+const mobileSearchInput = document.getElementById('mobileSearchInput');
+const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+
+if (mobileSearchInput && mobileSearchBtn) {
+    mobileSearchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        if (query.length === 0) {
+            return;
+        }
+        
+        // For mobile, we'll redirect to a search results page or show results inline
+        // This is a simplified version - you can expand this based on your needs
+    });
+    
+    mobileSearchBtn.addEventListener('click', function() {
+        const query = mobileSearchInput.value.trim();
+        if (query) {
+            // Handle mobile search action
+            alert('Mencari: ' + query);
+        }
+    });
+}
+
+// Close search results when clicking outside
+document.addEventListener('click', function(e) {
+    if (searchResults && !searchResults.contains(e.target) && 
+        !searchInput.contains(e.target) && !searchBtn.contains(e.target)) {
+        searchResults.classList.remove('active');
+    }
+});
+
+// Handle search result clicks
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.search-item')) {
+        searchResults.classList.remove('active');
+        searchInput.value = '';
+    }
+});
     // Mobile menu toggle
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const mobileMenu = document.getElementById('mobileMenu');

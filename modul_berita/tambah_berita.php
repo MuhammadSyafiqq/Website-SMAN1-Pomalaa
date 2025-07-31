@@ -50,101 +50,102 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Tambah Berita</title>
     <link rel="stylesheet" href="../assets/style/style.css?v=5">
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f6f9ff;
-            margin: 0;
-            padding: 0;
-        }
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #f6f9ff;
+        margin: 0;
+        padding: 0;
+    }
 
-        .form-container {
-            max-width: 700px;
-            margin: 50px auto;
-            background-color: white;
-            padding: 30px 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+    .form-container {
+        max-width: 700px;
+        margin: 50px auto;
+        background-color: white;
+        padding: 30px 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-        h2 {
-            text-align: center;
-            color: #003366;
-            font-weight: 700;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
+    h2 {
+        text-align: center;
+        color: #004030;
+        font-weight: 700;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
 
-        label {
-            font-weight: 600;
-            margin-top: 15px;
-            display: block;
-            color: #003366;
-        }
+    label {
+        font-weight: 600;
+        margin-top: 15px;
+        display: block;
+        color: #004030;
+    }
 
-        input[type="text"],
-        textarea,
-        input[type="file"] {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            border-radius: 6px;
-            border: 1px solid #00589D;
-            color: #1f2937;
-            font-size: 16px;
-            outline: none;
-        }
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+        width: 100%;
+        padding: 12px;
+        margin-top: 5px;
+        border-radius: 6px;
+        border: 1px solid #004030;
+        color: #1f2937;
+        font-size: 16px;
+        outline: none;
+    }
 
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
 
-        input[type="file"] {
-            border: 1px dashed #00589D;
-        }
+    input[type="file"] {
+        border: 1px dashed #004030;
+    }
 
-        .btn-submit {
-            margin-top: 25px;
-            background-color: #00589D;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.3s;
-        }
+    .btn-submit {
+        margin-top: 25px;
+        background-color: #004030;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        font-size: 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        transition: 0.3s;
+    }
 
-        .btn-submit:hover {
-            background-color: #003f73;
-        }
+    .btn-submit:hover {
+        background-color: #002c20;
+    }
 
-        .btn-submit:disabled {
-            background-color: #888;
-            cursor: not-allowed;
-        }
+    .btn-submit:disabled {
+        background-color: #888;
+        cursor: not-allowed;
+    }
 
-        .img-preview {
-            margin-top: 15px;
-            max-height: 200px;
-            border-radius: 8px;
-            display: none;
-        }
+    .img-preview {
+        margin-top: 15px;
+        max-height: 200px;
+        border-radius: 8px;
+        display: none;
+    }
 
-        .back-link {
-            display: block;
-            margin-top: 20px;
-            text-align: center;
-            color: #00589D;
-            text-decoration: none;
-            font-weight: bold;
-        }
+    .back-link {
+        display: block;
+        margin-top: 20px;
+        text-align: center;
+        color: #004030;
+        text-decoration: none;
+        font-weight: bold;
+    }
 
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
 </head>
 <body>
 

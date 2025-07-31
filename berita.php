@@ -13,6 +13,7 @@ $result = $connection->query($sql);
     <meta charset="UTF-8">
     <title>Berita Sekolah</title>
     <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
     <style>
         body {
             margin: 0;
@@ -146,7 +147,7 @@ $result = $connection->query($sql);
                         <span class="date"><?= $tanggal ?></span>
                         <h3><?= htmlspecialchars($judul_pendek) ?></h3>
                         <p><?= htmlspecialchars($isi_pendek) ?></p>
-                        <a href="detail_berita.php?id=<?= $row['id_berita'] ?>" class="read-more">Baca Selengkapnya</a>
+                        <a href="detail_berita.php?id=<?= $row['id_berita'] ?>" class="read-more" style="background-color: #004030">Baca Selengkapnya</a>
                     </div>
                 </div>
             <?php endwhile; ?>

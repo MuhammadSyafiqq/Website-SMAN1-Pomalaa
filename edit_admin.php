@@ -1,17 +1,15 @@
 <?php
 session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
+$timeout_duration = 900;
 
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
@@ -19,25 +17,22 @@ if (!isset($_SESSION['username'])) {
 
 require_once 'config/database.php';
 
-// Redirect jika tidak ada ID
 if (!isset($_GET['id'])) {
     header("Location: hash.php");
     exit();
 }
 
 $id = intval($_GET['id']);
-
-// Ambil data admin
 $result = $connection->query("SELECT * FROM user WHERE id_user = $id");
+
 if ($result->num_rows !== 1) {
     header("Location: hash.php");
     exit();
 }
 
 $admin = $result->fetch_assoc();
-
-// Proses update
 $message = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama = $connection->real_escape_string($_POST['nama']);
     $username = $connection->real_escape_string($_POST['username']);
@@ -50,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($connection->query($update)) {
-        $message = "Admin berhasil diperbarui.";
+        $_SESSION['notif'] = ['type' => 'success', 'msg' => 'Admin berhasil diperbarui!'];
         header("Location: hash.php");
         exit();
     } else {
@@ -64,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Edit Admin</title>
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -82,13 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         h2 {
             text-align: center;
-            color: #003366;
+            color: #004030;
         }
 
         label {
             font-weight: 600;
             margin-top: 10px;
             display: block;
+            color: #004030;
         }
 
         input[type="text"],
@@ -101,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         button {
-            background: #003366;
+            background: #004030;
             color: white;
             border: none;
             padding: 10px;
@@ -112,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         button:hover {
-            background: #00589D;
+            background: #006a4e;
         }
 
         .message {
@@ -127,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .back-link a {
-            color: #003366;
+            color: #004030;
             text-decoration: none;
         }
     </style>

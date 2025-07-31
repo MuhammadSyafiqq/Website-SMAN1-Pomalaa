@@ -2,7 +2,6 @@
 require_once '../config/database.php';
 session_start();
 
-// Timeout session 15 menit
 $timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
     session_unset();
@@ -19,12 +18,10 @@ if (!isset($_SESSION['username'])) {
 
 require_once '../theme.php';
 
-// Ambil filter dari GET
 $search = $_GET['search'] ?? '';
 $level = $_GET['level'] ?? '';
 $category = $_GET['category'] ?? '';
 
-// Query dengan filter
 $sql = "SELECT * FROM prestasi WHERE 1=1";
 if (!empty($search)) {
     $sql .= " AND title LIKE '%" . $connection->real_escape_string($search) . "%'";
@@ -45,7 +42,7 @@ $result = $connection->query($sql);
 <head>
     <meta charset="UTF-8">
     <title>Kelola Prestasi</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=13">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -55,8 +52,8 @@ $result = $connection->query($sql);
         }
 
         .container {
-            max-width: 1000px;
-            margin: auto;
+            max-width: 1200px;
+            margin: 100px auto 40px;
             background: #fff;
             border-radius: 12px;
             padding: 30px;
@@ -65,7 +62,7 @@ $result = $connection->query($sql);
 
         h1 {
             text-align: center;
-            color: #003366;
+            color: #004030;
             margin-bottom: 30px;
         }
 
@@ -91,13 +88,13 @@ $result = $connection->query($sql);
 
         .btn-add {
             float: right;
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             margin-bottom: 20px;
         }
 
         .btn-add:hover {
-            background-color: #00417a;
+            background-color: #003222;
         }
 
         .notif {
@@ -119,6 +116,40 @@ $result = $connection->query($sql);
             border: 1px solid #ffeeba;
         }
 
+        .filter-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-form input[type="text"],
+        .filter-form select {
+            color: black;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .filter-form button {
+            background-color: #004030;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-form button:hover {
+            background-color: #003222;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: separate;
@@ -126,11 +157,11 @@ $result = $connection->query($sql);
             margin-top: 20px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            overflow: hidden;
+            min-width: 800px;
         }
 
         thead th {
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             padding: 12px;
             text-align: left;
@@ -158,8 +189,12 @@ $result = $connection->query($sql);
         }
 
         .actions .edit {
-            background-color: #1d4ed8;
+            background-color: #004030;
             color: white;
+        }
+
+        .actions .edit:hover {
+            background-color: #003222;
         }
 
         .actions .delete {
@@ -167,38 +202,46 @@ $result = $connection->query($sql);
             color: white;
         }
 
-        .filter-form {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        .actions .delete:hover {
+            background-color: #a31e1e;
         }
 
-        .filter-form input[type="text"],
-        .filter-form select {
-            color: black;
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-        }
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
 
-        .filter-form button {
-            background-color: #00589D;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+            .container {
+                margin-top: 80px;
+                padding: 20px;
+            }
 
-        .filter-form button:hover {
-            background-color: #003f70;
+            .btn-add, .btn-back {
+                float: none;
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .filter-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-form input,
+            .filter-form select,
+            .filter-form button {
+                width: 100%;
+            }
+
+            td img {
+                max-width: 100px;
+                height: auto;
+            }
         }
     </style>
 </head>
 <body>
+<?php include '../partials/navbar.php'; ?>
 <div class="container">
     <h1>Kelola Prestasi</h1>
 
@@ -239,39 +282,41 @@ $result = $connection->query($sql);
     </form>
 
     <?php if ($result->num_rows > 0): ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>Judul</th>
-                    <th>Level</th>
-                    <th>Kategori</th>
-                    <th>Tanggal</th>
-                    <th>Gambar</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['title']) ?></td>
-                    <td><?= htmlspecialchars($row['level']) ?></td>
-                    <td><?= htmlspecialchars($row['category']) ?></td>
-                    <td><?= date('d M Y', strtotime($row['date'])) ?></td>
-                    <td>
-                        <?php if (!empty($row['image'])): ?>
-                            <img src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar">
-                        <?php else: ?>
-                            <em>Tidak ada</em>
-                        <?php endif; ?>
-                    </td>
-                    <td class="actions">
-                        <a href="edit_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="edit">Edit</a>
-                        <a href="hapus_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="delete" onclick="return confirm('Yakin ingin menghapus prestasi ini?')">Hapus</a>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-            </tbody>
-        </table>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Judul</th>
+                        <th>Level</th>
+                        <th>Kategori</th>
+                        <th>Tanggal</th>
+                        <th>Gambar</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['title']) ?></td>
+                        <td><?= htmlspecialchars($row['level']) ?></td>
+                        <td><?= htmlspecialchars($row['category']) ?></td>
+                        <td><?= date('d M Y', strtotime($row['date'])) ?></td>
+                        <td>
+                            <?php if (!empty($row['image'])): ?>
+                                <img src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar">
+                            <?php else: ?>
+                                <em>Tidak ada</em>
+                            <?php endif; ?>
+                        </td>
+                        <td class="actions">
+                            <a href="edit_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="edit">Edit</a>
+                            <a href="hapus_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="delete" onclick="return confirm('Yakin ingin menghapus prestasi ini?')">Hapus</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
     <?php else: ?>
         <div class="notif warning">⚠️ Tidak ada data ditemukan untuk filter yang digunakan.</div>
     <?php endif; ?>

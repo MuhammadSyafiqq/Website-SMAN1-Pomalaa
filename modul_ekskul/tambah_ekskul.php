@@ -49,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Ekstrakurikuler</title>
     <style>
         body {
@@ -69,15 +70,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         h2 {
             text-align: center;
-            color: #003366;
+            color: #004030;
             margin-bottom: 20px;
+            font-size: 24px;
         }
 
         label {
             font-weight: bold;
             display: block;
             margin-top: 15px;
-            color: #003366;
+            color: #004030;
         }
 
         input[type="text"],
@@ -88,8 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-top: 5px;
             color: black;
             border-radius: 6px;
-            border: 1px solid #00589D;
+            border: 1px solid #004030;
             font-size: 16px;
+            box-sizing: border-box;
         }
 
         textarea {
@@ -99,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         .btn-submit {
             margin-top: 25px;
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             padding: 12px 25px;
             border: none;
@@ -107,23 +110,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 6px;
             cursor: pointer;
             width: 100%;
+            transition: background-color 0.3s ease;
         }
 
         .btn-submit:hover {
-            background-color: #003f73;
+            background-color: #002b21;
+        }
+
+        .btn-submit:disabled {
+            background-color: #888;
+            cursor: not-allowed;
         }
 
         .back-link {
             display: block;
             margin-top: 20px;
             text-align: center;
-            color: #00589D;
+            color: #004030;
             font-weight: bold;
             text-decoration: none;
         }
 
         .back-link:hover {
             text-decoration: underline;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .form-container {
+                margin: 30px 15px;
+                padding: 20px;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            input[type="text"],
+            textarea,
+            input[type="file"],
+            .btn-submit {
+                font-size: 15px;
+                padding: 10px;
+            }
         }
     </style>
     <script>

@@ -8,11 +8,11 @@ if ($connection->connect_error) {
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-$sql = "SELECT title, description, image, level, category, date FROM prestasi WHERE id_prestasi = $id";
+$sql = "SELECT judul, deskripsi, gambar, urutan FROM slider WHERE id = $id";
 $result = $connection->query($sql);
 
 if (!$result || $result->num_rows === 0) {
-    die("Prestasi tidak ditemukan.");
+    die("Informasi tidak ditemukan.");
 }
 
 $data = $result->fetch_assoc();
@@ -22,8 +22,9 @@ $data = $result->fetch_assoc();
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Detail Prestasi</title>
-    <link rel="stylesheet" href="assets/style/style.css?v=3">
+    <title>Detail Informasi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">   
     <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
     <style>
         body {
@@ -38,15 +39,14 @@ $data = $result->fetch_assoc();
         }
 
         .detail-box {
-    background: white;
-    border-radius: 10px;
-    padding: 30px;
-    color: #000;
-    max-width: 1000px; /* LEBAR DITINGKATKAN */
-    margin: auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-}
-
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            color: #000;
+            max-width: 1000px;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
 
         .detail-box img {
             width: 100%;
@@ -59,7 +59,7 @@ $data = $result->fetch_assoc();
         .detail-box h2 {
             margin-top: 0;
             font-size: 2em;
-            color: #004030;
+            color: #003366;
         }
 
         .meta-info {
@@ -83,7 +83,7 @@ $data = $result->fetch_assoc();
             display: block;
             margin: 30px auto;
             text-align: center;
-            color: #fff;
+            color: #003366;
             text-decoration: underline;
         }
     </style>
@@ -94,18 +94,10 @@ $data = $result->fetch_assoc();
 
 <div class="container">
     <div class="detail-box">
-        <img src="data:image/jpeg;base64,<?= base64_encode($data['image']) ?>" alt="Gambar Prestasi">
-        <h2><?= htmlspecialchars($data['title']) ?></h2>
-
-        <div class="meta-info">
-            <div><strong>Level:</strong> <?= htmlspecialchars($data['level']) ?></div>
-            <div><strong>Kategori:</strong> <?= htmlspecialchars($data['category']) ?></div>
-            <div><strong>Tanggal:</strong> <?= htmlspecialchars($data['date']) ?></div>
-        </div>
-
-        <p><?= nl2br(htmlspecialchars($data['description'])) ?></p>
+        <img src="data:image/jpeg;base64,<?= base64_encode($data['gambar']) ?>" alt="Gambar Informasi">
+        <h2><?= htmlspecialchars($data['judul']) ?></h2>
+        <p><?= nl2br(htmlspecialchars($data['deskripsi'])) ?></p>
     </div>
-
 </div>
 
 <?php include 'partials/footer.php'; ?>

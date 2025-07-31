@@ -82,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 60px 20px;
             color: #000;
         }
-
+    
         .form-container {
             max-width: 750px;
             margin: auto;
@@ -92,44 +92,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 16px;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
         }
-
+    
         h2 {
             text-align: center;
             margin-bottom: 30px;
-            color: #003366;
+            color: #004030;
         }
-
+    
         label {
             font-weight: bold;
             display: block;
             margin: 15px 0 5px;
-            color: #003366;
+            color: #004030;
         }
-
+    
         input[type="text"],
         select,
         input[type="file"] {
             width: 100%;
             padding: 12px;
-            border: 1px solid #00589D;
+            border: 1px solid #004030;
             border-radius: 8px;
             color: black;
             margin-bottom: 15px;
             font-size: 16px;
             outline: none;
         }
-
+    
         select option {
             background-color: #fff;
             color: #000;
         }
-
+    
         input[type="file"] {
-            border: 1px dashed #00589D;
+            border: 1px dashed #004030;
         }
-
+    
         button {
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             padding: 12px;
             border: none;
@@ -139,29 +139,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             transition: 0.3s;
         }
-
+    
         button:hover {
-            background-color: #00487f;
+            background-color: #003320;
         }
-
+    
         button:disabled {
             background-color: #aaa;
             cursor: not-allowed;
         }
-
+    
         .back-link {
             display: block;
             margin-top: 30px;
             text-align: center;
-            color: #00589D;
+            color: #004030;
             font-weight: bold;
             text-decoration: none;
         }
-
+    
         .back-link:hover {
             text-decoration: underline;
         }
-
+    
         .error-msg {
             background-color: #ff4d4d;
             color: white;
@@ -172,6 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
         }
     </style>
+
 </head>
 <body>
 

@@ -6,77 +6,83 @@
     <meta charset="UTF-8">
     <title>Akreditasi - SMAN 1 Pomalaa</title>
     <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
 
     <style>
+    body.akreditasi-page {
+        background: #FFFFFF !important;
+    }
+    
+    .akreditasi-container {
+        max-width: 960px;
+        margin: 100px auto 60px;
+        background: white;
+        color: #000;
+        padding: 40px 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .akreditasi-container h1 {
+        text-align: center;
+        font-size: 30px;
+        color: #004030; /* sebelumnya #003366 */
+        margin-bottom: 30px;
+        border-bottom: 3px solid #004030; /* sebelumnya #00589D */
+        padding-bottom: 10px;
+    }
+
+    .akreditasi-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+    }
+
+    .akreditasi-table td {
+        padding: 10px;
+        vertical-align: top;
+        font-size: 16px;
+    }
+
+    .akreditasi-table td.label {
+        width: 35%;
+        font-weight: bold;
+    }
+
+    .akreditasi-section-title {
+        font-size: 20px;
+        margin-top: 30px;
+        font-weight: bold;
+        color: #004030; /* sebelumnya #003366 */
+    }
+
+    .akreditasi-container p {
+        text-align: justify;
+        line-height: 1.7;
+        font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
         .akreditasi-container {
-            max-width: 960px;
-            margin: 100px auto 60px;
-            background: #fff;
-            color: #000;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            padding: 25px 20px;
         }
 
         .akreditasi-container h1 {
-            text-align: center;
-            font-size: 30px;
-            color: #003366;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #00589D;
-            padding-bottom: 10px;
-        }
-
-        .akreditasi-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
+            font-size: 24px;
         }
 
         .akreditasi-table td {
-            padding: 10px;
-            vertical-align: top;
-            font-size: 16px;
-        }
-
-        .akreditasi-table td.label {
-            width: 35%;
-            font-weight: bold;
+            font-size: 15px;
         }
 
         .akreditasi-section-title {
-            font-size: 20px;
-            margin-top: 30px;
-            font-weight: bold;
-            color: #003366;
+            font-size: 18px;
         }
+    }
+</style>
 
-        .akreditasi-container p {
-            text-align: justify;
-            line-height: 1.7;
-            font-size: 16px;
-        }
-
-        @media (max-width: 768px) {
-            .akreditasi-container {
-                padding: 25px 20px;
-            }
-
-            .akreditasi-container h1 {
-                font-size: 24px;
-            }
-
-            .akreditasi-table td {
-                font-size: 15px;
-            }
-
-            .akreditasi-section-title {
-                font-size: 18px;
-            }
-        }
-    </style>
 </head>
-<body>
+<body class="akreditasi-page">
 
 <?php include 'partials/navbar.php'; ?>
 
@@ -140,5 +146,15 @@
 
 <?php include 'partials/footer.php'; ?>
 
+<script>
+    window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            const scrollPosition = window.scrollY;
+            navbar.classList.add('scrolled');
+            
+        });
+</script>
+
 </body>
+
 </html>

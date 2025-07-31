@@ -7,17 +7,25 @@ require_once 'config/database.php';
 <head>
     <meta charset="UTF-8">
     <title>Struktur Pegawai</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
 
     <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f9f9f9;
+        }
+
         .struktur-section {
             background: #ffffff;
-            padding: 50px 0;
+            padding: 80px 20px;
         }
 
         .struktur-title {
             text-align: center;
-            color: #003366;
+            color: #004030;
             font-size: 32px;
             font-weight: bold;
             margin-bottom: 40px;
@@ -35,13 +43,23 @@ require_once 'config/database.php';
             transform: translateX(-50%);
         }
 
+        .struktur-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
         .struktur-item {
             display: flex;
+            flex-direction: row;
             align-items: center;
-            margin: 40px auto;
-            max-width: 900px;
-            border-bottom: 4px solid #003366;
+            background-color: #fff;
+            border-bottom: 4px solid #004030;
             padding-bottom: 30px;
+            gap: 30px;
+            flex-wrap: wrap;
         }
 
         .struktur-item img {
@@ -49,21 +67,22 @@ require_once 'config/database.php';
             width: 150px;
             height: 150px;
             object-fit: cover;
-            margin-right: 40px;
-            border: 4px solid #00589D;
+            border: 4px solid #004030;
+            flex-shrink: 0;
         }
 
         .struktur-info {
-            color: #003366;
+            color: #004030;
+            flex: 1;
         }
 
         .struktur-info h3 {
-            font-size: 20px;
-            margin-bottom: 4px;
+            font-size: 18px;
+            margin-bottom: 6px;
         }
 
         .struktur-info h2 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             margin-bottom: 10px;
         }
@@ -73,15 +92,63 @@ require_once 'config/database.php';
             font-size: 14px;
         }
 
+        .lihat-selengkapnya {
+            text-align: center;
+            margin: 40px 0 60px;
+        }
+
+        .lihat-selengkapnya a {
+            display: inline-block;
+            padding: 14px 32px;
+            background-color: #004030;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: 0.3s ease;
+        }
+
+        .lihat-selengkapnya a:hover {
+            background-color: #00664e;
+        }
+
         @media (max-width: 768px) {
             .struktur-item {
                 flex-direction: column;
+                align-items: center;
                 text-align: center;
+                padding-bottom: 20px;
             }
 
             .struktur-item img {
-                margin-right: 0;
+                width: 130px;
+                height: 130px;
                 margin-bottom: 20px;
+            }
+
+            .struktur-info h3 {
+                font-size: 16px;
+            }
+
+            .struktur-info h2 {
+                font-size: 20px;
+            }
+
+            .struktur-info p {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .struktur-title {
+                font-size: 26px;
+            }
+
+            .lihat-selengkapnya a {
+                padding: 12px 24px;
+                font-size: 14px;
             }
         }
     </style>
@@ -93,41 +160,29 @@ require_once 'config/database.php';
 <section class="struktur-section">
     <h2 class="struktur-title">STRUKTUR PEGAWAI</h2>
 
-    <?php
-    $query = mysqli_query($connection, "SELECT * FROM struktur WHERE position IS NOT NULL AND TRIM(position) != '' ORDER BY id_struktur ASC");
-    while ($data = mysqli_fetch_assoc($query)) {
-        $photo = base64_encode($data['photo']);
-        $imgSrc = 'data:image/jpeg;base64,' . $photo;
-    ?>
-    <div class="struktur-item">
-        <img src="<?= $imgSrc ?>" alt="Foto <?= htmlspecialchars($data['nama']) ?>">
-        <div class="struktur-info">
-            <h3><?= strtoupper(htmlspecialchars($data['position'])) ?></h3>
-            <h2><?= strtoupper(htmlspecialchars($data['nama'])) ?></h2>
-            <p>NIP: <?= htmlspecialchars($data['nip']) ?></p>
-            <p>Status: <?= htmlspecialchars($data['status']) ?></p>
+    <div class="struktur-container">
+        <?php
+        $query = mysqli_query($connection, "SELECT * FROM struktur WHERE position IS NOT NULL AND TRIM(position) != '' ORDER BY id_struktur ASC");
+        while ($data = mysqli_fetch_assoc($query)) {
+            $photo = base64_encode($data['photo']);
+            $imgSrc = 'data:image/jpeg;base64,' . $photo;
+        ?>
+        <div class="struktur-item">
+            <img src="<?= $imgSrc ?>" alt="Foto <?= htmlspecialchars($data['nama']) ?>">
+            <div class="struktur-info">
+                <h3><?= strtoupper(htmlspecialchars($data['position'])) ?></h3>
+                <h2><?= strtoupper(htmlspecialchars($data['nama'])) ?></h2>
+                <p>NIP: <?= htmlspecialchars($data['nip']) ?></p>
+                <p>Status: <?= htmlspecialchars($data['status']) ?></p>
+            </div>
         </div>
+        <?php } ?>
     </div>
-    <?php } ?>
 </section>
 
-<div style="text-align: center; margin: 40px 0 60px;">
-    <a href="struktural_selengkapnya.php" style="
-        display: inline-block;
-        padding: 14px 32px;
-        background-color: #003366;
-        color: white;
-        text-decoration: none;
-        border-radius: 30px;
-        font-size: 16px;
-        font-weight: bold;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        transition: background-color 0.3s ease;
-    " onmouseover="this.style.backgroundColor='#002244';" onmouseout="this.style.backgroundColor='#003366';">
-        Lihat Pegawai Lainnya
-    </a>
+<div class="lihat-selengkapnya">
+    <a href="struktural_selengkapnya.php">Lihat Pegawai Lainnya</a>
 </div>
-
 
 <?php include 'partials/footer.php'; ?>
 

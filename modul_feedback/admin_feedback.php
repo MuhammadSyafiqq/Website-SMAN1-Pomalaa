@@ -1,6 +1,7 @@
 <?php
 require_once '../config/database.php';
 session_start();
+date_default_timezone_set('Asia/Makassar');
 
 // Durasi timeout sesi dalam detik (15 menit)
 $timeout_duration = 900;
@@ -85,9 +86,9 @@ if (isset($_GET['success'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Cache-Control" content="no-store" />
     <title>Kelola Feedback</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=18">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?= time() ?>">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -99,9 +100,8 @@ if (isset($_GET['success'])) {
 
         .container {
             max-width: 1200px;
-            margin: auto;
+            margin: 100px auto 40px;
             background: #ffffff;
-            color: #000;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
@@ -109,11 +109,10 @@ if (isset($_GET['success'])) {
 
         h1 {
             text-align: center;
-            color: #003366;
-            margin-bottom: 20px;
+            color: #004030;
+            margin-bottom: 30px;
         }
 
-        /* Gaya notifikasi */
         .notif {
             padding: 12px 18px;
             border-radius: 6px;
@@ -135,14 +134,18 @@ if (isset($_GET['success'])) {
         }
 
         .back-link {
-            background: #888;
+            background: #777;
             color: white;
             padding: 10px 16px;
             text-decoration: none;
             border-radius: 6px;
             font-size: 14px;
             display: inline-block;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .back-link:hover {
+            background-color: #555;
         }
 
         .search-box {
@@ -152,20 +155,31 @@ if (isset($_GET['success'])) {
 
         .search-box input[type="text"] {
             padding: 8px 12px;
-            color: black;
             width: 250px;
+            color: black;
             border: 1px solid #ccc;
             border-radius: 6px;
         }
 
         .search-box button {
             padding: 8px 14px;
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             margin-left: 6px;
+        }
+
+        .search-box button:hover {
+            background-color: #003320;
+        }
+
+        .search-box a {
+            margin-left: 10px;
+            color: #004030;
+            text-decoration: underline;
+            font-weight: bold;
         }
 
         .table-container {
@@ -186,34 +200,26 @@ if (isset($_GET['success'])) {
         th, td {
             padding: 12px 10px;
             text-align: left;
-            vertical-align: top;
         }
 
         th {
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             font-weight: bold;
         }
 
-        td.balasan {
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            max-width: 200px;
-        }
-
         .btn {
             padding: 6px 10px;
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             text-decoration: none;
             border-radius: 4px;
             font-size: 12px;
             margin-right: 4px;
-            display: inline-block;
         }
 
         .btn:hover {
-            background-color: #003f70;
+            background-color: #003320;
         }
 
         .btn-danger {
@@ -227,7 +233,7 @@ if (isset($_GET['success'])) {
         .actions {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
             min-width: 100px;
         }
 
@@ -240,100 +246,75 @@ if (isset($_GET['success'])) {
             display: inline-block;
             padding: 8px 14px;
             margin: 0 4px;
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             border-radius: 6px;
             text-decoration: none;
         }
 
         .pagination a.active {
-            background-color: #003f70;
+            background-color: #003320;
             font-weight: bold;
         }
 
         .pagination a:hover {
-            background-color: #00497f;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 46px;
-            height: 24px;
-        }
-        
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider-switch {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.4s;
-            border-radius: 24px;
-        }
-        
-        .slider-switch:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-        }
-        
-        .toggle-switch input:checked + .slider-switch {
-            background-color: #00589D;
-        }
-        
-        .toggle-switch input:checked + .slider-switch:before {
-            transform: translateX(22px);
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .status-aktif {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-nonaktif {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: #002610;
         }
 
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
             }
-            
+
             .search-box {
                 text-align: left;
             }
-            
+
             .search-box input[type="text"] {
-                width: 200px;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .search-box button {
+                width: 100%;
+            }
+
+            .pagination {
+                font-size: 14px;
+            }
+
+            .actions {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            table {
+                font-size: 13px;
+                min-width: unset;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            .btn, .btn-danger {
+                font-size: 11px;
+                padding: 6px;
+            }
+
+            .back-link {
+                font-size: 13px;
+                padding: 8px 12px;
             }
         }
     </style>
 </head>
 <body>
+
+<?php include '../partials/navbar.php'; ?>
 
 <div class="container">
     <h1>Daftar Feedback</h1>
@@ -351,7 +332,7 @@ if (isset($_GET['success'])) {
             <input type="text" name="keyword" placeholder="Cari Nama atau Komentar..." value="<?= htmlspecialchars($keyword) ?>">
             <button type="submit">Cari</button>
             <?php if (!empty($keyword)): ?>
-                <a href="admin_feedback.php" style="margin-left: 10px; color: #00589D;">Clear</a>
+                <a href="admin_feedback.php">Clear</a>
             <?php endif; ?>
         </form>
     </div>
@@ -371,7 +352,7 @@ if (isset($_GET['success'])) {
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
                             <td><?= htmlspecialchars($row['nama']) ?></td>
-                            <td style="word-wrap: break-word; max-width: 300px;"><?= htmlspecialchars($row['komentar']) ?></td>
+                            <td style="word-wrap: break-word; max-width: 300px;"><?= nl2br(htmlspecialchars($row['komentar'])) ?></td>
                             <td><?= date('d M Y, H:i', strtotime($row['created_at'])) ?></td>
                             <td class="actions">
                                 <a href="hapus_feedback.php?id=<?= $row['id'] ?>" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus feedback ini?')">Hapus</a>
@@ -380,24 +361,23 @@ if (isset($_GET['success'])) {
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7" style="text-align:center; padding: 20px;">
-                            <?= !empty($keyword) ? 'Tidak ada data yang sesuai dengan pencarian.' : 'Tidak ada data feedback.' ?>
+                        <td colspan="4" style="text-align:center; padding: 20px;">
+                            <?= !empty($keyword) ? 'Tidak ada data yang sesuai pencarian.' : 'Tidak ada data feedback.' ?>
                         </td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
     </div>
+
     <?php if ($total_pages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
                 <a href="?keyword=<?= urlencode($keyword) ?>&page=<?= $page - 1 ?>">← Prev</a>
             <?php endif; ?>
-            
             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                 <a href="?keyword=<?= urlencode($keyword) ?>&page=<?= $i ?>" class="<?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
             <?php endfor; ?>
-            
             <?php if ($page < $total_pages): ?>
                 <a href="?keyword=<?= urlencode($keyword) ?>&page=<?= $page + 1 ?>">Next →</a>
             <?php endif; ?>
@@ -405,26 +385,10 @@ if (isset($_GET['success'])) {
     <?php endif; ?>
 </div>
 
-<script>
-// Tambahkan loading indicator saat toggle
-document.addEventListener('DOMContentLoaded', function() {
-    const toggles = document.querySelectorAll('.toggle-switch input[type="checkbox"]');
-    toggles.forEach(toggle => {
-        toggle.addEventListener('change', function() {
-            const slider = this.nextElementSibling;
-            slider.style.opacity = '0.6';
-            slider.style.pointerEvents = 'none';
-        });
-    });
-});
-</script>
-
 </body>
 </html>
 
 <?php 
-if (isset($stmt)) {
-    $stmt->close(); 
-}
+if (isset($stmt)) $stmt->close(); 
 $connection->close();
 ?>

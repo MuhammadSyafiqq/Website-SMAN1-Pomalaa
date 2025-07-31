@@ -1,19 +1,20 @@
 <?php
-session_start();
-// Waktu timeout (dalam detik) — misal 15 menit = 900 detik
-$timeout_duration = 900; 
-
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
-    session_unset();     // hapus semua session
-    session_destroy();   // hancurkan session
-    header("Location: login.php?timeout=true"); // redirect ke login (ganti dengan nama file login jika perlu)
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=true");
     exit();
 }
-$_SESSION['LAST_ACTIVITY'] = time(); // perbarui waktu aktivitas terakhir
+$_SESSION['LAST_ACTIVITY'] = time();
 
-require_once 'theme.php';
+$role = $_SESSION['role'] ?? null;
+$username = $_SESSION['username'] ?? null;
+$nama = $_SESSION['nama'] ?? null;
 
-// Cek jika belum login
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
@@ -22,27 +23,27 @@ if (!isset($_SESSION['username'])) {
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
 $base_url = $protocol . $_SERVER['HTTP_HOST'] . '/';
 
-// Deteksi apakah sedang di subfolder atau tidak
 $current_dir = dirname($_SERVER['SCRIPT_NAME']);
 $is_subfolder = (basename($current_dir) !== '' && basename($current_dir) !== '/');
 
-// Sesuaikan path untuk assets berdasarkan lokasi file
 if ($is_subfolder) {
     $asset_path = '../assets/';
     $page_path = '../';
 } else {
     $asset_path = 'assets/';
     $page_path = '';
-};
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - SMAN 1 Pomalaa</title>
     <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
     <style>
         body {
             margin: 0;
@@ -50,11 +51,11 @@ if ($is_subfolder) {
             background-color: #f5f5f5;
         }
 
-        /* Hero Section */
-        .hero-admin {
+        .hero {
             position: relative;
-            background: url('image/bg.png') no-repeat center center;
+            background: url('<?php echo $asset_path; ?>image/background.png') no-repeat center center;
             background-size: cover;
+            background-position: center;
             height: 400px;
             display: flex;
             align-items: center;
@@ -62,43 +63,44 @@ if ($is_subfolder) {
             padding: 0 40px;
         }
 
-        .hero-admin::after {
+        .hero::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.5);
         }
 
-        .hero-admin-content {
+        .hero-content {
             position: relative;
             z-index: 1;
+            margin-left: 75px;
         }
 
-        .hero-admin-content h1 {
-            font-size: 36px;
+        .hero-content h1 {
+            font-size: clamp(24px, 4vw, 36px);
             margin-bottom: 10px;
         }
 
-        .hero-admin-content p {
-            font-size: 18px;
+        .hero-content p {
+            font-size: clamp(14px, 2vw, 18px);
             margin: 0;
         }
 
         .admin-section {
             padding: 50px 20px;
             background-color: #fff;
+            max-width: 1200px;
+            margin: auto;
         }
 
         .admin-buttons {
-            max-width: 1000px;
-            margin: auto;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
         }
 
         .admin-button {
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             border: none;
             padding: 20px;
@@ -110,162 +112,71 @@ if ($is_subfolder) {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 80px;
         }
 
         .admin-button:hover {
-            background-color: #003f70;
+            background-color: #007255;
         }
 
         .admin-button i {
             font-size: 20px;
         }
 
-        /* Tambah Admin (tengah bawah) */
-        .add-admin-wrapper {
-            text-align: center;
-            margin-top: 40px;
-        }
-
-        .add-admin-wrapper .admin-button {
-            display: inline-flex;
-            justify-content: center;
-            gap: 10px;
-            width: 300px;
-            padding: 15px 30px;
-        }
-
-        /* Profil */
-        .profile-wrapper {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            z-index: 1000;
-        }
-
-        .profile-icon {
-            background-color: rgba(255, 255, 255, 0.9);
-            color: #003366;
-            border: none;
-            border-radius: 50%;
-            padding: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .profile-dropdown {
-            position: absolute;
-            right: 0;
-            top: 45px;
-            background-color: white;
-            color: #003366;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            width: 220px;
-            display: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            padding: 10px;
-            z-index: 1000;
-        }
-
-        .profile-dropdown.active {
-            display: block;
-        }
-
-        .profile-dropdown p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-
-        .profile-dropdown .logout-button {
-            margin-top: 10px;
-            display: block;
-            width: 100%;
-            padding: 8px;
-            text-align: center;
-            background-color: #d9534f;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .profile-dropdown .logout-button:hover {
-            background-color: #c9302c;
-        }
-
-        @media (max-width: 600px) {
-            .admin-buttons {
-                grid-template-columns: 1fr;
-            }
-
+        @media (max-width: 768px) {
             .admin-button {
                 flex-direction: column;
                 justify-content: center;
                 gap: 8px;
+                font-size: 16px;
+                padding: 15px;
+            }
+
+            .hero-content {
+                margin-left: 20px;
+            }
+
+            .hero-content h1,
+            .hero-content p {
+                text-align: center;
             }
         }
     </style>
 </head>
 
-<?php include 'partials/navbar.php'; ?>
-
 <body>
 
+<?php include 'partials/navbar.php'; ?>
 
+<section class="hero">
+    <div class="hero-content">
+        <h1>
+            <?php echo ($_SESSION['role'] === 'super-admin') ? 'SUPER-ADMIN DASHBOARD' : 'ADMIN DASHBOARD'; ?>
+            <br>SMA NEGERI 1 POMALAA
+        </h1>
+        <p>Kabupaten Kolaka, Sulawesi Tenggara</p>
+    </div>
+</section>
 
-<!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h1>
-                <?php 
-                    echo ($_SESSION['role'] === 'super-admin') 
-                        ? 'SUPER-ADMIN DASHBOARD' 
-                        : 'ADMIN DASHBOARD'; 
-                ?>
-                <br>SMA NEGERI 1 POMALAA
-            </h1>
-            <p>Kabupaten Kolaka, Sulawesi Tenggara</p>
-        </div>
-    </section>
-
-<!-- Tombol Dashboard -->
 <section class="admin-section">
-    <div class="admin-buttons">
-        <a href="modul_berita/admin_berita.php" class="admin-button">
-            KELOLA BERITA <i class="fas fa-plus"></i>
-        </a>
-        <a href="modul_prestasi/admin_prestasi.php" class="admin-button">
-            KELOLA PRESTASI <i class="fas fa-plus"></i>
-        </a>
-        <a href="modul_ekskul/admin_ekskul.php" class="admin-button">
-            KELOLA EKSKUL <i class="fas fa-plus"></i>
-        </a>
-        <a href="modul_struktur/admin_struktur.php" class="admin-button">
-            KELOLA STRUKTUR <i class="fas fa-plus"></i>
-        </a>
-        <a href="modul_feedback/admin_feedback.php" class="admin-button">
-            KELOLA FEEDBACK <i class="fas fa-plus"></i>
-        </a>
-        <a href="jadwal/admin-panel.php" class="admin-button">
-            KELOLA JADWAL UJIAN <i class="fas fa-plus"></i>
-        </a>
+    <div class="admin-buttons" id="adminButtons">
+        <a href="modul_berita/admin_berita.php" class="admin-button">KELOLA BERITA <i class="fas fa-newspaper"></i></a>
+        <a href="modul_prestasi/admin_prestasi.php" class="admin-button">KELOLA PRESTASI <i class="fas fa-award"></i></a>
+        <a href="modul_ekskul/admin_ekskul.php" class="admin-button">KELOLA EKSKUL <i class="fas fa-users"></i></a>
+        <a href="modul_struktur/admin_struktur.php" class="admin-button">KELOLA STRUKTUR <i class="fas fa-sitemap"></i></a>
+        <a href="modul_feedback/admin_feedback.php" class="admin-button">KELOLA FEEDBACK <i class="fas fa-comment-dots"></i></a>
+        <a href="jadwal/admin-panel.php" class="admin-button">KELOLA JADWAL UJIAN <i class="fas fa-calendar-alt"></i></a>
+        <a href="modul_slider/admin_slider" class="admin-button">KELOLA SLIDER <i class="fas fa-images"></i></a>
+        <?php if ($_SESSION['role'] === 'super-admin'): ?>
+            <a href="hash.php" class="admin-button">KELOLA ADMIN <i class="fas fa-user-shield"></i></a>
+        <?php endif; ?>
     </div>
-
-    <!-- Tombol Tambah Admin (Khusus Super-Admin) -->
-    <?php if ($_SESSION['role'] === 'super-admin'): ?>
-    <div class="add-admin-wrapper">
-        <a href="hash.php" class="admin-button">
-            KELOLA ADMIN <i class="fas fa-user-plus"></i>
-        </a>
-    </div>
-    <?php endif; ?>
 </section>
 
 <?php include 'partials/footer.php'; ?>
 
-<!-- JS Profil Dropdown -->
 <script>
     function toggleProfileDropdown() {
         document.getElementById('profileDropdown').classList.toggle('active');
@@ -276,6 +187,21 @@ if ($is_subfolder) {
         const icon = document.querySelector('.profile-icon');
         if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
             dropdown.classList.remove('active');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const heroSection = document.querySelector('.hero');
+        if (heroSection) {
+            const bgImage = new Image();
+            bgImage.onload = function () {
+                console.log('Background image loaded successfully');
+            };
+            bgImage.onerror = function () {
+                console.error('Failed to load background image');
+                heroSection.style.background = '#1e3a8a';
+            };
+            bgImage.src = '<?php echo $asset_path; ?>image/background.png';
         }
     });
 </script>

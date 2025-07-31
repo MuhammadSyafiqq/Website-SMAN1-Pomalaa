@@ -18,7 +18,6 @@ if (!isset($_SESSION['username'])) {
 
 require_once '../theme.php';
 
-// Cek apakah ada pencarian
 $search = $_GET['search'] ?? '';
 if (!empty($search)) {
     $search_query = "%" . $connection->real_escape_string($search) . "%";
@@ -47,35 +46,36 @@ if (isset($_GET['success'])) {
 <head>
     <meta charset="UTF-8">
     <title>Kelola Struktur</title>
-    <link rel="stylesheet" href="../assets/style/style.css?v=17">
+    <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
             background: #ffffff;
             margin: 0;
             padding: 60px 20px;
-            color: #fff;
+            color: #000;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: auto;
-            background: #ffffff;
-            color: #000;
-            padding: 30px;
+            margin-top: 110px;
+            background: #fff;
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         h1 {
             text-align: center;
-            color: #003366;
+            color: #004030;
             margin-bottom: 20px;
         }
 
         .top-actions {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
             margin-bottom: 25px;
             gap: 10px;
@@ -83,7 +83,7 @@ if (isset($_GET['success'])) {
 
         .btn {
             padding: 10px 16px;
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             text-decoration: none;
             border-radius: 6px;
@@ -92,7 +92,7 @@ if (isset($_GET['success'])) {
         }
 
         .btn:hover {
-            background-color: #003f70;
+            background-color: #003520;
         }
 
         .btn-danger {
@@ -114,6 +114,11 @@ if (isset($_GET['success'])) {
             width: 200px;
         }
 
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -131,7 +136,7 @@ if (isset($_GET['success'])) {
         }
 
         th {
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
         }
 
@@ -156,10 +161,37 @@ if (isset($_GET['success'])) {
             margin-bottom: 20px;
             font-weight: bold;
         }
+
+        @media (max-width: 768px) {
+            .top-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                justify-content: stretch;
+                width: 100%;
+            }
+
+            .search-box input[type="text"] {
+                width: 100%;
+            }
+
+            .actions a {
+                display: block;
+                width: 100%;
+                margin-bottom: 5px;
+                text-align: center;
+            }
+
+            table, thead, tbody, th, td, tr {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
-
+<?php include '../partials/navbar.php'; ?>
 <div class="container">
     <h1>Daftar Struktur Pegawai</h1>
 
@@ -168,7 +200,7 @@ if (isset($_GET['success'])) {
     <?php endif; ?>
 
     <div class="top-actions">
-        <a href="../dashboard_admin.php" class="btn" style="background: gray;">← Kembali ke Dashboard</a>
+        <a href="../dashboard_admin.php" class="btn" style="background: gray;">&larr; Kembali ke Dashboard</a>
         <a href="tambah_struktur.php" class="btn">+ Tambah Struktur</a>
 
         <form method="GET" class="search-box">
@@ -177,46 +209,47 @@ if (isset($_GET['success'])) {
         </form>
     </div>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Nama</th>
-            <th>NIP</th>
-            <th>Jabatan</th>
-            <th>Status</th>
-            <th>Foto</th>
-            <th>Aksi</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php if ($result->num_rows > 0): ?>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['nama']) ?></td>
-                    <td><?= htmlspecialchars($row['nip']) ?></td>
-                    <td><?= htmlspecialchars($row['position']) ?></td>
-                    <td><?= htmlspecialchars($row['status']) ?></td>
-                    <td>
-                        <?php if (!empty($row['photo'])): ?>
-                            <img src="data:image/jpeg;base64,<?= base64_encode($row['photo']) ?>" class="photo-preview" alt="Foto">
-                        <?php else: ?>
-                            <em>Tidak ada</em>
-                        <?php endif; ?>
-                    </td>
-                    <td class="actions">
-                        <a href="edit_struktur.php?id=<?= $row['id_struktur'] ?>" class="btn">Edit</a>
-                        <a href="hapus_struktur.php?id=<?= $row['id_struktur'] ?>" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</a>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        <?php else: ?>
+    <div class="table-responsive">
+        <table>
+            <thead>
             <tr>
-                <td colspan="6" style="text-align:center;"><em>Tidak ada data ditemukan.</em></td>
+                <th>Nama</th>
+                <th>NIP</th>
+                <th>Jabatan</th>
+                <th>Status</th>
+                <th>Foto</th>
+                <th>Aksi</th>
             </tr>
-        <?php endif; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            <?php if ($result->num_rows > 0): ?>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['nama']) ?></td>
+                        <td><?= htmlspecialchars($row['nip']) ?></td>
+                        <td><?= htmlspecialchars($row['position']) ?></td>
+                        <td><?= htmlspecialchars($row['status']) ?></td>
+                        <td>
+                            <?php if (!empty($row['photo'])): ?>
+                                <img src="data:image/jpeg;base64,<?= base64_encode($row['photo']) ?>" class="photo-preview" alt="Foto">
+                            <?php else: ?>
+                                <em>Tidak ada</em>
+                            <?php endif; ?>
+                        </td>
+                        <td class="actions">
+                            <a href="edit_struktur.php?id=<?= $row['id_struktur'] ?>" class="btn">Edit</a>
+                            <a href="hapus_struktur.php?id=<?= $row['id_struktur'] ?>" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="6" style="text-align:center;"><em>Tidak ada data ditemukan.</em></td>
+                </tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
-
 </body>
 </html>

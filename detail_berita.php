@@ -25,6 +25,7 @@ $data = $result->fetch_assoc();
     <title>Detail Berita</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/style/style.css?v=4">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
     <style>
         body {
             margin: 0;
@@ -58,7 +59,7 @@ $data = $result->fetch_assoc();
         .detail-box h2 {
             margin-top: 0;
             font-size: 2em;
-            color: #003366;
+            color: #004030;
         }
 
         .meta-info {

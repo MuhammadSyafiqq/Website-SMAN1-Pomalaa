@@ -2,16 +2,7 @@
 // Start session (jika belum)
 session_start();
 
-// Database connection
-$servername = "localhost";
-$username = "u567236312_manuss";
-$password = "0F~tuBCg$+v";
-$dbname = "u567236312_manuss";
-
-$connection = new mysqli($servername, $username, $password, $dbname);
-if ($connection->connect_error) {
-    die("Connection failed: " . $connection->connect_error);
-}
+require_once 'config/database.php';
 
 // Tangani form feedback sebelum HTML
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
@@ -38,6 +29,7 @@ $result = $connection->query($sql);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
 
 
 
@@ -46,43 +38,44 @@ $result = $connection->query($sql);
     </style>
 </head>
 <body>
-
+    
     <?php include 'partials/navbar.php'; ?>
 
- <div class="hero-slider">
-        <div class="hero-slide active" style="background-image: url('assets/image/background.png');">
-            <div class="hero-content">
-                <h1>Selamat Datang di Website Kami</h1>
-                <p>Temukan solusi terbaik untuk kebutuhan bisnis Anda dengan layanan profesional dan terpercaya</p>
-            </div>
-        </div>
-        
-        <div class="hero-slide" style="background-image: url('assets/image/background2.png');">
-            <div class="hero-content">
-                <h1>Inovasi Teknologi Terdepan</h1>
-                <p>Bergabunglah dengan ribuan klien yang telah merasakan manfaat teknologi canggih kami</p>
-            </div>
-        </div>
-        
-        <div class="hero-slide" style="background-image: url('assets/image/background3.png');">
-            <div class="hero-content">
-                <h1>Tim Profesional Berpengalaman</h1>
-                <p>Didukung oleh tim ahli yang siap membantu mewujudkan visi dan misi perusahaan Anda</p>
-            </div>
-        </div>
+   <?php
+$sliderQuery = $connection->query("SELECT * FROM slider WHERE tampil = 1 ORDER BY urutan ASC");
+$slides = [];
+while ($row = $sliderQuery->fetch_assoc()) {
+    $row['gambar_base64'] = 'data:image/jpeg;base64,' . base64_encode($row['gambar']);
 
-        <!-- Navigation Buttons -->
-        <button class="hero-prev" onclick="changeSlide(-1)">&#10094;</button>
-        <button class="hero-next" onclick="changeSlide(1)">&#10095;</button>
+    // Batasi deskripsi maksimal 150 karakter tanpa tag HTML
+    $desc = strip_tags($row['deskripsi']);
+    $row['deskripsi_truncated'] = strlen($desc) > 150 ? substr($desc, 0, 150) . '...' : $desc;
 
-        <!-- Slide Indicators -->
-        <div class="hero-indicators">
-            <span class="hero-indicator active" onclick="currentSlide(1)"></span>
-            <span class="hero-indicator" onclick="currentSlide(2)"></span>
-            <span class="hero-indicator" onclick="currentSlide(3)"></span>
+    $slides[] = $row;
+}
+?>
+
+<div class="hero-slider">
+    <?php foreach ($slides as $index => $slide): ?>
+    <a href="informasi.php?id=<?= $slide['id'] ?>" class="hero-slide <?= $index === 0 ? 'active' : '' ?>" style="background-image: url('<?= $slide['gambar_base64'] ?>');">
+        <div class="hero-content">
+            <h1><?= htmlspecialchars($slide['judul']) ?></h1>
+            <p><?= htmlspecialchars($slide['deskripsi_truncated']) ?></p>
         </div>
+    </a>
+    <?php endforeach; ?>
+
+    <!-- Tombol & Indikator tetap sama -->
+    <button class="hero-prev" onclick="changeSlide(-1)">&#10094;</button>
+    <button class="hero-next" onclick="changeSlide(1)">&#10095;</button>
+    <div class="hero-indicators">
+        <?php foreach ($slides as $i => $slide): ?>
+        <span class="hero-indicator <?= $i === 0 ? 'active' : '' ?>" onclick="currentSlide(<?= $i + 1 ?>)"></span>
+        <?php endforeach; ?>
     </div>
-    
+</div>
+
+
     <script>
         // Hero Slider JavaScript
         document.addEventListener('DOMContentLoaded', function() {
@@ -243,13 +236,36 @@ $result = $connection->query($sql);
             window.currentSlide = currentSlide;
         });
     </script>
+    
+    <!-- Bagian Sambutan -->
+<section class="section-sambutan">
+    <div class="sambutan-container">
+        <div class="sambutan-img">
+            <img src="image/kepala_sekolah.png" alt="Kepala Sekolah">
+        </div>
+        <div class="sambutan-text">
+            <h3>SAMBUTAN</h3>
+            <p>Assalamu’alaikum warahmatullahi wabarakatuh.</p>
+            <p>
+                Puji syukur ke hadirat Allah SWT atas rahmat dan karunia-Nya, sehingga website SMA Negeri 1 Pomalaa ini dapat dikembangkan sebagai sarana informasi dan komunikasi sekolah dengan masyarakat. Kami berharap media ini dapat memberikan gambaran tentang profil sekolah, kegiatan belajar-mengajar, prestasi siswa, serta berbagai program yang telah dan akan kami laksanakan.
+            </p>
+        </div>
+    </div>
+
+    <div class="sambutan-penutup">
+        <p>
+            Semoga dengan adanya website ini, terjalin hubungan yang baik antara sekolah dengan peserta didik, orang tua, alumni, serta masyarakat luas. Terima kasih atas dukungan semua pihak demi kemajuan pendidikan di SMA Negeri 1 Pomalaa.
+        </p>
+        <p>Wassalamu’alaikum warahmatullahi wabarakatuh.</p>
+    </div>
+</section>
 
 
     <!-- News Section -->
 <section id="berita" class="news-section" style="background-color: #f9f9f9; padding: 60px 20px;">
     <div class="container">
         <div class="section-title">
-            <h2>BERITA</h2>
+            <h2 style="color : #004030">BERITA</h2>
         </div>
 
         <div class="news-grid" style="
@@ -292,7 +308,7 @@ $result = $connection->query($sql);
                     <p style="color: #444; font-size: 0.95em; flex-grow: 1;"><?= htmlspecialchars($deskripsi) ?></p>
                     
                     <div style="margin-top: auto;">
-                        <a href="detail_berita.php?id=<?= $id_berita ?>" class="read-more" style="padding: 8px 16px; background-color: #00589D; color: white; border-radius: 6px; text-decoration: none; display: inline-block;">Baca Selengkapnya</a>
+                        <a href="detail_berita.php?id=<?= $id_berita ?>" class="read-more" style="padding: 8px 16px; background-color: #004030; color: white; border-radius: 6px; text-decoration: none; display: inline-block;">Baca Selengkapnya</a>
                     </div>
                 </div>
             </div>
@@ -306,7 +322,7 @@ $result = $connection->query($sql);
 
         <!-- Tombol Selengkapnya -->
         <div style="text-align: center; margin-top: 40px;">
-            <a href="berita.php" class="read-more" style="display: inline-block; padding: 10px 20px; background-color: #00589D; color: white; border-radius: 8px; text-decoration: none;">Selengkapnya</a>
+            <a href="berita.php" class="read-more" style="display: inline-block; padding: 10px 20px; background-color: #004030; color: white; border-radius: 8px; text-decoration: none;">Selengkapnya</a>
         </div>
     </div>
 </section>
@@ -318,7 +334,7 @@ $result = $connection->query($sql);
 <section id="ekstrakurikuler" class="extra-section">
     <div class="container">
         <div class="section-title">
-            <h2>EKSTRAKURIKULER</h2>
+            <h2 style="color: #004030">EKSTRAKURIKULER</h2>
         </div>
 
         <div class="extra-grid" style="
@@ -376,7 +392,7 @@ $result = $connection->query($sql);
         <form method="POST" action="#feedback" class="feedback-form">
             <input type="text" name="nama" placeholder="Nama" required>
             <textarea name="komentar" placeholder="Komentar" required></textarea>
-            <button type="submit" name="submit_feedback">Kirim</button>
+            <button type="submit" name="submit_feedback" style="background-color: #004030">Kirim</button>
         </form>
 
         
@@ -402,14 +418,15 @@ $result = $connection->query($sql);
         });
 
         // Add scroll effect to navbar
+        // Script untuk mengubah navbar saat di-scroll
         window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 100) {
-                navbar.style.background = 'rgba(30, 64, 175, 0.95)';
-                navbar.style.backdropFilter = 'blur(10px)';
+            const navbar = document.getElementById('navbar');
+            const scrollPosition = window.scrollY;
+            
+            if (scrollPosition > 400) {
+                navbar.classList.add('scrolled');
             } else {
-                navbar.style.background = 'var(--primary-blue)';
-                navbar.style.backdropFilter = 'none';
+                navbar.classList.remove('scrolled');
             }
         });
     </script>

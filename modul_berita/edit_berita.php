@@ -2,6 +2,7 @@
 require_once '../config/database.php';
 session_start();
 
+// Timeout 15 menit
 $timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
     session_unset();
@@ -11,6 +12,7 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) >
 }
 $_SESSION['LAST_ACTIVITY'] = time();
 
+// Cek login
 if (!isset($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
@@ -18,10 +20,20 @@ if (!isset($_SESSION['username'])) {
 
 require_once '../theme.php';
 
-$id = $_GET['id'];
-$result = $connection->query("SELECT * FROM berita WHERE id_berita = $id");
+// Ambil data berita berdasarkan ID
+$id = $_GET['id'] ?? 0;
+$stmt = $connection->prepare("SELECT * FROM berita WHERE id_berita = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
 $row = $result->fetch_assoc();
 
+if (!$row) {
+    echo "Berita tidak ditemukan.";
+    exit();
+}
+
+// Proses update berita
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = $connection->real_escape_string($_POST['title']);
     $deskripsi = $connection->real_escape_string($_POST['deskripsi']);
@@ -35,21 +47,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $connection->query($sql);
-    header("Location: admin_berita.php?success=1");
+    header("Location: admin_berita.php?edited=1");
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit Berita</title>
     <link rel="stylesheet" href="../assets/style/style.css?v=5">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #003366, #00589D);
+            background: #f5f5f5;
             margin: 0;
             padding: 40px 20px;
             color: #111;
@@ -66,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         h2 {
             text-align: center;
-            color: #003366;
+            color: #004030;
             margin-bottom: 25px;
         }
 
@@ -96,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         button {
             margin-top: 24px;
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             padding: 12px 20px;
             border: none;
@@ -108,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         button:hover {
-            background-color: #003f70;
+            background-color: #002b21;
         }
 
         .back-link {
@@ -116,12 +128,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             text-align: center;
             margin-top: 20px;
             font-weight: 600;
-            color: #00589D;
+            color: #004030;
             text-decoration: none;
         }
 
         .back-link:hover {
             text-decoration: underline;
+            color: #004030;
         }
 
         .preview {
@@ -138,6 +151,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             max-height: 200px;
             border-radius: 8px;
             border: 1px solid #ccc;
+            width: 100%;
+            object-fit: contain;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .form-container {
+                padding: 20px;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            button {
+                padding: 10px;
+                font-size: 15px;
+            }
+
+            input[type="text"],
+            textarea,
+            input[type="file"] {
+                font-size: 15px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
         }
     </style>
 </head>

@@ -69,105 +69,113 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Edit Prestasi</title>
     <link rel="stylesheet" href="assets/style/style.css?v=16">
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #ffffff;
-            margin: 0;
-            padding: 60px 20px;
-            color: #fff;
-        }
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #ffffff;
+        margin: 0;
+        padding: 60px 20px;
+        color: #fff;
+    }
 
-        .form-container {
-            max-width: 750px;
-            margin: auto;
-            background: #ffffff;
-            color: #000;
-            padding: 35px 40px;
-            border-radius: 16px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-        }
+    .form-container {
+        max-width: 750px;
+        margin: auto;
+        background: #ffffff;
+        color: #000;
+        padding: 35px 40px;
+        border-radius: 16px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #003366;
-        }
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #004030;
+    }
 
-        label {
-            font-weight: bold;
-            display: block;
-            margin: 15px 0 5px;
-            color: #003366;
-        }
+    label {
+        font-weight: bold;
+        display: block;
+        margin: 15px 0 5px;
+        color: #004030;
+    }
 
-        input[type="text"],
-        textarea,
-        select,
-        input[type="date"],
-        input[type="file"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #00589D;
-            border-radius: 8px;
-            color: black;
-            margin-bottom: 15px;
-            font-size: 16px;
-            outline: none;
-        }
+    input[type="text"],
+    textarea,
+    select,
+    input[type="date"],
+    input[type="file"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #004030;
+        border-radius: 8px;
+        color: black;
+        margin-bottom: 15px;
+        font-size: 16px;
+        outline: none;
+    }
 
-        select option {
-            background-color: #fff;
-            color: #000;
-        }
+    select option {
+        background-color: #fff;
+        color: #000;
+    }
 
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
 
-        input[type="file"] {
-            border: 1px dashed #00589D;
-        }
+    input[type="file"] {
+        border: 1px dashed #004030;
+    }
 
-        button {
-            background-color: #00589D;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            width: 100%;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+    button {
+        background-color: #004030;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        width: 100%;
+        cursor: pointer;
+        transition: 0.3s;
+    }
 
-        button:hover {
-            background-color: #00487f;
-        }
+    button:hover {
+        background-color: #003620;
+    }
 
-        .back-link {
-            display: block;
-            margin-top: 30px;
-            text-align: center;
-            color: #00589D;
-            font-weight: bold;
-            text-decoration: none;
-        }
+    .back-link {
+        display: block;
+        margin-top: 30px;
+        text-align: center;
+        color: #004030;
+        font-weight: bold;
+        text-decoration: none;
+    }
 
-        .back-link:hover {
-            text-decoration: underline;
-        }
+    .back-link:hover {
+        text-decoration: underline;
+    }
 
-        .error-msg {
-            background-color: #ffe6e6;
-            color: #cc0000;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            text-align: center;
-        }
-    </style>
+    .error-msg {
+        background-color: #ffe6e6;
+        color: #cc0000;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    /* Mengubah highlight pada dropdown saat dihover/selected (khusus Chrome/Edge/Safari) */
+    select:focus option:checked,
+    select option:hover {
+        background-color: #004030 !important;
+        color: #fff !important;
+    }
+</style>
+
 </head>
 <body>
 <div class="form-container">

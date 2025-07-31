@@ -12,6 +12,7 @@ $result = $connection->query($sql);
     <meta charset="UTF-8">
     <title>Prestasi Sekolah</title>
     <link rel="stylesheet" href="assets/style/style.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/png" href="assets/image/logo_sekolah.png">
 
     <style>
         body {
@@ -35,7 +36,7 @@ $result = $connection->query($sql);
         .header h1 {
             font-size: 38px;
             font-weight: bold;
-            color: #1e40af;
+            color: #004030;
             border-bottom: 4px solid #FFD700;
             display: inline-block;
             padding-bottom: 12px;
@@ -147,7 +148,7 @@ $result = $connection->query($sql);
                         <div class="meta">Level: <?= htmlspecialchars($row['level']) ?> | Kategori: <?= htmlspecialchars($row['category']) ?></div>
                         <h3><?= htmlspecialchars($judul_pendek) ?></h3>
                         <p><?= htmlspecialchars($deskripsi_pendek) ?></p>
-                        <a href="detail_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="read-more">Lihat Detail</a>
+                        <a href="detail_prestasi.php?id=<?= $row['id_prestasi'] ?>" class="read-more" style="background-color: #004030">Lihat Detail</a>
                     </div>
                 </div>
             <?php endwhile; ?>

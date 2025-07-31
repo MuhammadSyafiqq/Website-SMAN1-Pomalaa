@@ -19,7 +19,6 @@ if (!isset($_SESSION['username'])) {
 
 require_once '../theme.php';
 
-// Pencarian judul
 $search = $_GET['search'] ?? '';
 if (!empty($search)) {
     $search_like = '%' . $connection->real_escape_string($search) . '%';
@@ -43,19 +42,20 @@ if (!empty($search)) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Berita</title>
     <link rel="stylesheet" href="../assets/style/style.css?v=<?php echo time(); ?>">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
             background: white;
-            padding: 0px;
             margin: 0;
+            padding: 0;
         }
 
         .container {
             max-width: 1200px;
-            margin: auto;
+            margin: 110px auto 40px;
             background: #fff;
             border-radius: 12px;
             padding: 30px;
@@ -64,7 +64,7 @@ if (!empty($search)) {
 
         h1 {
             text-align: center;
-            color: #003366;
+            color: #004030;
             margin-bottom: 30px;
         }
 
@@ -88,12 +88,12 @@ if (!empty($search)) {
         }
 
         .btn-add {
-            background-color: #00589D;
+            background-color: #00634b;
             color: white;
         }
 
         .btn-add:hover {
-            background-color: #00417a;
+            background-color: #004030;
         }
 
         .alert {
@@ -118,18 +118,43 @@ if (!empty($search)) {
             color: #991b1b;
         }
 
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            background: #004030;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .top-bar form {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-bar input[type="text"] {
+            padding: 8px 12px;
+            color: black;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 200px;
+        }
+
         table {
             width: 100%;
+            background-color: #004030;
             border-collapse: separate;
             border-spacing: 0;
             margin-top: 20px;
-            border: 1px solid #ccc;
             border-radius: 8px;
             overflow: hidden;
         }
 
         thead th {
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
             padding: 12px;
             text-align: left;
@@ -149,12 +174,12 @@ if (!empty($search)) {
             border-right: 1px solid #ddd;
         }
 
-        tbody tr:last-child td {
-            border-bottom: 1px solid #ddd;
-        }
-
         tbody td:last-child {
             border-right: none;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 1px solid #ddd;
         }
 
         td img {
@@ -164,7 +189,6 @@ if (!empty($search)) {
         }
 
         .actions a {
-            margin-right: 8px;
             padding: 6px 12px;
             border-radius: 4px;
             text-decoration: none;
@@ -172,12 +196,12 @@ if (!empty($search)) {
         }
 
         .actions .edit {
-            background-color: #00589D;
+            background-color: #004030;
             color: white;
         }
 
         .actions .edit:hover {
-            background-color: #1e40af;
+            background-color: #00634b;
         }
 
         .actions .delete {
@@ -189,34 +213,64 @@ if (!empty($search)) {
             background-color: #b91c1c;
         }
 
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            padding: 15px;
-        }
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
 
-        .top-bar form {
-            display: flex;
-            gap: 20px;
-        }
+            .top-bar form {
+                width: 100%;
+                flex-direction: column;
+                gap: 10px;
+            }
 
-        .top-bar input[type="text"] {
-            padding: 8px 12px;
-            color: black;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            width: 200px;
+            .top-bar input[type="text"] {
+                width: 100%;
+            }
+
+            table thead {
+                display: none;
+            }
+
+            table, table tbody, table tr, table td {
+                display: block;
+                width: 100%;
+            }
+
+            table tr {
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                padding: 10px;
+                background: #f9f9f9;
+            }
+
+            table td {
+                padding: 8px 10px;
+                border: none;
+                text-align: left;
+                position: relative;
+            }
+
+            table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                display: block;
+                margin-bottom: 4px;
+                color: #004030;
+            }
+
+            td img {
+                width: 100%;
+                height: auto;
+            }
         }
     </style>
 </head>
 <body>
-    
-    <?php include '../partials/navbar.php'; ?>
+
+<?php include '../partials/navbar.php'; ?>
 
 <div class="container">
     <h1>Kelola Berita</h1>
@@ -254,17 +308,17 @@ if (!empty($search)) {
         <?php if ($result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
-                    <td>
+                    <td data-label="Gambar">
                         <?php if (!empty($row['image'])): ?>
                             <img src="data:image/jpeg;base64,<?= base64_encode($row['image']) ?>" alt="Gambar">
                         <?php else: ?>
                             <i>Tidak ada</i>
                         <?php endif; ?>
                     </td>
-                    <td><?= htmlspecialchars($row['title']) ?></td>
-                    <td><?= date('d M Y', strtotime($row['date'])) ?></td>
-                    <td><?= htmlspecialchars($row['nama']) ?></td>
-                    <td class="actions">
+                    <td data-label="Judul"><?= htmlspecialchars($row['title']) ?></td>
+                    <td data-label="Tanggal"><?= date('d M Y', strtotime($row['date'])) ?></td>
+                    <td data-label="Ditulis oleh"><?= htmlspecialchars($row['nama']) ?></td>
+                    <td data-label="Aksi" class="actions">
                         <a href="edit_berita.php?id=<?= $row['id_berita'] ?>" class="edit">Edit</a>
                         <a href="hapus_berita.php?id=<?= $row['id_berita'] ?>" class="delete" onclick="return confirm('Yakin ingin menghapus berita ini?')">Hapus</a>
                     </td>

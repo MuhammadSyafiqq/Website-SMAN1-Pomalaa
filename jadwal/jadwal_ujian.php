@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once '../vendor/fpdf/fpdf.php';
 require_once '../config/database.php';
 
@@ -241,6 +243,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style/style.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/png" href="../assets/image/logo_sekolah.png">
 
     <style>
         :root {
@@ -256,6 +259,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             --table-row-even: #F8F7FF;
             --table-row-odd: #FFFFFF;
             --text-light: #6B7280;
+            --navbar-color: #004030;
         }
 
         * {
@@ -267,6 +271,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text-dark);
             background-color: var(--white);
+            margin-top: 110px;
         }
 
         .jadwal-ujian-section .container {
@@ -330,6 +335,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 20px;
             margin-top: 30px;
             box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+            overflow-x: auto;
         }
 
         .modern-table {
@@ -340,6 +346,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            min-width: 600px;
         }
 
         .modern-table thead {
@@ -390,6 +397,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-bottom: 1px solid #E5E7EB;
             font-size: 14px;
             color: var(--text-dark);
+            vertical-align: top;
         }
 
         .modern-table tbody tr:last-child td {
@@ -410,6 +418,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: var(--text-light);
             font-size: 13px;
         }
+        
+        
 
         /* Subject name styling */
         .modern-table td:nth-child(3) {
@@ -422,13 +432,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .modern-table td:nth-child(5) {
             font-family: 'Courier New', monospace;
             font-weight: 500;
-            color: var(--primary-blue);
+            color: #004030;
+            white-space: nowrap;
+        }
+        
+        .mobile-table-card {
+            display: none;
         }
 
         h2 {
             text-align: center;
             margin-top: 20px;
-            color: var(--primary-blue);
+            color: #004030;
             text-transform: uppercase;
             font-weight: bold;
             font-size: 24px;
@@ -483,7 +498,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         button[type="submit"] {
-            background-color: var(--primary-blue);
+            background-color: #004030;
             color: var(--white);
             border: none;
             padding: 12px;
@@ -495,7 +510,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         button[type="submit"]:hover {
-            background-color: var(--dark-blue);
+            background-color: #00291f;
         }
 
         /* Empty state styling */
@@ -517,32 +532,278 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         /* Responsive design */
-        @media (max-width: 768px) {
-            .jadwal-ujian-section .container {
-                margin: 20px;
-                padding: 20px 15px;
-            }
+        /* Mobile Card View - Hidden by default */
+.mobile-table-card {
+    display: none;
+    background: var(--white);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--table-header);
+    transition: all 0.3s ease;
+}
 
-            .table-container {
-                padding: 15px;
-                margin-top: 20px;
-            }
+.mobile-table-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.15);
+}
 
-            .modern-table th,
-            .modern-table td {
-                padding: 12px 10px;
-                font-size: 12px;
-            }
+.mobile-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #E5E7EB;
+}
 
-            .modern-table th {
-                font-size: 11px;
-            }
+.mobile-card-date {
+    background: var(--table-header);
+    color: var(--white);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
 
-            .back-button {
-                font-size: 12px;
-                padding: 8px 16px;
-            }
-        }
+.mobile-card-day {
+    color: var(--text-light);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.mobile-card-subject {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 12px 0;
+    line-height: 1.4;
+}
+
+.mobile-card-time {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #F3F4F6;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.mobile-time-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #004030;
+}
+
+.mobile-time-item i {
+    color: var(--table-header);
+    font-size: 14px;
+}
+
+/* Responsive Breakpoints */
+
+/* Large Desktop (1200px and up) - Default styles above */
+@media (min-width: 1200px) {
+    .table-container {
+        padding: 25px;
+    }
+    
+    .modern-table th,
+    .modern-table td {
+        padding: 18px 25px;
+    }
+}
+
+/* Medium Desktop/Laptop (992px to 1199px) */
+@media (max-width: 1199px) {
+    .table-container {
+        padding: 20px;
+    }
+    
+    .modern-table th,
+    .modern-table td {
+        padding: 14px 18px;
+        font-size: 13px;
+    }
+    
+    .modern-table th {
+        font-size: 12px;
+    }
+}
+
+/* Tablet (768px to 991px) */
+@media (max-width: 991px) {
+    .table-container {
+        padding: 15px;
+        margin-top: 25px;
+    }
+    
+    .modern-table {
+        min-width: 500px; /* Reduce minimum width */
+    }
+    
+    .modern-table th,
+    .modern-table td {
+        padding: 12px 15px;
+        font-size: 12px;
+    }
+    
+    .modern-table th {
+        font-size: 11px;
+        padding: 14px 15px;
+    }
+    
+    /* Reduce subject name max width */
+    .modern-table td:nth-child(3) {
+        max-width: 150px;
+    }
+}
+
+/* Mobile Landscape and Small Tablet (576px to 767px) */
+@media (max-width: 767px) {
+    .table-container {
+        padding: 12px;
+        margin-top: 20px;
+        border-radius: 12px;
+    }
+    
+    /* Hide desktop table on mobile */
+    .modern-table {
+        display: none;
+    }
+    
+    /* Show mobile card view */
+    .mobile-table-card {
+        display: block;
+    }
+    
+    h4 {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+}
+
+/* Mobile Portrait (up to 575px) */
+@media (max-width: 575px) {
+    .jadwal-ujian-section .container {
+        margin: 15px 10px;
+        padding: 20px 15px;
+    }
+    
+    .table-container {
+        padding: 10px;
+        margin-top: 15px;
+        border-radius: 10px;
+    }
+    
+    .mobile-table-card {
+        padding: 16px;
+        margin-bottom: 12px;
+        border-radius: 10px;
+    }
+    
+    .mobile-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .mobile-card-date {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    
+    .mobile-card-subject {
+        font-size: 16px;
+        margin: 10px 0;
+    }
+    
+    .mobile-card-time {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px;
+    }
+    
+    .mobile-time-item {
+        font-size: 13px;
+    }
+    
+    h4 {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+}
+
+/* Extra Small Mobile (up to 375px) */
+@media (max-width: 375px) {
+    .jadwal-ujian-section .container {
+        margin: 10px 5px;
+        padding: 15px 10px;
+    }
+    
+    .table-container {
+        padding: 8px;
+    }
+    
+    .mobile-table-card {
+        padding: 14px;
+    }
+    
+    .mobile-card-subject {
+        font-size: 15px;
+    }
+    
+    .mobile-time-item {
+        font-size: 12px;
+    }
+}
+
+/* Horizontal scroll indicator for very small screens */
+@media (max-width: 767px) {
+    .table-container::after {
+        content: "";
+        display: none;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .modern-table tbody tr,
+    .mobile-table-card {
+        transition: none;
+    }
+    
+    .modern-table tbody tr:hover {
+        transform: none;
+    }
+    
+    .mobile-table-card:hover {
+        transform: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .modern-table {
+        border: 2px solid var(--text-dark);
+    }
+    
+    .modern-table th,
+    .modern-table td {
+        border: 1px solid var(--text-dark);
+    }
+    
+    .mobile-table-card {
+        border: 2px solid var(--text-dark);
+    }
+}
+        
+        
     </style>
 </head>
 <body>
@@ -618,6 +879,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                    
+                    <!-- Mobile Card View - Add this after </table> closing tag -->
+<div class="mobile-view">
+    <?php foreach ($scheduleResults as $schedule): ?>
+        <div class="mobile-table-card">
+            <div class="mobile-card-header">
+                <div class="mobile-card-date">
+                    <?php echo date('d/m/Y', strtotime($schedule['tanggal'])); ?>
+                </div>
+                <div class="mobile-card-day">
+                    <?php echo htmlspecialchars(convertHariIndo($schedule['hari'])); ?>
+                </div>
+            </div>
+            
+            <div class="mobile-card-subject">
+                <?php echo htmlspecialchars($schedule['mata_pelajaran']); ?>
+            </div>
+            
+            <div class="mobile-card-time">
+                <div class="mobile-time-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Mulai: <?php echo htmlspecialchars($schedule['jam_mulai']); ?></span>
+                </div>
+                <div class="mobile-time-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Selesai: <?php echo htmlspecialchars($schedule['jam_selesai']); ?></span>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>
+                    
+                    <!-- Mobile Card View -->
+        
                    <div style="text-align: right; margin-top: 10px;">
                         <form method="POST" action="">
                             <input type="hidden" name="kelas" value="<?php echo htmlspecialchars($selectedKelas); ?>">
@@ -659,10 +954,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         window.addEventListener('scroll', function() {
             const navbar = document.querySelector('.navbar');
             if (window.scrollY > 100) {
-                navbar.style.background = 'rgba(30, 64, 175, 0.95)';
                 navbar.style.backdropFilter = 'blur(10px)';
             } else {
-                navbar.style.background = 'var(--primary-blue)';
                 navbar.style.backdropFilter = 'none';
             }
         });

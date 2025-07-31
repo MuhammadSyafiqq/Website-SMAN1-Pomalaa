@@ -134,13 +134,11 @@ if (isset($_POST['add_mata_pelajaran'])) {
     if (!empty($nama) && !empty($kategori)) {
         if (!isValidNamaPelajaran($nama)) {
             $_SESSION['error'] = "Nama mata pelajaran hanya boleh berisi huruf dan spasi.";
-            header("Location: " . $_SERVER['HTTP_REFERER']);
             exit;
         }
 
         if ($mataPelajaranModel->isDuplicate($nama, $kategori)) {
             $_SESSION['error'] = "Mata pelajaran dengan nama dan kategori yang sama sudah ada.";
-            header("Location: " . $_SERVER['HTTP_REFERER']);
             exit;
         }
 
@@ -163,20 +161,14 @@ if (isset($_POST['edit_mata_pelajaran'])) {
     $kategori = strtoupper(trim($_POST['edit_kategori'] ?? ''));
     if (!$id || !$nama || !$kategori) {
         $_SESSION['error'] = "Data mata pelajaran tidak valid.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
     }
 
     if (!isValidNamaPelajaran($nama)) {
         $_SESSION['error'] = "Nama mata pelajaran hanya boleh berisi huruf dan spasi.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
     }
 
     if ($mataPelajaranModel->isDuplicate($nama, $kategori, $id)) {
         $_SESSION['error'] = "Mata pelajaran dengan nama dan kategori yang sama sudah ada.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
     }
 
     if ($mataPelajaranModel->update($id, $nama, $kategori)) {
@@ -217,62 +209,76 @@ if (isset($_POST['add_jadwal'])) {
     $tanggal = trim($_POST['tanggal']);
     $jam_mulai = trim($_POST['jam_mulai']);
     $jam_selesai = trim($_POST['jam_selesai']);
-
+    
+    // Initialize error flag
+    $hasError = false;
+    
+    // Validasi field kosong
     if (empty($kelas_id) || empty($jurusan_id) || empty($mata_pelajaran_id) || empty($tanggal) || empty($jam_mulai) || empty($jam_selesai)) {
         $_SESSION['error'] = "Semua field jadwal ujian harus diisi.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
+        $hasError = true;
     }
-
-    // Validasi tahun
-    $tahun = (int)date('Y', strtotime($tanggal));
-    if ($tahun < 2000 || $tahun > 2100) {
-        $_SESSION['error'] = "Tahun pada tanggal tidak valid";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
+    
+    // Validasi tahun (hanya jika belum ada error)
+    if (!$hasError) {
+        $tahun = (int)date('Y', strtotime($tanggal));
+        if ($tahun < 2000 || $tahun > 2100) {
+            $_SESSION['error'] = "Tahun pada tanggal tidak valid";
+            $hasError = true;
+        }
     }
-
-    // Validasi urutan waktu
-    if (strtotime($jam_mulai) >= strtotime($jam_selesai)) {
-        $_SESSION['error'] = "Jam Mulai harus lebih awal dari jam selesai.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
+    
+    // Validasi urutan waktu (hanya jika belum ada error)
+    if (!$hasError) {
+        if (strtotime($jam_mulai) >= strtotime($jam_selesai)) {
+            $_SESSION['error'] = "Jam Mulai harus lebih awal dari jam selesai.";
+            $hasError = true;
+        }
     }
-
-    // Validasi durasi minimal
-    $durasi_menit = (strtotime($jam_selesai) - strtotime($jam_mulai)) / 60;
-    if ($durasi_menit < 30) {
-        $_SESSION['error'] = "Durasi ujian minimal adalah 30 menit.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
+    
+    // Validasi durasi (hanya jika belum ada error)
+    if (!$hasError) {
+        $durasi_menit = (strtotime($jam_selesai) - strtotime($jam_mulai)) / 60;
+        
+        // Validasi durasi minimal
+        if ($durasi_menit < 30) {
+            $_SESSION['error'] = "Durasi ujian minimal adalah 30 menit.";
+            $hasError = true;
+        }
+        
+        // Validasi durasi maksimal (maksimal 4 jam = 240 menit)
+        if (!$hasError && $durasi_menit > 240) {
+            $_SESSION['error'] = "Durasi ujian maksimal adalah 4 jam.";
+            $hasError = true;
+        }
     }
-
-    // Validasi durasi maksimal (maksimal 4 jam = 240 menit)
-    if ($durasi_menit > 240) {
-        $_SESSION['error'] = "Durasi ujian maksimal adalah 4 jam.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
+    
+    // Hanya lanjutkan jika tidak ada error
+    if (!$hasError) {
+        $id = generateNextId($connection, 'jadwal_ujian', 'JU-');
+        
+        // Generate hari otomatis dari tanggal
+        $hari = date('l', strtotime($tanggal));
+        $hariIndonesia = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        $hari = $hariIndonesia[$hari];
+        
+        // Coba tambahkan ke database
+        if ($jadwalModel->add($id, $kelas_id, $jurusan_id, $mata_pelajaran_id, $tanggal, $hari, $jam_mulai, $jam_selesai)) {
+            $_SESSION['success'] = "Jadwal ujian berhasil ditambahkan.";
+        } else {
+            $_SESSION['error'] = "Gagal menambahkan jadwal ujian.";
+        }
     }
-
-    $id = generateNextId($connection, 'jadwal_ujian', 'JU-');
-    $hari = date('l', strtotime($tanggal));
-    $hariIndonesia = [
-        'Sunday' => 'Minggu',
-        'Monday' => 'Senin',
-        'Tuesday' => 'Selasa',
-        'Wednesday' => 'Rabu',
-        'Thursday' => 'Kamis',
-        'Friday' => 'Jumat',
-        'Saturday' => 'Sabtu'
-    ];
-    $hari = $hariIndonesia[$hari];
-
-    if ($jadwalModel->add($id, $kelas_id, $jurusan_id, $mata_pelajaran_id, $tanggal, $hari, $jam_mulai, $jam_selesai)) {
-        $_SESSION['success'] = "Jadwal ujian berhasil ditambahkan.";
-    } else {
-        $_SESSION['error'] = "Gagal menambahkan jadwal ujian.";
-    }
-
+    
+    // Redirect kembali ke halaman sebelumnya
     header("Location: " . $_SERVER['HTTP_REFERER']);
     exit;
 }
@@ -287,38 +293,30 @@ if (isset($_POST['edit_jadwal'])) {
     // Validasi input kosong
     if (empty($id) || empty($tanggal) || empty($jam_mulai) || empty($jam_selesai)) {
         $_SESSION['error'] = "Semua field harus diisi.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
+
     }
 
     // Validasi tahun
     $tahun = (int)date('Y', strtotime($tanggal));
     if ($tahun < 2000 || $tahun > 2100) {
         $_SESSION['error'] = "Tahun pada tanggal tidak valid. Gunakan tahun antara 2000 hingga 2100.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
     }
 
     // Validasi urutan waktu
     if (strtotime($jam_mulai) >= strtotime($jam_selesai)) {
         $_SESSION['error'] = "Jam mulai harus lebih awal dari jam selesai.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
     }
 
     // Validasi durasi minimal
     $durasi_menit = (strtotime($jam_selesai) - strtotime($jam_mulai)) / 60;
     if ($durasi_menit < 30) {
         $_SESSION['error'] = "Durasi ujian minimal adalah 30 menit.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
     }
 
     // Validasi durasi maksimal (maks 4 jam = 240 menit)
     if ($durasi_menit > 240) {
         $_SESSION['error'] = "Durasi ujian maksimal adalah 4 jam.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit;
+
     }
 
     // Hitung hari dari tanggal
